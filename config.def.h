@@ -29,7 +29,7 @@ static const Rule rules[] = {
    *	WM_NAME(STRING) = title
    */
   /* class      instance    title       tags mask     isfloating   monitor */
-  { "scratch",  NULL,       NULL,       0,            1,           -1 },
+  {  NULL,      NULL,       "scratchpad",       0,            1,           -1 },
 };
 
 /* layout(s) */
@@ -63,12 +63,15 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "alacritty", NULL };
+static const char scratchpadname[] = "scratchpad";
+static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL };
 
 #include "push.c"
 static Key keys[] = {
   /* modifier                     key        function        argument */
   { MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
   { MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
+  { MODKEY,                       XK_c,      togglescratch,  {.v = scratchpadcmd } },
   { MODKEY,                       XK_b,      togglebar,      {0} },
   { MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
   { MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
