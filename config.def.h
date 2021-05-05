@@ -21,6 +21,8 @@ static const char *colors[][3]      = {
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
+void resetnmaster(const Arg *arg);
+
 static const Rule rules[] = {
   /* xprop(1):
    *	WM_CLASS(STRING) = instance, class
@@ -75,7 +77,8 @@ static Key keys[] = {
   { MODKEY|ControlMask,           XK_h,      setmfact,       {.f = -0.05} },
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
   { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-  { MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+  { MODKEY,                       XK_o,      incnmaster,     {.i = -1 } },
+  { MODKEY|ShiftMask,             XK_o,      resetnmaster,   {0} },
   { MODKEY,                       XK_f,      togglefullscr,  {0} },
   { MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
   { MODKEY,                       XK_Tab,    view,           {0} },
@@ -122,3 +125,9 @@ static Button buttons[] = {
   { ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
 
+void
+resetnmaster(const Arg *arg)
+{
+  selmon->nmaster = 1;
+  arrange(selmon);
+}
