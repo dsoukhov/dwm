@@ -48,6 +48,8 @@ static const Layout layouts[] = {
   { "[M]",      monocle },
   { "[\\]",     dwindle },
 };
+                                    /*bot,   top*/
+static const char *stack_symbols[] = { "∨", "∧"};
 
 /* key definitions */
 #define MODKEY Mod4Mask
@@ -88,6 +90,7 @@ static Key keys[] = {
   { MODKEY,                       XK_f,      togglefullscr,  {0} },
   { MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
   { MODKEY,                       XK_Tab,    view,           {0} },
+  { MODKEY,                       XK_u,      toggleAttachBelow,     {0} },
   { MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
   { MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
   { MODKEY,                       XK_y,      setlayout,      {.v = &layouts[1]} },
@@ -118,8 +121,6 @@ static Key keys[] = {
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
   /* click                event mask      button          function        argument */
-  { ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
-  { ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
   { ClkWinTitle,          0,              Button2,        zoom,           {0} },
   { ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
   { ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },

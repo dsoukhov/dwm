@@ -437,6 +437,7 @@ attachBelow(Client *c)
 void toggleAttachBelow()
 {
 	attachbelow = !attachbelow;
+	drawbar(selmon);
 }
 
 void
@@ -732,6 +733,7 @@ drawbar(Monitor *m)
 	int x, w, tw = 0;
 	int boxs = drw->fonts->h / 9;
 	int boxw = drw->fonts->h / 6 + 2;
+  char symbol_and_orei[10];
 	unsigned int i, occ = 0, urg = 0;
 	Client *c;
 
@@ -758,10 +760,10 @@ drawbar(Monitor *m)
 				urg & 1 << i);
 		x += w;
 	}
-	w = blw = TEXTW(m->ltsymbol);
+  strcat(strcpy(symbol_and_orei, m->ltsymbol), stack_symbols[attachbelow]);
+	w = blw = TEXTW(symbol_and_orei);
 	drw_setscheme(drw, scheme[SchemeNorm]);
-	x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
-
+	x = drw_text(drw, x, 0, w, bh, lrpad/2, symbol_and_orei, 0);
 	if ((w = m->ww - tw - x) > bh) {
 		if (m->sel) {
 			drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
