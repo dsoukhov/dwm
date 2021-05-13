@@ -42,11 +42,11 @@ static int attachbelow = 1;    /* 1 means attach after the currently active wind
 #include "lefttile.c"
 static const Layout layouts[] = {
   /* symbol     arrange function */
+  { "[\\]",     dwindle },
   { "[]=",      tile },
   { "=[]",      lefttile }, /* first entry is default */
   { "><>",      NULL },    /* no layout function means floating behavior */
   { "[M]",      monocle },
-  { "[\\]",     dwindle },
 };
                                     /*bot,   top*/
 static const char *stack_symbols[] = { "∨", "∧"};
@@ -92,11 +92,11 @@ static Key keys[] = {
   { MODKEY,                       XK_Tab,    view,           {0} },
   { MODKEY,                       XK_u,      toggleAttachBelow,     {0} },
   { MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
-  { MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
-  { MODKEY,                       XK_y,      setlayout,      {.v = &layouts[1]} },
-  { MODKEY|ShiftMask,             XK_f,      setlayout,      {.v = &layouts[2]} },
-  { MODKEY,                       XK_m,      setlayout,      {.v = &layouts[3]} },
-  { MODKEY,                       XK_r,      setlayout,      {.v = &layouts[4]} },
+  { MODKEY,                       XK_r,      setlayout,      {.v = &layouts[0]} },
+  { MODKEY,                       XK_t,      setlayout,      {.v = &layouts[1]} },
+  { MODKEY,                       XK_y,      setlayout,      {.v = &layouts[2]} },
+  { MODKEY|ShiftMask,             XK_f,      setlayout,      {.v = &layouts[3]} },
+  { MODKEY,                       XK_m,      setlayout,      {.v = &layouts[4]} },
   { MODKEY,                       XK_space,  setlayout,      {0} },
   { MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
   { MODKEY,                       XK_0,      view,           {.ui = ~0 } },
