@@ -3,7 +3,6 @@
 /* appearance */
 static const unsigned int borderpx  = 3;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
-static const unsigned int minwsz    = 5;       /* Minimal heigt of a client for smfact */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *fonts[]          = { "Hack Nerd Font Mono:size=9" };
@@ -33,7 +32,6 @@ static const Rule rules[] = {
 
 /* layout(s) */
 static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
-static const float smfact     = 0.00; /* factor of tiled clients [0.00..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static int attachbelow = 1;    /* 1 means attach after the currently active window */
@@ -82,8 +80,6 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_k,      pushup,         {0} },
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
   { MODKEY|ControlMask,           XK_h,      setmfact,       {.f = -0.05} },
-	{ MODKEY|ControlMask,           XK_k,      setsmfact,      {.f = +0.05} },
-	{ MODKEY|ControlMask,           XK_j,      setsmfact,      {.f = -0.05} },
   { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
   { MODKEY,                       XK_o,      incnmaster,     {.i = -1 } },
   { MODKEY|ShiftMask,             XK_o,      resetnmaster,   {0} },
