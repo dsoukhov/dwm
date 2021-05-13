@@ -21,6 +21,8 @@ static const char *colors[][3]      = {
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
+void resetnmaster(const Arg *arg);
+
 static const Rule rules[] = {
   /* xprop(1):
    *	WM_CLASS(STRING) = instance, class
@@ -65,7 +67,7 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "alacritty", NULL };
 static const char scratchpadname[] = "scratchpad";
-static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, "-o", "window.dimensions.columns=90", "window.dimensions.rows=30", NULL};
+static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL };
 
 #include "push.c"
 static Key keys[] = {
@@ -128,3 +130,9 @@ static Button buttons[] = {
   { ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
 
+void
+resetnmaster(const Arg *arg)
+{
+  selmon->nmaster = 1;
+  arrange(selmon);
+}
