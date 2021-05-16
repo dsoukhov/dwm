@@ -36,7 +36,13 @@ static const Rule rules[] = {
 static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
-static int attachbelow = 1;    /* 1 means attach after the currently active window */
+
+int attachdirection = 0;    /*    set the default attach dir
+                                  0, new goes below focused
+                                  1, new goes bottommost
+                                  2, new goes above focused
+                                  3, new goes above master
+                             */
 
 #include "fibonacci.c"
 #include "lefttile.c"
@@ -48,8 +54,8 @@ static const Layout layouts[] = {
   { "><>",      NULL },    /* no layout function means floating behavior */
   { "[M]",      monocle },
 };
-                                    /*bot,   top*/
-static const char *stack_symbols[] = { "∨", "∧"};
+
+static const char *stack_symbols[] = { "*∨", "∨", "*∧", "∧" };
 
 /* key definitions */
 #define MODKEY Mod4Mask
@@ -65,8 +71,9 @@ static const char *stack_symbols[] = { "∨", "∧"};
 	{ MOD, XK_w,     ACTION##stack, {.i = PREVSEL } }, \
 	{ MOD, XK_q,     ACTION##stack, {.i = 0 } }, \
 	{ MOD, XK_a,     ACTION##stack, {.i = 1 } }, \
-	{ MOD, XK_z,     ACTION##stack, {.i = 2 } }, \
-	{ MOD, XK_x,     ACTION##stack, {.i = -1 } },
+	{ MOD, XK_s,     ACTION##stack, {.i = 2 } }, \
+	{ MOD, XK_d,     ACTION##stack, {.i = 3 } }, \
+	{ MOD, XK_z,     ACTION##stack, {.i = -1 } },
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
@@ -81,7 +88,7 @@ static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL }
 #include "push.c"
 static Key keys[] = {
   /* modifier                     key        function        argument */
-  { MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
+  { MODKEY,                       XK_l,      spawn,          {.v = dmenucmd } },
   { MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
   { MODKEY,                       XK_c,      togglescratch,  {.v = scratchpadcmd } },
   { MODKEY,                       XK_b,      togglebar,      {0} },
@@ -101,11 +108,12 @@ static Key keys[] = {
   { MODKEY,                       XK_f,      togglefullscr,  {0} },
   { MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
   { MODKEY,                       XK_Tab,    view,           {0} },
-  { MODKEY,                       XK_u,      toggleAttachBelow,     {0} },
+  { MODKEY,                       XK_y,      toggleattachdir,{.i = +1} },
+  { MODKEY,                       XK_u,      toggleattachdir,{.i = -1 } },
   { MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
   { MODKEY,                       XK_r,      setlayout,      {.v = &layouts[0]} },
   { MODKEY,                       XK_t,      setlayout,      {.v = &layouts[1]} },
-  { MODKEY,                       XK_y,      setlayout,      {.v = &layouts[2]} },
+  //{ MODKEY,                       XK_y,      setlayout,      {.v = &layouts[2]} },
   { MODKEY|ShiftMask,             XK_f,      setlayout,      {.v = &layouts[3]} },
   { MODKEY,                       XK_m,      setlayout,      {.v = &layouts[4]} },
   { MODKEY,                       XK_space,  setlayout,      {0} },
