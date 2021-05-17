@@ -56,7 +56,7 @@ static const Layout layouts[] = {
   { "[]=",      tile },
   { "=[]",      lefttile }, /* first entry is default */
   { "><>",      NULL },    /* no layout function means floating behavior */
-  //{ "[M]",      monocle },
+  { "[M]",      monocle },
 };
 
 static const char *stack_symbols[] = { "*∨", "∨", "*∧", "∧" };
@@ -88,7 +88,6 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont,
 static const char *termcmd[]  = { "alacritty", NULL };
 static const char scratchpadname[] = "scratchpad";
 static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL };
-
 #include "push.c"
 static Key keys[] = {
   /* modifier                     key        function        argument */
@@ -96,6 +95,14 @@ static Key keys[] = {
   { MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
   { MODKEY,                       XK_c,      togglescratch,  {.v = scratchpadcmd } },
   { MODKEY,                       XK_b,      togglebar,      {0} },
+  { MODKEY,                       XK_F10,    spawn,          SHCMD("amixer sset Master toggle && pkill -RTMIN+1 dwmblocks")},
+  { MODKEY,                       XK_F11,    spawn,          SHCMD("amixer sset Master 5%- && pkill -RTMIN+1 dwmblocks")},
+  { MODKEY,                       XK_F12,    spawn,          SHCMD("amixer sset Master 5%+ && pkill -RTMIN+1 dwmblocks")},
+  { MODKEY,                       XK_F6,     spawn,          SHCMD("amixer sset Capture toggle && pkill -RTMIN+2 dwmblocks")},
+  { MODKEY,                       XK_F7,     spawn,          SHCMD("amixer sset Capture 5%- && pkill -RTMIN+2 dwmblocks")},
+  { MODKEY,                       XK_F8,     spawn,          SHCMD("amixer sset Capture 5%+ && pkill -RTMIN+2 dwmblocks")},
+  { 0,                            XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -e 'mv $f ~/Pictures/screenshots'")},
+  { MODKEY,                       XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots'")},
   /*
   { MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
   { MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
