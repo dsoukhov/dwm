@@ -27,8 +27,6 @@ static const char *colors[][3]      = {
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
-void resetnmaster(const Arg *arg);
-
 static const Rule rules[] = {
   /* xprop(1):
    *	WM_CLASS(STRING) = instance, class
@@ -58,7 +56,7 @@ static const Layout layouts[] = {
   { "[]=",      tile },
   { "=[]",      lefttile }, /* first entry is default */
   { "><>",      NULL },    /* no layout function means floating behavior */
-  { "[M]",      monocle },
+  //{ "[M]",      monocle },
 };
 
 static const char *stack_symbols[] = { "*∨", "∨", "*∧", "∧" };
@@ -94,15 +92,15 @@ static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, NULL }
 #include "push.c"
 static Key keys[] = {
   /* modifier                     key        function        argument */
-  { MODKEY|ShiftMask,                       XK_l,      spawn,          {.v = dmenucmd } },
+  { MODKEY,                       XK_e,      spawn,          {.v = dmenucmd } },
   { MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
   { MODKEY,                       XK_c,      togglescratch,  {.v = scratchpadcmd } },
   { MODKEY,                       XK_b,      togglebar,      {0} },
   /*
   { MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
   { MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
-  { MODKEY|ShiftMask,             XK_j,      pushdown,       {0} },
-  { MODKEY|ShiftMask,             XK_k,      pushup,         {0} },
+  { MODKEY|ShiftMask,             XK_k,      pushdown,       {0} },
+  { MODKEY|ShiftMask,             XK_j,      pushup,         {0} },
   */
 	STACKKEYS(MODKEY,                          focus)
 	STACKKEYS(MODKEY|ShiftMask,                push)
@@ -116,7 +114,7 @@ static Key keys[] = {
   { MODKEY,                       XK_Tab,    view,           {0} },
   { MODKEY,                       XK_y,      toggleattachdir,{.i = +1} },
   { MODKEY,                       XK_u,      toggleattachdir,{.i = -1 } },
-  { MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
+  { MODKEY|ShiftMask,             XK_w,      killclient,     {0} },
   { MODKEY,                       XK_r,      cyclelayout,    {.i = +1 } },
   { MODKEY,                       XK_t,      cyclelayout,    {.i = -1 } },
   { MODKEY,                       XK_space,  setlayout,      {0} },
@@ -136,7 +134,7 @@ static Key keys[] = {
   TAGKEYS(                        XK_7,                      6)
   TAGKEYS(                        XK_8,                      7)
   TAGKEYS(                        XK_9,                      8)
-  { MODKEY|ShiftMask,             XK_e,      quit,           {0} },
+  { MODKEY|ShiftMask,             XK_grave,      quit,           {0} },
 };
 
 /* button definitions */
@@ -153,10 +151,3 @@ static Button buttons[] = {
   { ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
   { ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
-
-void
-resetnmaster(const Arg *arg)
-{
-  selmon->nmaster = 1;
-  arrange(selmon);
-}
