@@ -32,8 +32,9 @@ static const Rule rules[] = {
    *	WM_CLASS(STRING) = instance, class
    *	WM_NAME(STRING) = title
    */
-  /* class      instance    title       tags mask     isfloating   ispermanent  monitor */
-  {  NULL,      NULL,       "scratchpad",       0,     1,           1,           -1 },
+  /* class      instance    title       tags mask     isfloating   iscentered   ispermanent  monitor */
+  {  NULL,      NULL,       "scratchpad", 0,          1,           1,           1,               -1 },
+  { "net-runelite-client-RuneLite",      NULL,       NULL,         0,          1,           0,           0,                -1 },
 };
 
 /* layout(s) */
