@@ -96,7 +96,7 @@ static Key keys[] = {
   /* modifier                     key        function        argument */
   { MODKEY,                       XK_e,      spawn,          {.v = dmenucmd } },
   { MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
-  { MODKEY,                       XK_c,      togglescratch,  {.v = scratchpadcmd } },
+  //{ MODKEY,                       XK_c,      togglescratch,  {.v = scratchpadcmd } },
   { MODKEY,                       XK_b,      togglebar,      {0} },
   { MODKEY,                       XK_F10,    spawn,          SHCMD("amixer sset Master toggle && pkill -RTMIN+1 dwmblocks")},
   { MODKEY,                       XK_F11,    spawn,          SHCMD("amixer sset Master 5%- && pkill -RTMIN+1 dwmblocks")},
