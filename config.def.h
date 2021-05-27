@@ -32,10 +32,10 @@ static const Rule rules[] = {
    *	WM_CLASS(STRING) = instance, class
    *	WM_NAME(STRING) = title
    */
-  /* class      instance    title       tags mask     isfloating   iscentered   ispermanent  monitor  ignoreReqest*/
-  {  NULL,      NULL,       "scratchpad", 0,          1,           1,           1,               -1 , 0},
-  {  NULL,      NULL,       "floatterm", 0,          1,           1,           1,               -1 , 0},
-  { "net-runelite-client-RuneLite", NULL, NULL, 0, 1, 0, 0, -1, 1},
+  /* class      instance    title       tags mask     isfloating   iscentered   ispermanent  monitor  ignoreReqest scratch key*/
+  {  NULL,      NULL,       "scratchpad", 0,          1,           1,           1,               -1 , 0, 's'},
+  {  NULL,      NULL,       "floatterm", 0,          1,           1,           1,               -1 , 0, 't'},
+  { "net-runelite-client-RuneLite", NULL, NULL, 0, 1, 0, 0, -1, 1,0},
 };
 
 /* layout(s) */
@@ -87,16 +87,18 @@ static const char *stack_symbols[] = { "*∨", "∨", "*∧", "∧" };
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
-//static const char *termcmd[]  = { "alacritty", NULL };
 static const char *termcmd[]  = { "st", NULL };
 static const char scratchpadname[] = "scratchpad";
-static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g","100x40", NULL };
+static const char *scratchpadcmd[] = {"s", "st", "-t", scratchpadname, "-g","100x40", NULL };
+static const char floattermname[] = "floatterm";
+static const char *floattermcmd[] = {"t", "st", "-t", floattermname, "-g","100x40", NULL };
 #include "push.c"
 static Key keys[] = {
   /* modifier                     key        function        argument */
   { MODKEY,                       XK_e,      spawn,          {.v = dmenucmd } },
   { MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
-  //{ MODKEY,                       XK_c,      togglescratch,  {.v = scratchpadcmd } },
+  { MODKEY,                       XK_c,      togglescratch,  {.v = scratchpadcmd } },
+  { MODKEY,                       XK_v,      togglescratch,  {.v = floattermcmd} },
   { MODKEY,                       XK_b,      togglebar,      {0} },
   { MODKEY,                       XK_F10,    spawn,          SHCMD("amixer sset Master toggle && pkill -RTMIN+1 dwmblocks")},
   { MODKEY,                       XK_F11,    spawn,          SHCMD("amixer sset Master 5%- && pkill -RTMIN+1 dwmblocks")},
