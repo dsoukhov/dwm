@@ -32,9 +32,10 @@ static const Rule rules[] = {
    *	WM_CLASS(STRING) = instance, class
    *	WM_NAME(STRING) = title
    */
-  /* class      instance    title       tags mask     isfloating   iscentered   ispermanent  monitor */
-  {  NULL,      NULL,       "scratchpad", 0,          1,           1,           1,               -1 },
-  { "net-runelite-client-RuneLite",      NULL,       NULL,         0,          1,           0,           0,                -1 },
+  /* class      instance    title       tags mask     isfloating   iscentered   ispermanent  monitor  ignoreReqest*/
+  {  NULL,      NULL,       "scratchpad", 0,          1,           1,           1,               -1 , 0},
+  {  NULL,      NULL,       "floatterm", 0,          1,           1,           1,               -1 , 0},
+  { "net-runelite-client-RuneLite", NULL, NULL, 0, 1, 0, 0, -1, 1},
 };
 
 /* layout(s) */
@@ -73,7 +74,7 @@ static const char *stack_symbols[] = { "*∨", "∨", "*∧", "∧" };
 #define STACKKEYS(MOD,ACTION) \
 	{ MOD, XK_j,     ACTION##stack, {.i = INC(+1) } }, \
 	{ MOD, XK_k,    ACTION##stack, {.i = INC(-1) } }, \
-	{ MOD, XK_w,     ACTION##stack, {.i = PREVSEL } }, \
+	{ MOD, XK_x,     ACTION##stack, {.i = PREVSEL } }, \
 	{ MOD, XK_q,     ACTION##stack, {.i = 0 } }, \
 	{ MOD, XK_a,     ACTION##stack, {.i = 1 } }, \
 	{ MOD, XK_s,     ACTION##stack, {.i = 2 } }, \
@@ -90,7 +91,6 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont,
 static const char *termcmd[]  = { "st", NULL };
 static const char scratchpadname[] = "scratchpad";
 static const char *scratchpadcmd[] = { "st", "-t", scratchpadname, "-g","100x40", NULL };
-//static const char *scratchpadcmd[] = { "alacritty", "-t", scratchpadname, "-e", "scratch", NULL };
 #include "push.c"
 static Key keys[] = {
   /* modifier                     key        function        argument */

@@ -118,8 +118,10 @@ struct Client {
 	int oldx, oldy, oldw, oldh;
 	int basew, baseh, incw, inch, maxw, maxh, minw, minh;
 	int bw, oldbw;
+  int initx, inity;
 	unsigned int tags;
 	int isfixed, ispermanent, isfloating, iscentered, isurgent, neverfocus, oldstate, isfullscreen;
+  int ignoreRequest;
 	Client *next;
 	Client *snext;
 	Monitor *mon;
@@ -168,6 +170,9 @@ typedef struct {
   int iscentered;
 	int ispermanent;
 	int monitor;
+  int ignoreRequest;
+  int floatx;
+  int floaty;
 } Rule;
 
 typedef struct Systray   Systray;
@@ -354,6 +359,7 @@ applyrules(Client *c)
 	c->ispermanent = 0;
 	c->iscentered = 0;
 	c->tags = 0;
+  c->ignoreRequest = 0;
 	XGetClassHint(dpy, c->win, &ch);
 	class    = ch.res_class ? ch.res_class : broken;
 	instance = ch.res_name  ? ch.res_name  : broken;
@@ -371,6 +377,13 @@ applyrules(Client *c)
 			for (m = mons; m && m->num != r->monitor; m = m->next);
 			if (m)
 				c->mon = m;
+      if (r->ignoreRequest) {
+        c->ignoreRequest = 1;
+      }
+      if(r->isfloating && r->floatx > -1 && r->floaty > -1){
+        c->initx = r->floatx;
+        c->inity = r->floaty;
+      }
 		}
 	}
 	if (ch.res_class)
@@ -812,14 +825,16 @@ configurerequest(XEvent *e)
 			c->bw = ev->border_width;
 		else if (c->isfloating || !selmon->lt[selmon->sellt]->arrange) {
 			m = c->mon;
-			if (ev->value_mask & CWX) {
-				c->oldx = c->x;
-				c->x = m->mx + ev->x;
-			}
-			if (ev->value_mask & CWY) {
-				c->oldy = c->y;
-				c->y = m->my + ev->y;
-			}
+      if (!c->ignoreRequest){
+        if (ev->value_mask & CWX) {
+          c->oldx = c->x;
+          c->x = m->mx + ev->x;
+        }
+        if (ev->value_mask & CWY) {
+          c->oldy = c->y;
+          c->y = m->my + ev->y;
+        }
+      }
 			if (ev->value_mask & CWWidth) {
 				c->oldw = c->w;
 				c->w = ev->width;
