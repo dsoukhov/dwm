@@ -528,25 +528,6 @@ attachbottom(Client *c)
 }
 
 void
-attachtop(Client *c)
-{
-	int n;
-	Monitor *m = selmon;
-	Client *below;
-
-	for (n = 1, below = c->mon->clients;
-		below && below->next && (below->isfloating || !ISVISIBLEONTAG(below, c->tags) || n != m->nmaster);
-		n = below->isfloating || !ISVISIBLEONTAG(below, c->tags) ? n + 0 : n + 1, below = below->next);
-	c->next = NULL;
-	if (below) {
-		c->next = below->next;
-		below->next = c;
-	}
-	else
-		c->mon->clients = c;
-}
-
-void
 attachstate(Client *c){
   switch (attachdirection) {
     case 0:
@@ -559,7 +540,7 @@ attachstate(Client *c){
       attachabove(c);
       break;
     case 3:
-      attachtop(c);
+      attach(c);
       break;
     default:
       attach(c);
