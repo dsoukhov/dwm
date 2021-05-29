@@ -996,6 +996,10 @@ enternotify(XEvent *e)
 	} else if (!c || c == selmon->sel)
 		return;
 	focus(c);
+	if(c->isfloating){
+    /*make focued float fully visable*/
+    restack(selmon);
+  }
 }
 
 void
