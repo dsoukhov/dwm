@@ -996,9 +996,16 @@ enternotify(XEvent *e)
 	} else if (!c || c == selmon->sel)
 		return;
 	focus(c);
-	if(c->isfloating){
-    /*make focued float fully visable*/
-    restack(selmon);
+  /* hide all scratchpads when non scratchpad float is focused */
+	if(c->isfloating && !c->scratchkey){
+    for (c = selmon->clients; c->next != NULL; c = c->next)
+      if (c->scratchkey) {
+        c->tags = 0;
+        focus(NULL);
+        arrange(selmon);
+     }
+  /* make focued float fully visable */
+  restack(selmon);
   }
 }
 

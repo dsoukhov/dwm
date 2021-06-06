@@ -33,9 +33,9 @@ static const Rule rules[] = {
    *	WM_NAME(STRING) = title
    */
   /* class      instance    title       tags mask     isfloating   iscentered   ispermanent  monitor  ignoreReqest scratch key*/
-  {  NULL,      NULL,       "scratchpad", 0,          1,           1,           1,               -1 , 0, 's'},
-  {  NULL,      NULL,       "floatterm", 0,          1,           1,           1,               -1 , 0, 't'},
-  { "net-runelite-client-RuneLite", NULL, NULL, 0, 1, 0, 0, -1, 1,0},
+  {  NULL,      NULL,       "scratchpad", 0,          1,           1,           1,               -1 , 0, 'S'},
+  {  NULL,      NULL,       "floatterm", 0,          1,           1,           1,               -1 , 0, 'T'},
+  { "net-runelite-client-RuneLite", NULL, NULL, 0, 0, 0, 0, -1, 1,0},
 };
 
 /* layout(s) */
@@ -57,7 +57,7 @@ static const Layout layouts[] = {
   { "[\\]",     dwindle },
   { "[]=",      tile },
   { "=[]",      lefttile }, /* first entry is default */
-  //{ "><>",      NULL },    /* no layout function means floating behavior */
+  { "><>",      NULL },    /* no layout function means floating behavior */
   //{ "[M]",      monocle },
 };
 
@@ -89,9 +89,9 @@ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() 
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
 static const char *termcmd[]  = { "st", NULL };
 static const char scratchpadname[] = "scratchpad";
-static const char *scratchpadcmd[] = {"s", "st", "-t", scratchpadname, "-g","100x40", NULL };
+static const char *scratchpadcmd[] = {"S", "st", "-t", scratchpadname, "-g","100x40", NULL };
 static const char floattermname[] = "floatterm";
-static const char *floattermcmd[] = {"t", "st", "-t", floattermname, "-g","100x40", NULL };
+static const char *floattermcmd[] = {"T", "st", "-t", floattermname, "-g","100x40", NULL };
 #include "push.c"
 static Key keys[] = {
   /* modifier                     key        function        argument */
@@ -153,7 +153,7 @@ static Key keys[] = {
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
   /* click                event mask      button          function        argument */
-  { ClkWinTitle,          0,              Button2,        zoom,           {0} },
+  //{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
   { ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
   { ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
   { ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
