@@ -1303,10 +1303,10 @@ manage(Window w, XWindowAttributes *wa)
 	updatewindowtype(c);
 	updatesizehints(c);
 	updatewmhints(c);
-	c->sfx = c->x;
-	c->sfy = c->y;
-	c->sfw = c->w;
-	c->sfh = c->h;
+  c->sfx = c->x;
+  c->sfy = c->y;
+  c->sfw = c->w;
+  c->sfh = c->h;
   c->x = c->mon->mx + (c->mon->mw - WIDTH(c)) / 2;
 	c->y = c->mon->my + (c->mon->mh - HEIGHT(c)) / 2;
 	XSelectInput(dpy, w, EnterWindowMask|FocusChangeMask|PropertyChangeMask|StructureNotifyMask);
@@ -1958,10 +1958,28 @@ setfullscreen(Client *c, int fullscreen)
 void
 setlayout(const Arg *arg)
 {
+	const Layout *oldlayout = selmon->lt[selmon->sellt];
 	if (!arg || !arg->v || arg->v != selmon->lt[selmon->sellt])
 		selmon->sellt ^= 1;
 	if (arg && arg->v)
 		selmon->lt[selmon->sellt] = (Layout *)arg->v;
+    if (selmon->clients) {
+      //if null layout restore dims
+      if (selmon->lt[selmon->sellt]->arrange == NULL) {
+        //loop through all non scratchpad clients and resize
+        for (Client *c = selmon->clients; c != NULL; c = c->next)
+          if (!c->scratchkey)
+            resizeclient(c, c->sfx, c->sfy, c->sfw, c->sfh);
+      }
+      if (oldlayout && oldlayout->arrange == NULL) {
+        for (Client *c = selmon->clients; c != NULL; c = c->next) {
+          c->sfx = c->x;
+          c->sfy = c->y;
+          c->sfw = c->w;
+          c->sfh = c->h;
+        }
+      }
+  }
 	strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof selmon->ltsymbol);
 	if (selmon->sel)
 		arrange(selmon);

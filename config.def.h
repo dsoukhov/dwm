@@ -54,9 +54,9 @@ int attachdirection = 0;    /*    set the default attach dir
 #include "lefttile.c"
 static const Layout layouts[] = {
   /* symbol     arrange function */
-  { "[\\]",     dwindle },
+  { "[\\]",     dwindle }, /* first entry is default */
   { "[]=",      tile },
-  { "=[]",      lefttile }, /* first entry is default */
+  { "=[]",      lefttile },
   { "><>",      NULL },    /* no layout function means floating behavior */
   //{ "[M]",      monocle },
 };
