@@ -989,8 +989,8 @@ enternotify(XEvent *e)
 		return;
 	focus(c);
   /* hide all scratchpads when non scratchpad float is focused */
-	if(c->isfloating && !c->scratchkey){
-    for (c = selmon->clients; c->next != NULL; c = c->next)
+	if ((c->isfloating || selmon->lt[selmon->sellt]->arrange == NULL) && !c->scratchkey) {
+    for (c = selmon->clients; c != NULL; c = c->next)
       if (c->scratchkey) {
         c->tags = 0;
         focus(NULL);
