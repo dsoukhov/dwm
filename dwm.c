@@ -989,14 +989,13 @@ enternotify(XEvent *e)
 		return;
 	focus(c);
   /* hide all scratchpads when non scratchpad float is focused */
-	if ((c->isfloating || selmon->lt[selmon->sellt]->arrange == NULL) && !c->scratchkey) {
+	if ((c->isfloating || selmon->lt[selmon->sellt]->arrange == NULL) && !c->scratchkey && !c->isfullscreen) {
     for (c = selmon->clients; c != NULL; c = c->next)
       if (c->scratchkey) {
         c->tags = 0;
         focus(NULL);
         arrange(selmon);
      }
-  /* make focued float fully visable */
   restack(selmon);
   }
 }
@@ -1963,22 +1962,22 @@ setlayout(const Arg *arg)
 		selmon->sellt ^= 1;
 	if (arg && arg->v)
 		selmon->lt[selmon->sellt] = (Layout *)arg->v;
-    if (selmon->clients) {
-      //if null layout restore dims
-      if (selmon->lt[selmon->sellt]->arrange == NULL) {
-        //loop through all non scratchpad clients and resize
-        for (Client *c = selmon->clients; c != NULL; c = c->next)
-          if (!c->scratchkey)
-            resizeclient(c, c->sfx, c->sfy, c->sfw, c->sfh);
+  //if null layout restore dims
+  if (selmon->clients && selmon->lt[selmon->sellt]->arrange == NULL) {
+    //loop through all non scratchpad clients and resize
+    for (Client *c = selmon->clients; c != NULL; c = c->next)
+      if (!c->scratchkey && !c->isfullscreen)
+        resizeclient(c, c->sfx, c->sfy, c->sfw, c->sfh);
+  }
+  if (oldlayout && oldlayout->arrange == NULL) {
+    for (Client *c = selmon->clients; c != NULL; c = c->next) {
+      if (!c->scratchkey && !c->isfullscreen) {
+        c->sfx = c->x;
+        c->sfy = c->y;
+        c->sfw = c->w;
+        c->sfh = c->h;
       }
-      if (oldlayout && oldlayout->arrange == NULL) {
-        for (Client *c = selmon->clients; c != NULL; c = c->next) {
-          c->sfx = c->x;
-          c->sfy = c->y;
-          c->sfw = c->w;
-          c->sfh = c->h;
-        }
-      }
+    }
   }
 	strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof selmon->ltsymbol);
 	if (selmon->sel)
