@@ -154,6 +154,7 @@ struct Monitor {
 	unsigned int tagset[2];
 	int showbar;
 	int topbar;
+  Client *fullscreen;
 	Client *clients;
 	Client *sel;
 	Client *stack;
@@ -489,7 +490,7 @@ void
 attachbelow(Client *c)
 {
 	//If there is nothing on the monitor or the selected client is floating, attach as normal
-	if(c->mon->sel == NULL || c->mon->sel == c || c->mon->sel->isfloating) {
+	if(c->mon->sel == NULL || c->mon->sel == c || (c->mon->sel->isfloating && !c->mon->sel->isfullscreen)) {
 		attach(c);
 		return;
 	}
@@ -504,7 +505,7 @@ attachbelow(Client *c)
 void
 attachabove(Client *c)
 {
-	if (c->mon->sel == NULL || c->mon->sel == c->mon->clients || c->mon->sel->isfloating) {
+	if (c->mon->sel == NULL || c->mon->sel == c->mon->clients || (c->mon->sel->isfloating && !c->mon->sel->isfullscreen)) {
 		attach(c);
 		return;
 	}
@@ -1322,10 +1323,16 @@ manage(Window w, XWindowAttributes *wa)
 	setclientstate(c, NormalState);
 	if (c->mon == selmon)
 		unfocus(selmon->sel, 0);
-	c->mon->sel = c;
+  if (c->mon->fullscreen) {
+    c->mon->sel = c->mon->fullscreen;
+    focus(c->mon->fullscreen);
+   }
+  if (!c->mon->fullscreen) {
+    c->mon->sel = c;
+    focus(NULL);
+  }
 	arrange(c->mon);
 	XMapWindow(dpy, c->win);
-	focus(NULL);
 }
 
 void
@@ -1933,6 +1940,7 @@ setfullscreen(Client *c, int fullscreen)
 		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
 			PropModeReplace, (unsigned char*)&netatom[NetWMFullscreen], 1);
 		c->isfullscreen = 1;
+    c->mon->fullscreen = c;
 		c->oldstate = c->isfloating;
 		c->oldbw = c->bw;
 		c->bw = 0;
@@ -1943,6 +1951,7 @@ setfullscreen(Client *c, int fullscreen)
 		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
 			PropModeReplace, (unsigned char*)0, 0);
 		c->isfullscreen = 0;
+    c->mon->fullscreen = NULL;
 		c->isfloating = c->oldstate;
 		c->bw = c->oldbw;
 		c->x = c->oldx;
