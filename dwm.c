@@ -491,7 +491,7 @@ attachbelow(Client *c)
 {
 	//If there is nothing on the monitor or the selected client is floating, attach as normal
 	if(c->mon->sel == NULL || c->mon->sel == c || (c->mon->sel->isfloating && !c->mon->sel->isfullscreen)) {
-		attach(c);
+		attachbottom(c);
 		return;
 	}
 
@@ -2192,6 +2192,11 @@ tag(const Arg *arg)
 {
 	if (selmon->sel && arg->ui & TAGMASK) {
 		selmon->sel->tags = arg->ui & TAGMASK;
+    Client *c = selmon->sel;
+    detach(c);
+    detachstack(c);
+    attachstate(c);
+    attachstack(c);
 		focus(NULL);
 		arrange(selmon);
 	}
