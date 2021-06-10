@@ -1326,13 +1326,13 @@ manage(Window w, XWindowAttributes *wa)
   if (c->mon->fullscreen) {
     c->mon->sel = c->mon->fullscreen;
     focus(c->mon->fullscreen);
-   }
+  }
   if (!c->mon->fullscreen) {
     c->mon->sel = c;
-    focus(NULL);
   }
 	arrange(c->mon);
 	XMapWindow(dpy, c->win);
+  focus(NULL);
 }
 
 void
