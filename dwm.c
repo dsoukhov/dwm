@@ -93,6 +93,8 @@ enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms *
 enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
        ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
 
+FILE *logs = NULL;
+
 typedef union {
 	int i;
 	unsigned int ui;
@@ -192,7 +194,7 @@ static void attachbelow(Client *c);
 static void attachtop(Client *c);
 static void attachbottom(Client *c);
 static void attachabove(Client *c);
-static void toggleattachdir(const Arg *arg);
+static void cycleattachdir(const Arg *arg);
 static void attachstack(Client *c);
 static void buttonpress(XEvent *e);
 static void checkotherwm(void);
@@ -203,6 +205,7 @@ static void configure(Client *c);
 static void configurenotify(XEvent *e);
 static void configurerequest(XEvent *e);
 static void cyclelayout(const Arg *arg);
+static void logdwm(void);
 static Monitor *createmon(void);
 static void destroynotify(XEvent *e);
 static void deck(Monitor *m);
@@ -548,18 +551,19 @@ attachstate(Client *c){
       attach(c);
   }
 }
-void toggleattachdir(const Arg *arg)
+void
+cycleattachdir(const Arg *arg)
 {
-	attachdirection = MOD(attachdirection + (int)arg->i , 4);
+	attachdirection = MOD(attachdirection + (int)arg->i, (int)LENGTH(stack_symbols));
 	drawbar(selmon);
 }
 
 void
 cyclelayout(const Arg *arg) {
 	Layout *l;
-  int curlayout = 0;
-	for(l = (Layout *)layouts; l+curlayout != selmon->lt[selmon->sellt]; curlayout++);
-	curlayout = MOD(curlayout + (int)arg->i, LENGTH(layouts));
+  int curlayout;
+	for(l = (Layout *)layouts, curlayout = 0; l+curlayout != selmon->lt[selmon->sellt] && curlayout < LENGTH(layouts); curlayout++);
+	curlayout = MOD(curlayout + (int)arg->i, (int)LENGTH(layouts));
   setlayout(&((Arg) { .v = layouts + curlayout}));
 }
 
@@ -653,6 +657,7 @@ cleanup(void)
 	XSync(dpy, False);
 	XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
 	XDeleteProperty(dpy, root, netatom[NetActiveWindow]);
+  fclose(logs);
 }
 
 void
@@ -2021,6 +2026,9 @@ setup(void)
 	/* clean up any zombies immediately */
 	sigchld(0);
 
+  /* init logging */
+  logdwm();
+
 	/* init screen */
 	screen = DefaultScreen(dpy);
 	sw = DisplayWidth(dpy, screen);
@@ -2893,6 +2901,16 @@ zoom(const Arg *arg)
 		if (!c || !(c = nexttiled(c->next)))
 			return;
 	pop(c);
+}
+
+
+void
+logdwm(void)
+{
+
+if (!(logs = fopen("/tmp/dwm.log", "a+")))
+	fprintf(stderr, "dwm: unable to log");
+  return;
 }
 
 int
