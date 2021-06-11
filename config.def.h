@@ -49,9 +49,13 @@ int attachdirection = 0;    /*    set the default attach dir
                                   2, new goes above focused
                                   3, new goes above master
                              */
+static const char *stack_symbols[] = { "*∨", "∨", "*∧", "∧" };
 
 #include "fibonacci.c"
 #include "lefttile.c"
+#include "deck.c"
+#include "push.c"
+
 static const Layout layouts[] = {
   /* symbol     arrange function */
   { "[\\]",     dwindle }, /* first entry is default */
@@ -61,8 +65,6 @@ static const Layout layouts[] = {
   { "><>",      NULL },    /* no layout function means floating behavior */
   //{ "[M]",      monocle },
 };
-
-static const char *stack_symbols[] = { "*∨", "∨", "*∧", "∧" };
 
 /* key definitions */
 #define MODKEY Mod4Mask
@@ -93,7 +95,6 @@ static const char scratchpadname[] = "scratchpad";
 static const char *scratchpadcmd[] = {"S", "st", "-t", scratchpadname, "-g","100x40", NULL };
 static const char floattermname[] = "floatterm";
 static const char *floattermcmd[] = {"T", "st", "-t", floattermname, "-g","100x40", NULL };
-#include "push.c"
 static Key keys[] = {
   /* modifier                     key        function        argument */
   { MODKEY,                       XK_e,      spawn,          {.v = dmenucmd } },
