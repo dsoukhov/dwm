@@ -1025,8 +1025,18 @@ expose(XEvent *e)
 void
 focus(Client *c)
 {
-	if (!c || !ISVISIBLE(c))
-		for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
+	if (!c || !ISVISIBLE(c)) {
+    int cont = 1;
+    c = selmon->stack;
+    while (cont && c) {
+      if (c->issticky && selmon->sel && selmon->sel != c && c->snext)
+        c = c->snext;
+      else if (ISVISIBLE(c))
+        cont = 0;
+      else
+        c = c->snext;
+    }
+  }
 	if (selmon->sel && selmon->sel != c)
 		unfocus(selmon->sel, 0);
 	if (c) {
