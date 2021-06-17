@@ -31,6 +31,11 @@ static const XPoint stickyiconbb    = {4,8};	/* defines the bottom right corner 
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
+/* window swallowing */
+static const int swaldecay = 3;
+static const int swalretroactive = 1;
+static const char swalsymbol[] = ">O";
+
 static const Rule rules[] = {
   /* xprop(1):
    *	WM_CLASS(STRING) = instance, class
@@ -140,6 +145,8 @@ static Key keys[] = {
   { MODKEY,                       XK_0,      view,           {.ui = ~0 } },
   { MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
   { MODKEY,                       XK_m,      togglesticky,   {0} },
+	{ MODKEY,                       XK_g,      swalstopsel,    {0} },
+	{ MODKEY|ShiftMask,             XK_g,      swalstopsel,    {0} },
   { MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
   { MODKEY,                       XK_period, focusmon,       {.i = +1 } },
   { MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
@@ -168,4 +175,5 @@ static Button buttons[] = {
   { ClkTagBar,            0,              Button3,        toggleview,     {0} },
   { ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
   { ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+  { ClkClientWin,         MODKEY|ShiftMask, Button1,      swalmouse,      {0} },
 };
