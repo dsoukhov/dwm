@@ -63,7 +63,6 @@ static const char *stack_symbols[] = { "*∨", "∨", "*∧", "∧" };
 #include "fibonacci.c"
 #include "lefttile.c"
 #include "deck.c"
-#include "push.c"
 
 static const Layout layouts[] = {
   /* symbol     arrange function */
@@ -127,6 +126,7 @@ static Key keys[] = {
   */
 	STACKKEYS(MODKEY,                          focus)
 	STACKKEYS(MODKEY|ShiftMask,                push)
+	STACKKEYS(MODKEY|ControlMask,              swalsel)
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
   { MODKEY|ControlMask,           XK_h,      setmfact,       {.f = -0.05} },
   { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
@@ -146,7 +146,6 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
   { MODKEY,                       XK_m,      togglesticky,   {0} },
 	{ MODKEY,                       XK_g,      swalstopsel,    {0} },
-	{ MODKEY|ShiftMask,             XK_g,      swalstopsel,    {0} },
   { MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
   { MODKEY,                       XK_period, focusmon,       {.i = +1 } },
   { MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },

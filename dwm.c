@@ -295,6 +295,7 @@ static void swaldecayby(int decayby);
 static void swalmanage(Swallow *s, Window w, XWindowAttributes *wa);
 static Swallow *swalmatch(Window w);
 static void swalmouse(const Arg *arg);
+static void swalselstack(const Arg *arg);
 static void swalrm(Swallow *s);
 static void swalunreg(Client *c);
 static void swalstop(Client *c, Client *root);
@@ -1026,7 +1027,7 @@ drawbar(Monitor *m)
   strcat(strcpy(symbol_and_orei, m->ltsymbol), stack_symbols[attachdirection]);
 	w = blw = TEXTW(symbol_and_orei);
 	drw_setscheme(drw, scheme[SchemeNorm]);
-	x = drw_text(drw, x, 0, w, bh, lrpad/2, symbol_and_orei, 0);
+	x = drw_text(drw, x, 0, w, bh, lrpad / 2, symbol_and_orei, 0);
 
 	/* Draw swalsymbol next to ltsymbol. */
 	if (m->sel && m->sel->swallowedby) {
@@ -2529,6 +2530,26 @@ swalmatch(Window w)
 	if (ch.res_name)
 		XFree(ch.res_name);
 	return s;
+}
+
+/*
+ * Swallow focused client with client at
+ * stack pos i
+ */
+void
+swalselstack(const Arg *arg)
+{
+	Client *swer, *swee;
+  int i = stackpos(arg);
+
+	if (!(swee = selmon->sel) || i < 0)
+		return;
+
+	for(swer = selmon->clients; swer && (i || !ISVISIBLE(swer));
+	    i -= ISVISIBLE(swer) ? 1 : 0, swer = swer->next);
+  
+	if (swer != swee)
+		swal(swer, swee, 0);
 }
 
 /*
