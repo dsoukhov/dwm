@@ -392,6 +392,7 @@ struct Pertag {
 	unsigned int sellts[LENGTH(tags) + 1]; /* selected layouts */
 	const Layout *ltidxs[LENGTH(tags) + 1][2]; /* matrix of tags and layouts indexes  */
 	int showbars[LENGTH(tags) + 1]; /* display bar for the current tag */
+  int attachdir[LENGTH(tags) + 1];
 };
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
@@ -583,7 +584,7 @@ attachbottom(Client *c)
 
 void
 attachstate(Client *c){
-  switch (attachdirection) {
+  switch (selmon->pertag->attachdir[selmon->pertag->curtag]) {
     case 0:
       attachbelow(c);
       break;
@@ -603,7 +604,7 @@ attachstate(Client *c){
 void
 cycleattachdir(const Arg *arg)
 {
-	attachdirection = MOD(attachdirection + (int)arg->i, (int)LENGTH(stack_symbols));
+  selmon->pertag->attachdir[selmon->pertag->curtag] = MOD(selmon->pertag->attachdir[selmon->pertag->curtag] + (int)arg->i, (int)LENGTH(stack_symbols));
 	drawbar(selmon);
 }
 
@@ -936,6 +937,7 @@ createmon(void)
 		m->pertag->sellts[i] = m->sellt;
 
 		m->pertag->showbars[i] = m->showbar;
+    m->pertag->attachdir[i] = defaultatchdir;
 	}
 
 	return m;
@@ -1050,7 +1052,7 @@ drawbar(Monitor *m)
 				urg & 1 << i);
 		x += w;
 	}
-  strcat(strcpy(symbol_and_orei, m->ltsymbol), stack_symbols[attachdirection]);
+  strcat(strcpy(symbol_and_orei, m->ltsymbol), stack_symbols[selmon->pertag->attachdir[selmon->pertag->curtag]]);
 	w = blw = TEXTW(symbol_and_orei);
 	drw_setscheme(drw, scheme[SchemeNorm]);
 	x = drw_text(drw, x, 0, w, bh, lrpad / 2, symbol_and_orei, 0);
@@ -3559,7 +3561,6 @@ zoom(const Arg *arg)
 			return;
 	pop(c);
 }
-
 
 void
 logdwm(void)
