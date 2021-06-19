@@ -215,7 +215,6 @@ static void arrange(Monitor *m);
 static void arrangemon(Monitor *m);
 static void attach(Client *c);
 static void attachbelow(Client *c);
-static void attachtop(Client *c);
 static void attachbottom(Client *c);
 static void attachabove(Client *c);
 static void cycleattachdir(const Arg *arg);
@@ -781,7 +780,8 @@ clientmessage(XEvent *e)
 		if (i < LENGTH(tags)) {
 			const Arg a = {.ui = 1 << i};
 			selmon = c->mon;
-			view(&a);
+      if (!c->issticky)
+        view(&a);
 			focus(c);
 			restack(selmon);
 		}
