@@ -52,7 +52,7 @@ static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] 
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 
-static const int defaultatchdir = 0;  /*    set the default attach dir
+int attachdirection = 0;    /*    set the default attach dir
                                   0, new goes below focused
                                   1, new goes bottommost
                                   2, new goes above focused
