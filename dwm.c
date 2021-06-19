@@ -2176,12 +2176,12 @@ setlayout(const Arg *arg)
   if (selmon->clients && selmon->lt[selmon->sellt]->arrange == NULL) {
     //loop through all non scratchpad clients and resize
     for (Client *c = selmon->clients; c != NULL; c = c->next)
-      if (!c->scratchkey && !c->isfullscreen)
+      if (!c->scratchkey && !c->isfullscreen && ISVISIBLE(c))
         resizeclient(c, c->sfx, c->sfy, c->sfw, c->sfh);
   }
   if (oldlayout && oldlayout->arrange == NULL) {
     for (Client *c = selmon->clients; c != NULL; c = c->next) {
-      if (!c->scratchkey && !c->isfullscreen) {
+      if (!c->scratchkey && !c->isfullscreen && ISVISIBLE(c)) {
         c->sfx = c->x;
         c->sfy = c->y;
         c->sfw = c->w;
