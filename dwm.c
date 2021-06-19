@@ -552,7 +552,7 @@ attachabove(Client *c)
 	}
 
 	Client *at;
-	for (at = c->mon->clients; at->next != c->mon->sel; at = at->next);
+	for (at = c->mon->clients; at && at->next != c->mon->sel; at = at->next);
 	c->next = at->next;
 	at->next = c;
 }
@@ -2744,12 +2744,15 @@ tag(const Arg *arg)
 	if (selmon->sel && arg->ui & TAGMASK) {
 		selmon->sel->tags = arg->ui & TAGMASK;
     Client *c = selmon->sel;
-    detach(c);
-    detachstack(c);
-    attachstate(c);
-    attachstack(c);
-		focus(NULL);
-		arrange(selmon);
+    if (c && !c->issticky) {
+      detach(c);
+      if (attachdirection > 1)
+        attach(c);
+      else
+        attachbottom(c);
+      focus(NULL);
+      arrange(selmon);
+    }
 	}
 }
 
