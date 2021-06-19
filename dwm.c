@@ -707,7 +707,7 @@ cleanup(void)
 	XSync(dpy, False);
 	XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, CurrentTime);
 	XDeleteProperty(dpy, root, netatom[NetActiveWindow]);
-  fclose(logs);
+  //fclose(logs);
 }
 
 void
@@ -2251,7 +2251,7 @@ setup(void)
 	sigchld(0);
 
   /* init logging */
-  logdwm();
+  //logdwm();
 
 	/* init screen */
 	screen = DefaultScreen(dpy);
