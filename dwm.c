@@ -535,7 +535,7 @@ arrangemon(Monitor *m)
 }
 
 void
-attach(Client *c)
+attachtop(Client *c)
 {
 	c->next = c->mon->clients;
 	c->mon->clients = c;
@@ -560,7 +560,7 @@ void
 attachabove(Client *c)
 {
 	if (c->mon->sel == NULL || c->mon->sel == c->mon->clients || (c->mon->sel->isfloating && !c->mon->sel->isfullscreen)) {
-		attach(c);
+		attachtop(c);
 		return;
 	}
 
@@ -583,7 +583,7 @@ attachbottom(Client *c)
 }
 
 void
-attachstate(Client *c){
+attach(Client *c){
   switch (selmon->pertag->attachdir[selmon->pertag->curtag]) {
     case 0:
       attachbelow(c);
@@ -1519,7 +1519,7 @@ manage(Window w, XWindowAttributes *wa)
 		c->isfloating = c->oldstate = trans != None || c->isfixed;
 	if (c->isfloating)
 		XRaiseWindow(dpy, c->win);
-  attachstate(c);
+  attach(c);
 	attachstack(c);
 	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
 		(unsigned char *) &(c->win), 1);
@@ -2103,7 +2103,7 @@ sendmon(Client *c, Monitor *m)
 	detachstack(c);
 	c->mon = m;
 	c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
-  attachstate(c);
+  attach(c);
 	attachstack(c);
 	focus(NULL);
 	arrange(NULL);
@@ -2784,7 +2784,7 @@ tag(const Arg *arg)
     if (c && !c->issticky) {
       detach(c);
       if (selmon->pertag->attachdir[arg->ui & TAGMASK] > 1)
-        attach(c);
+        attachtop(c);
       else
         attachbottom(c);
       focus(NULL);
@@ -3140,7 +3140,7 @@ updategeom(void)
 					m->clients = c->next;
 					detachstack(c);
 					c->mon = mons;
-					attachstate(c);
+					attach(c);
 					attachstack(c);
 				}
 				if (m == selmon)
