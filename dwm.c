@@ -123,7 +123,7 @@ struct Client {
 	int bw, oldbw;
   int initx, inity;
 	unsigned int tags;
-	int isfixed, ispermanent, isfloating, iscentered, isurgent, neverfocus, oldstate, isfullscreen;
+	int isfixed, ispermanent, isfloating, iscentered, isurgent, neverfocus, oldstate, isfullscreen, needresize;
   int ignoreRequest;
 	char scratchkey;
 	Client *next;
@@ -881,6 +881,8 @@ configurerequest(XEvent *e)
 				configure(c);
 			if (ISVISIBLE(c))
 				XMoveResizeWindow(dpy, c->win, c->x, c->y, c->w, c->h);
+			else
+				c->needresize = 1;
 		} else
 			configure(c);
 		break;
@@ -2325,6 +2327,12 @@ showhide(Client *c)
 	if (ISVISIBLE(c)) {
 		/* show clients top down */
 		XMoveWindow(dpy, c->win, c->x, c->y);
+		if (c->needresize) {
+			c->needresize = 0;
+			XMoveResizeWindow(dpy, c->win, c->x, c->y, c->w, c->h);
+		} else {
+			XMoveWindow(dpy, c->win, c->x, c->y);
+		}
 		if ((!c->mon->lt[c->mon->sellt]->arrange || c->isfloating) && !c->isfullscreen)
 			resize(c, c->x, c->y, c->w, c->h, 0);
 		showhide(c->snext);
