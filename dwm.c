@@ -54,7 +54,7 @@
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
 #define ISINC(X)                ((X) > 1000 && (X) < 3000)
 #define ISVISIBLEONTAG(C, T)    ((C->tags & T))
-#define ISVISIBLE(C)            (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || C->issticky)
+#define ISVISIBLE(C)            (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]))
 #define PREVSEL                 3000
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 #define MOD(N,M)                ((N)%(M) < 0 ? (N)%(M) + (M) : (N)%(M))
@@ -123,7 +123,7 @@ struct Client {
 	int bw, oldbw;
   int initx, inity;
 	unsigned int tags;
-	int isfixed, ispermanent, isfloating, iscentered, isurgent, neverfocus, oldstate, isfullscreen, issticky;
+	int isfixed, ispermanent, isfloating, iscentered, isurgent, neverfocus, oldstate, isfullscreen;
   int ignoreRequest;
 	char scratchkey;
 	Client *next;
@@ -312,8 +312,8 @@ static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void togglefullscr(const Arg *arg);
 static void togglescratch(const Arg *arg);
+static void toggleactivetags(const Arg *arg);
 static void toggletag(const Arg *arg);
-static void togglesticky(const Arg *arg);
 static void toggleview(const Arg *arg);
 static void unfocus(Client *c, int setfocus);
 static void unmanage(Client *c, int destroyed);
@@ -733,7 +733,6 @@ clientmessage(XEvent *e)
 	XSetWindowAttributes swa;
 	XClientMessageEvent *cme = &e->xclient;
 	Client *c = wintoclient(cme->window);
-  unsigned int i;
 
 	if (showsystray && cme->window == systray->win && cme->message_type == netatom[NetSystemTrayOP]) {
 		/* add systray icons */
@@ -789,15 +788,8 @@ clientmessage(XEvent *e)
 			setfullscreen(c, (cme->data.l[0] == 1 /* _NET_WM_STATE_ADD    */
 				|| (cme->data.l[0] == 2 /* _NET_WM_STATE_TOGGLE */ && !c->isfullscreen)));
 	} else if (cme->message_type == netatom[NetActiveWindow]) {
-		for (i = 0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
-		if (i < LENGTH(tags)) {
-			const Arg a = {.ui = 1 << i};
-			selmon = c->mon;
-      if (!c->issticky)
-        view(&a);
-			focus(c);
-			restack(selmon);
-		}
+		if (c != selmon->sel && !c->isurgent)
+			seturgent(c, 1);
 	}
 }
 
@@ -1070,8 +1062,6 @@ drawbar(Monitor *m)
 			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
 			if (m->sel->isfloating)
 				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
-			if (m->sel->issticky)
-				drw_polygon(drw, x + boxs, m->sel->isfloating ? boxs * 2 + boxw : boxs, stickyiconbb.x, stickyiconbb.y, boxw, boxw * stickyiconbb.y / stickyiconbb.x, stickyicon, LENGTH(stickyicon), Nonconvex, m->sel->tags & m->tagset[m->seltags]);
 		} else {
 			drw_setscheme(drw, scheme[SchemeNorm]);
 			drw_rect(drw, x, 0, w, bh, 1, 1);
@@ -1209,18 +1199,8 @@ fakesignal(void)
 void
 focus(Client *c)
 {
-	if (!c || !ISVISIBLE(c)) {
-    int cont = 1;
-    c = selmon->stack;
-    while (cont && c) {
-      if (c->issticky && selmon->sel && selmon->sel != c && c->snext)
-        c = c->snext;
-      else if (ISVISIBLE(c))
-        cont = 0;
-      else
-        c = c->snext;
-    }
-  }
+	if (!c || !ISVISIBLE(c))
+		for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
 	if (selmon->sel && selmon->sel != c)
 		unfocus(selmon->sel, 0);
 	if (c) {
@@ -2773,7 +2753,7 @@ tag(const Arg *arg)
 	if (selmon->sel && arg->ui & TAGMASK) {
 		selmon->sel->tags = arg->ui & TAGMASK;
     Client *c = selmon->sel;
-    if (c && !c->issticky) {
+    if (c) {
       detach(c);
       if (selmon->pertag->attachdir[arg->ui & TAGMASK] > 1)
         attach(c);
@@ -2892,12 +2872,28 @@ togglescratch(const Arg *arg)
 }
 
 void
-togglesticky(const Arg *arg)
+toggleactivetags(const Arg *arg)
 {
+  unsigned int activetags = 0;
+  Client *c;
+
 	if (!selmon->sel)
 		return;
-	selmon->sel->issticky = !selmon->sel->issticky;
-	arrange(selmon);
+
+	for (c = mons->clients; c; c = c->next) {
+		activetags |= c->tags;
+  }
+
+  if (activetags) {
+    selmon->sel->tags = activetags & TAGMASK;
+    detach(selmon->sel);
+    if (selmon->pertag->attachdir[arg->ui & TAGMASK] > 1)
+      attach(selmon->sel);
+    else
+      attachbottom(selmon->sel);
+    focus(NULL);
+    arrange(selmon);
+  }
 }
 
 void
@@ -2909,6 +2905,11 @@ toggletag(const Arg *arg)
 		return;
 	newtags = selmon->sel->tags ^ (arg->ui & TAGMASK);
 	if (newtags) {
+    detach(selmon->sel);
+    if (selmon->pertag->attachdir[arg->ui & TAGMASK] > 1)
+      attach(selmon->sel);
+    else
+      attachbottom(selmon->sel);
 		selmon->sel->tags = newtags;
 		focus(NULL);
 		arrange(selmon);
