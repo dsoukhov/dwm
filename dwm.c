@@ -1761,7 +1761,7 @@ pushstack(const Arg *arg) {
 		return;
 	else if(i == 0) {
 		detach(sel);
-		attach(sel);
+		attachtop(sel);
 	}
 	else {
 		for(p = NULL, c = selmon->clients; c; p = c, c = c->next)
