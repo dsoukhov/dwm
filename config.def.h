@@ -62,10 +62,6 @@ static const int defaultatchdir = 0;  /*    set the default attach dir
                              */
 static const char *stack_symbols[] = { "*∨", "∨", "*∧", "∧" };
 
-#include "fibonacci.c"
-#include "lefttile.c"
-#include "deck.c"
-
 static const Layout layouts[] = {
   /* symbol     arrange function */
   { "[\\]",     dwindle }, /* first entry is default */
