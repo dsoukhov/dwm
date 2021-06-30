@@ -1,3 +1,5 @@
 *.o
 config.h
 dwm
+.cache/*
+compile_commands.json
