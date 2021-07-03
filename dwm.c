@@ -53,8 +53,9 @@
 #define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
 #define ISINC(X)                ((X) > 1000 && (X) < 3000)
-#define ISVISIBLEONTAG(C, T)    ((C->tags & T))
-#define ISVISIBLE(C)            (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || C->issticky)
+#define ISFULLSCREEN(C)         ((C && (selmon->pertag->fullscreens[selmon->pertag->curtag] == C || (selmon->sticky == C && selmon->pertag->fullscreens[C->tags] == C))))
+#define ISVISIBLEONTAG(C, T)    ((C->tags & T) || (ISFULLSCREEN(C)))
+#define ISVISIBLE(C)            (C && (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || (selmon->sticky == C && (!selmon->pertag->fullscreens[selmon->pertag->curtag] || ISFULLSCREEN(C)))))
 #define PREVSEL                 3000
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 #define MOD(N,M)                ((N)%(M) < 0 ? (N)%(M) + (M) : (N)%(M))
@@ -121,7 +122,7 @@ struct Client {
 	int bw, oldbw;
   int initx, inity;
 	unsigned int tags;
-	int isfixed, ispermanent, isfloating, iscentered, isurgent, neverfocus, oldstate, isfullscreen, needresize, issticky;
+	int isfixed, ispermanent, isfloating, iscentered, isurgent, neverfocus, oldstate, needresize;
   int ignoreRequest;
 	char scratchkey;
 	Client *next;
@@ -159,6 +160,7 @@ struct Monitor {
 	int showbar;
 	int topbar;
   Client *fullscreen;
+  Client *sticky;
 	Client *clients;
 	Client *sel;
 	Client *stack;
@@ -394,6 +396,7 @@ struct Pertag {
 	const Layout *ltidxs[LENGTH(tags) + 1][2]; /* matrix of tags and layouts indexes  */
 	int showbars[LENGTH(tags) + 1]; /* display bar for the current tag */
   int attachdir[LENGTH(tags) + 1];
+  Client *fullscreens[LENGTH(tags) + 1]; /* array of fullscreen clients at pos tag */
 };
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
@@ -545,7 +548,7 @@ void
 attachbelow(Client *c)
 {
 	//If there is nothing on the monitor or the selected client is floating, attach as normal
-	if(c->mon->sel == NULL || c->mon->sel == c || (c->mon->sel->isfloating && !c->mon->sel->isfullscreen)) {
+	if(c->mon->sel == NULL || c->mon->sel == c || (c->mon->sel->isfloating && !ISFULLSCREEN(c->mon->sel))) {
 		attachbottom(c);
 		return;
 	}
@@ -560,7 +563,7 @@ attachbelow(Client *c)
 void
 attachabove(Client *c)
 {
-	if (c->mon->sel == NULL || c->mon->sel == c->mon->clients || (c->mon->sel->isfloating && !c->mon->sel->isfullscreen)) {
+	if (c->mon->sel == NULL || c->mon->sel == c->mon->clients || (c->mon->sel->isfloating && !ISFULLSCREEN(c->mon->sel))) {
 		attachtop(c);
 		return;
 	}
@@ -787,13 +790,13 @@ clientmessage(XEvent *e)
 		if (cme->data.l[1] == netatom[NetWMFullscreen]
 		|| cme->data.l[2] == netatom[NetWMFullscreen])
 			setfullscreen(c, (cme->data.l[0] == 1 /* _NET_WM_STATE_ADD    */
-				|| (cme->data.l[0] == 2 /* _NET_WM_STATE_TOGGLE */ && !c->isfullscreen)));
+				|| (cme->data.l[0] == 2 /* _NET_WM_STATE_TOGGLE */ && !ISFULLSCREEN(c))));
 	} else if (cme->message_type == netatom[NetActiveWindow]) {
 		for (i = 0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
 		if (i < LENGTH(tags)) {
 			const Arg a = {.ui = 1 << i};
 			selmon = c->mon;
-      if (!c->issticky)
+      if (selmon->sticky != c)
         view(&a);
 			focus(c);
 			restack(selmon);
@@ -838,7 +841,7 @@ configurenotify(XEvent *e)
 			updatebars();
 			for (m = mons; m; m = m->next) {
 				for (c = m->clients; c; c = c->next)
-					if (c->isfullscreen)
+					if (ISFULLSCREEN(c))
 						resizeclient(c, m->mx, m->my, m->mw, m->mh);
 				resizebarwin(m);
 			}
@@ -941,6 +944,7 @@ createmon(void)
 
 		m->pertag->showbars[i] = m->showbar;
     m->pertag->attachdir[i] = defaultatchdir;
+    m->pertag->fullscreens[i] = NULL;
 	}
 
 	return m;
@@ -1097,7 +1101,7 @@ drawbar(Monitor *m)
 			drw_text(drw, x, 0, w, bh, lrpad / 2, m->sel->name, 0);
 			if (m->sel->isfloating)
 				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
-			if (m->sel->issticky)
+			if (selmon->sticky == m->sel)
 				drw_polygon(drw, x + boxs, m->sel->isfloating ? boxs * 2 + boxw : boxs, stickyiconbb.x, stickyiconbb.y, boxw, boxw * stickyiconbb.y / stickyiconbb.x, stickyicon, LENGTH(stickyicon), Nonconvex, m->sel->tags & m->tagset[m->seltags]);
 		} else {
 			drw_setscheme(drw, scheme[SchemeNorm]);
@@ -1134,7 +1138,7 @@ enternotify(XEvent *e)
 		return;
 	focus(c);
   /* hide all scratchpads when non scratchpad float is focused */
-	if ((c->isfloating || selmon->lt[selmon->sellt]->arrange == NULL) && !c->scratchkey && !c->isfullscreen) {
+	if ((c->isfloating || selmon->lt[selmon->sellt]->arrange == NULL) && !c->scratchkey && !ISFULLSCREEN(c)) {
     for (c = selmon->clients; c != NULL; c = c->next)
       if (c->scratchkey) {
         c->tags = 0;
@@ -1240,7 +1244,7 @@ focus(Client *c)
     int cont = 1;
     c = selmon->stack;
     while (cont && c) {
-      if (c->issticky && selmon->sel && selmon->sel != c && c->snext)
+      if (selmon->sticky == c && selmon->sel && selmon->sel != c && c->snext)
         c = c->snext;
       else if (ISVISIBLE(c))
         cont = 0;
@@ -1298,7 +1302,7 @@ focusstack(const Arg *arg)
 	int i = stackpos(arg);
 	Client *c, *p;
 
-	if (!selmon->sel || selmon->sel->isfullscreen)
+	if (!selmon->sel || ISFULLSCREEN(selmon->sel))
 		return;
 
 	for(p = NULL, c = selmon->clients; c && (i || !ISVISIBLE(c));
@@ -1479,6 +1483,8 @@ killclient(const Arg *arg)
 {
 if(!selmon->sel || selmon->sel->ispermanent)
 		return;
+if ISFULLSCREEN(selmon->sel)
+  setfullscreen(selmon->sel, 0);
 if (!sendevent(selmon->sel->win, wmatom[WMDelete], NoEventMask, wmatom[WMDelete], CurrentTime, 0 , 0, 0)) {
   XGrabServer(dpy);
   XSetErrorHandler(xerrordummy);
@@ -1552,12 +1558,13 @@ manage(Window w, XWindowAttributes *wa)
 	setclientstate(c, NormalState);
 	if (c->mon == selmon)
 		unfocus(selmon->sel, 0);
-  if (c->mon->fullscreen) {
-    c->mon->sel = c->mon->fullscreen;
-    focus(c->mon->fullscreen);
+  if (selmon->pertag->fullscreens[selmon->pertag->curtag]) {
+    c->mon->sel = selmon->pertag->fullscreens[selmon->pertag->curtag];
+    focus(c->mon->sel);
   }
-  if (!c->mon->fullscreen) {
-    c->mon->sel = c;
+  if (ISFULLSCREEN(selmon->sticky)){
+    c->mon->sel = selmon->sticky;
+    focus(selmon->sticky);
   }
 	arrange(c->mon);
 	XMapWindow(dpy, c->win);
@@ -1660,7 +1667,7 @@ movemouse(const Arg *arg)
 
 	if (!(c = selmon->sel))
 		return;
-	if (c->isfullscreen) /* no support moving fullscreen windows by mouse */
+	if (ISFULLSCREEN(c)) /* no support moving fullscreen windows by mouse */
 		return;
 	restack(selmon);
 	ocx = c->x;
@@ -1904,7 +1911,7 @@ resizemouse(const Arg *arg)
 
 	if (!(c = selmon->sel))
 		return;
-	if (c->isfullscreen) /* no support resizing fullscreen windows by mouse */
+	if (ISFULLSCREEN(c)) /* no support resizing fullscreen windows by mouse */
 		return;
 	restack(selmon);
 	ocx = c->x;
@@ -2193,22 +2200,30 @@ setfocus(Client *c)
 void
 setfullscreen(Client *c, int fullscreen)
 {
-	if (fullscreen && !c->isfullscreen) {
+
+  if (ISFULLSCREEN(selmon->sticky) && c != selmon->sticky)
+    return;
+
+  int tag = selmon->pertag->curtag;
+
+  if(selmon->sticky == c) {
+    tag = c->tags;
+  }
+
+	if (fullscreen && !ISFULLSCREEN(c)) {
 		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
 			PropModeReplace, (unsigned char*)&netatom[NetWMFullscreen], 1);
-		c->isfullscreen = 1;
-    c->mon->fullscreen = c;
+    selmon->pertag->fullscreens[tag] = c;
 		c->oldstate = c->isfloating;
 		c->oldbw = c->bw;
 		c->bw = 0;
 		c->isfloating = 1;
 		resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
 		XRaiseWindow(dpy, c->win);
-	} else if (!fullscreen && c->isfullscreen){
+	} else if (!fullscreen && ISFULLSCREEN(c)){
 		XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
 			PropModeReplace, (unsigned char*)0, 0);
-		c->isfullscreen = 0;
-    c->mon->fullscreen = NULL;
+    selmon->pertag->fullscreens[tag] = NULL;
 		c->isfloating = c->oldstate;
 		c->bw = c->oldbw;
 		c->x = c->oldx;
@@ -2232,12 +2247,12 @@ setlayout(const Arg *arg)
   if (selmon->clients && selmon->lt[selmon->sellt]->arrange == NULL) {
     //loop through all non scratchpad clients and resize
     for (Client *c = selmon->clients; c != NULL; c = c->next)
-      if (!c->scratchkey && !c->isfullscreen && ISVISIBLE(c))
+      if (!c->scratchkey && !ISFULLSCREEN(c) && ISVISIBLE(c))
         resizeclient(c, c->sfx, c->sfy, c->sfw, c->sfh);
   }
   if (oldlayout && oldlayout->arrange == NULL) {
     for (Client *c = selmon->clients; c != NULL; c = c->next) {
-      if (!c->scratchkey && !c->isfullscreen && ISVISIBLE(c)) {
+      if (!c->scratchkey && !ISFULLSCREEN(c) && ISVISIBLE(c)) {
         c->sfx = c->x;
         c->sfy = c->y;
         c->sfw = c->w;
@@ -2375,7 +2390,7 @@ showhide(Client *c)
 		} else {
 			XMoveWindow(dpy, c->win, c->x, c->y);
 		}
-		if ((!c->mon->lt[c->mon->sellt]->arrange || c->isfloating) && !c->isfullscreen)
+		if ((!c->mon->lt[c->mon->sellt]->arrange || c->isfloating) && !ISFULLSCREEN(c))
 			resize(c, c->x, c->y, c->w, c->h, 0);
 		showhide(c->snext);
 	} else {
@@ -2803,7 +2818,7 @@ tag(const Arg *arg)
 	if (selmon->sel && arg->ui & TAGMASK) {
 		selmon->sel->tags = arg->ui & TAGMASK;
     Client *c = selmon->sel;
-    if (c && !c->issticky) {
+    if (c && selmon->sticky != c) {
       detach(c);
       if (selmon->pertag->attachdir[arg->ui & TAGMASK] > 1)
         attachtop(c);
@@ -2966,7 +2981,7 @@ togglefloating(const Arg *arg)
 {
 	if (!selmon->sel)
 		return;
-	if (selmon->sel->isfullscreen) /* no support for fullscreen windows */
+	if (ISFULLSCREEN(selmon->sel)) /* no support for fullscreen windows */
 		return;
 	selmon->sel->isfloating = !selmon->sel->isfloating || selmon->sel->isfixed;
 	if (selmon->sel->isfloating)
@@ -2987,7 +3002,7 @@ void
 togglefullscr(const Arg *arg)
 {
   if(selmon->sel)
-    setfullscreen(selmon->sel, !selmon->sel->isfullscreen);
+    setfullscreen(selmon->sel, !ISFULLSCREEN(selmon->sel));
 }
 void
 togglescratch(const Arg *arg)
@@ -3018,7 +3033,10 @@ togglesticky(const Arg *arg)
 {
 	if (!selmon->sel)
 		return;
-	selmon->sel->issticky = !selmon->sel->issticky;
+  if(selmon->sticky)
+    selmon->sticky = NULL;
+  if(!selmon->sticky)
+    selmon->sticky = selmon->sel;
 	arrange(selmon);
 }
 
