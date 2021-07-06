@@ -3035,7 +3035,7 @@ togglesticky(const Arg *arg)
     return;
   if(selmon->sticky)
     selmon->sticky = NULL;
-  if(!selmon->sticky)
+  else if(!selmon->sticky)
     selmon->sticky = selmon->sel;
   arrange(selmon);
 }
