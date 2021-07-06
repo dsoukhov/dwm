@@ -75,20 +75,20 @@ static const Layout layouts[] = {
 /* key definitions */
 #define MODKEY Mod4Mask
 #define TAGKEYS(KEY,TAG) \
-	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
-	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
-	{ MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
-	//{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
+  { MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
+  { MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
+  { MODKEY|ShiftMask,             KEY,      tag,            {.ui = 1 << TAG} }, \
+  //{ MODKEY|ControlMask|ShiftMask, KEY,      toggletag,      {.ui = 1 << TAG} },
 
 #define STACKKEYS(MOD,ACTION) \
-	{ MOD, XK_j,     ACTION##stack, {.i = INC(+1) } }, \
-	{ MOD, XK_k,    ACTION##stack, {.i = INC(-1) } }, \
-	{ MOD, XK_x,     ACTION##stack, {.i = PREVSEL } }, \
-	{ MOD, XK_q,     ACTION##stack, {.i = 0 } }, \
-	{ MOD, XK_a,     ACTION##stack, {.i = 1 } }, \
-	{ MOD, XK_s,     ACTION##stack, {.i = 2 } }, \
-	{ MOD, XK_d,     ACTION##stack, {.i = 3 } }, \
-	{ MOD, XK_z,     ACTION##stack, {.i = -1 } },
+  { MOD, XK_j,     ACTION##stack, {.i = INC(+1) } }, \
+  { MOD, XK_k,    ACTION##stack, {.i = INC(-1) } }, \
+  { MOD, XK_x,     ACTION##stack, {.i = PREVSEL } }, \
+  { MOD, XK_q,     ACTION##stack, {.i = 0 } }, \
+  { MOD, XK_a,     ACTION##stack, {.i = 1 } }, \
+  { MOD, XK_s,     ACTION##stack, {.i = 2 } }, \
+  { MOD, XK_d,     ACTION##stack, {.i = 3 } }, \
+  { MOD, XK_z,     ACTION##stack, {.i = -1 } },
 
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
@@ -116,15 +116,9 @@ static Key keys[] = {
   { MODKEY,                       XK_F8,     spawn,          SHCMD("pamixer --source \"alsa_input.pci-0000_00_1f.3.analog-stereo\" -i 5 && pkill -RTMIN+2 dwmblocks")},
   { 0,                            XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -e 'mv $f ~/Pictures/screenshots'")},
   { MODKEY,                       XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots'")},
-  /*
-  { MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
-  { MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
-  { MODKEY|ShiftMask,             XK_k,      pushdown,       {0} },
-  { MODKEY|ShiftMask,             XK_j,      pushup,         {0} },
-  */
-	STACKKEYS(MODKEY,                          focus)
-	STACKKEYS(MODKEY|ShiftMask,                push)
-	STACKKEYS(MODKEY|ControlMask,              swalsel)
+  STACKKEYS(MODKEY,                          focus)
+  STACKKEYS(MODKEY|ShiftMask,                push)
+  STACKKEYS(MODKEY|ControlMask,              swalsel)
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
   { MODKEY|ControlMask,           XK_h,      setmfact,       {.f = -0.05} },
   { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
@@ -143,7 +137,7 @@ static Key keys[] = {
   { MODKEY,                       XK_0,      view,           {.ui = ~0 } },
   { MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
   { MODKEY,                       XK_m,      togglesticky,   {0} },
-	{ MODKEY,                       XK_g,      swalstopsel,    {0} },
+  { MODKEY,                       XK_g,      swalstopsel,    {0} },
   { MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
   { MODKEY,                       XK_period, focusmon,       {.i = +1 } },
   { MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
