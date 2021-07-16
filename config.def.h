@@ -114,8 +114,14 @@ static Key keys[] = {
   { MODKEY,                       XK_F6,     spawn,          SHCMD("pamixer --source \"alsa_input.pci-0000_00_1f.3.analog-stereo\" -t && pkill -RTMIN+2 dwmblocks")},
   { MODKEY,                       XK_F7,     spawn,          SHCMD("pamixer --source \"alsa_input.pci-0000_00_1f.3.analog-stereo\" -d 5 && pkill -RTMIN+2 dwmblocks")},
   { MODKEY,                       XK_F8,     spawn,          SHCMD("pamixer --source \"alsa_input.pci-0000_00_1f.3.analog-stereo\" -i 5 && pkill -RTMIN+2 dwmblocks")},
-  { 0,                            XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -e 'mv $f ~/Pictures/screenshots'")},
-  { MODKEY,                       XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots'")},
+  { 0,                            XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
+  { MODKEY,                       XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
+  { MODKEY,                       XK_y,      spawn,          SHCMD("CM_HISTLENGTH=16 clipmenu")},
+  { MODKEY,                       XK_p,      spawn,          SHCMD("dmenu-prockill")},
+  { MODKEY,                       XK_Home,   spawn,          SHCMD("passmenu-otp")},
+  { MODKEY,                       XK_Insert, spawn,          SHCMD("brave")},
+  { MODKEY,                       XK_Prior,  spawn,          SHCMD("osrs-launcher")},
+  { MODKEY,                       XK_Delete, spawn,          SHCMD("qutebrowser")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
   STACKKEYS(MODKEY|ControlMask,              swalsel)
@@ -127,8 +133,8 @@ static Key keys[] = {
   { MODKEY,                       XK_f,      togglefullscr,  {0} },
   { MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
   { MODKEY,                       XK_Tab,    view,           {0} },
-  { MODKEY,                       XK_y,      cycleattachdir,{.i = +1} },
-  { MODKEY,                       XK_u,      cycleattachdir,{.i = -1 } },
+  { MODKEY,                       XK_bracketleft,      cycleattachdir,{.i = +1} },
+  { MODKEY,                       XK_bracketright,      cycleattachdir,{.i = -1 } },
   { MODKEY|ShiftMask,             XK_w,      killclient,     {0} },
   { MODKEY,                       XK_r,      cyclelayout,    {.i = +1 } },
   { MODKEY,                       XK_t,      cyclelayout,    {.i = -1 } },
