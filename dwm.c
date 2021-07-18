@@ -2211,6 +2211,8 @@ setfullscreen(Client *c, int fullscreen)
   }
 
   if (fullscreen && !ISFULLSCREEN(c)) {
+    if(selmon->pertag->fullscreens[tag])
+      setfullscreen(selmon->pertag->fullscreens[tag], 0);
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
       PropModeReplace, (unsigned char*)&netatom[NetWMFullscreen], 1);
     selmon->pertag->fullscreens[tag] = c;

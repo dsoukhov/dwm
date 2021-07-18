@@ -116,7 +116,7 @@ static Key keys[] = {
   { MODKEY,                       XK_F8,     spawn,          SHCMD("pamixer --source \"alsa_input.pci-0000_00_1f.3.analog-stereo\" -i 5 && pkill -RTMIN+2 dwmblocks")},
   { 0,                            XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
   { MODKEY,                       XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
-  { MODKEY,                       XK_y,      spawn,          SHCMD("CM_HISTLENGTH=16 clipmenu")},
+  { MODKEY,                       XK_y,      spawn,          SHCMD("clipmenu-run")},
   { MODKEY,                       XK_p,      spawn,          SHCMD("dmenu-prockill")},
   { MODKEY,                       XK_Home,   spawn,          SHCMD("passmenu-otp")},
   { MODKEY,                       XK_Insert, spawn,          SHCMD("brave")},
