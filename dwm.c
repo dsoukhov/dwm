@@ -1089,12 +1089,6 @@ drawbar(Monitor *m)
   drw_setscheme(drw, scheme[SchemeNorm]);
   x = drw_text(drw, x, 0, w, bh, lrpad / 2, symbol_and_orei, 0);
 
-  /* Draw swalsymbol next to ltsymbol. */
-  if (m->sel && m->sel->swallowedby) {
-    w = TEXTW(swalsymbol);
-    x = drw_text(drw, x, 0, w, bh, lrpad / 2, swalsymbol, 0);
-  }
-
   if ((w = m->ww - tw - stw - x) > bh) {
     if (m->sel) {
       drw_setscheme(drw, scheme[m == selmon ? SchemeSel : SchemeNorm]);
@@ -1103,6 +1097,8 @@ drawbar(Monitor *m)
         drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
       if (selmon->sticky == m->sel)
         drw_polygon(drw, x + boxs, m->sel->isfloating ? boxs * 2 + boxw : boxs, stickyiconbb.x, stickyiconbb.y, boxw, boxw * stickyiconbb.y / stickyiconbb.x, stickyicon, LENGTH(stickyicon), Nonconvex, m->sel->tags & m->tagset[m->seltags]);
+      if (m->sel && m->sel->swallowedby)
+        drw_rect(drw, m->sel == selmon->sticky ? x + boxs + 5 : x + boxs, boxs, swaliconbb.x, swaliconbb.y , 1, 0);
     } else {
       drw_setscheme(drw, scheme[SchemeNorm]);
       drw_rect(drw, x, 0, w, bh, 1, 1);

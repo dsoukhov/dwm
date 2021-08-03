@@ -36,7 +36,8 @@ static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 /* window swallowing */
 static const int swaldecay = 3;
 static const int swalretroactive = 1;
-static const char swalsymbol[] = ">O";
+static const XPoint swaliconbb = {2,16};	/* defines the bottom right corner of the polygon's bounding box (speeds up scaling) */
+//static const char swalsymbol[] = ">O";
 
 static const Rule rules[] = {
   /* xprop(1):
@@ -137,8 +138,8 @@ static Key keys[] = {
   { MODKEY,                       XK_bracketright,      cycleattachdir,{.i = -1 } },
   { MODKEY|ShiftMask,             XK_w,      killclient,     {0} },
   { MODKEY,                       XK_r,      cyclelayout,    {.i = +1 } },
-  { MODKEY,                       XK_t,      cyclelayout,    {.i = -1 } },
-  { MODKEY,                       XK_space,  setlayout,      {0} },
+  //{ MODKEY,                       XK_t,      cyclelayout,    {.i = -1 } },
+  //{ MODKEY,                       XK_space,  setlayout,      {0} },
   { MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
   { MODKEY,                       XK_0,      view,           {.ui = ~0 } },
   { MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
