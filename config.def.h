@@ -106,8 +106,8 @@ static Key keys[] = {
   /* modifier                     key        function        argument */
   { MODKEY,                       XK_e,      spawn,          {.v = dmenucmd } },
   { MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
-  { MODKEY,                       XK_c,      togglescratch,  {.v = scratchpadcmd } },
-  { MODKEY,                       XK_v,      togglescratch,  {.v = floattermcmd} },
+  { MODKEY|ShiftMask,             XK_c,      togglescratch,  {.v = scratchpadcmd } },
+  { MODKEY,                       XK_c,      togglescratch,  {.v = floattermcmd} },
   { MODKEY,                       XK_b,      togglebar,      {0} },
   { MODKEY,                       XK_F10,    spawn,          SHCMD("pamixer -t && pkill -RTMIN+1 dwmblocks")},
   { MODKEY,                       XK_F11,    spawn,          SHCMD("pamixer -d 5 && pkill -RTMIN+1 dwmblocks")},

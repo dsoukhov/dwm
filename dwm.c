@@ -2449,6 +2449,8 @@ swal(Client *swer, Client *swee, int manage)
   }
   swee->tags = swer->tags;
   swee->isfloating = swer->isfloating;
+  swee->scratchkey = swer->scratchkey;
+  strcpy(swee->name, swer->name);
   for (c = swee; c->swallowedby; c = c->swallowedby);
   c->swallowedby = swer;
 
@@ -3005,24 +3007,37 @@ togglefullscr(const Arg *arg)
 void
 togglescratch(const Arg *arg)
 {
-  Client *c;
+  Client *c, *f;
   unsigned int found = 0;
 
-  for (c = selmon->clients; c && !(found = c->scratchkey == ((char**)arg->v)[0][0]); c = c->next);
-  if (found) {
-    c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2); /* center in x direction */
-    c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2); /* center in y direction */
-    c->tags = ISVISIBLE(c) ? 0 : selmon->tagset[selmon->seltags];
+  for (f = selmon->clients; f && !(found = f->scratchkey == ((char**)arg->v)[0][0]); f = f->next);
+
+  if (!found) {
+    for (c = selmon->clients; c; c = c->next) {
+      if (c->scratchkey > 0) {
+        c->tags = 0;
+      }
+    }
+    spawnscratch(arg);
+  }
+
+  else {
+    f->x = selmon->mx + (selmon->mw / 2 - WIDTH(f) / 2); /* center in x direction */
+    f->y = selmon->my + (selmon->mh / 2 - HEIGHT(f) / 2); /* center in y direction */
+    f->tags = ISVISIBLE(f) ? 0 : selmon->tagset[selmon->seltags];
     focus(NULL);
     arrange(selmon);
 
-    if (ISVISIBLE(c)) {
-      focus(c);
+    if (ISVISIBLE(f)) {
+      focus(f);
       restack(selmon);
     }
 
-  } else{
-    spawnscratch(arg);
+    for (c = selmon->clients; c; c = c->next){
+      if (c->scratchkey > 0 && c != f) {
+        c->tags = 0;
+      }
+    }
   }
 }
 
