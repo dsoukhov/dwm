@@ -8,3 +8,5 @@ xsettingsd -c ~/.xsettingsd &
 dunst &
 udiskie &
 dwmblocks &
+pkill 'pinknoise'
+pinknoise &
