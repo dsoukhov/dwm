@@ -2450,7 +2450,8 @@ swal(Client *swer, Client *swee, int manage)
   swee->tags = swer->tags;
   swee->isfloating = swer->isfloating;
   swee->scratchkey = swer->scratchkey;
-  strcpy(swee->name, swer->name);
+  if(swee->scratchkey)
+    strcpy(swee->name, swer->name);
   for (c = swee; c->swallowedby; c = c->swallowedby);
   c->swallowedby = swer;
 
