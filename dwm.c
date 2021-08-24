@@ -3126,6 +3126,10 @@ unmanage(Client *c, int destroyed)
     XSetErrorHandler(xerror);
     XUngrabServer(dpy);
   }
+  if (ISFULLSCREEN(c))
+    selmon->pertag->fullscreens[selmon->pertag->curtag] = NULL;
+  if (selmon->sticky)
+    selmon->sticky = NULL;
   free(c);
   focus(NULL);
   updateclientlist();
