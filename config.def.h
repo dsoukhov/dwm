@@ -1,5 +1,11 @@
 /* See LICENSE file for copyright and license details. */
 
+/* media-key-mappings */
+#define XF86AudioMute		0x1008ff12
+#define XF86AudioLowerVolume	0x1008ff11
+#define XF86AudioRaiseVolume	0x1008ff13
+#define XF86TouchpadToggle	0x1008ffa9
+
 /* appearance */
 static unsigned int borderpx        = 3;   /* border pixel of windows */
 static unsigned int gappx           = 4;   /* gaps between windows */
@@ -140,24 +146,17 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_c,      togglescratch,  {.v = scratchpadcmd } },
   { MODKEY,                       XK_c,      togglescratch,  {.v = floattermcmd} },
   { MODKEY,                       XK_b,      togglebar,      {0} },
-  { MODKEY,                       XK_F10,    spawn,          SHCMD("pamixer -t && pkill -RTMIN+1 dwmblocks")},
-  { MODKEY,                       XK_F11,    spawn,          SHCMD("pamixer -d 5 && pkill -RTMIN+1 dwmblocks")},
-  { MODKEY,                       XK_F12,    spawn,          SHCMD("pamixer -i 5 && pkill -RTMIN+1 dwmblocks")},
-  { MODKEY|ShiftMask,             XK_F10,    spawn,          SHCMD("pkill -RTMIN+3 pinknoise")},
-  { MODKEY|ShiftMask,             XK_F11,    spawn,          SHCMD("pkill -RTMIN+4 pinknoise")},
-  { MODKEY|ShiftMask,             XK_F12,    spawn,          SHCMD("pkill -RTMIN+5 pinknoise")},
-  { MODKEY,                       XK_F6,     spawn,          SHCMD("pamixer --source \"alsa_input.pci-0000_00_1f.3.analog-stereo\" -t && pkill -RTMIN+2 dwmblocks")},
-  { MODKEY,                       XK_F7,     spawn,          SHCMD("pamixer --source \"alsa_input.pci-0000_00_1f.3.analog-stereo\" -d 5 && pkill -RTMIN+2 dwmblocks")},
-  { MODKEY,                       XK_F8,     spawn,          SHCMD("pamixer --source \"alsa_input.pci-0000_00_1f.3.analog-stereo\" -i 5 && pkill -RTMIN+2 dwmblocks")},
+  { 0,                            XF86AudioMute,          spawn,          SHCMD("pamixer -t && pkill -RTMIN+1 dwmblocks")},
+  { 0,                            XF86AudioLowerVolume,   spawn,          SHCMD("pamixer -d 5 && pkill -RTMIN+1 dwmblocks")},
+  { 0,                            XF86AudioRaiseVolume,   spawn,          SHCMD("pamixer -i 5 && pkill -RTMIN+1 dwmblocks")},
   { MODKEY,                       XK_F9,     spawn,          SHCMD("pavucontrol && pkill -RTMIN+1 dwmblocks && pkill -RTMIN+2 dwmblocks")},
   { 0,                            XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
   { MODKEY,                       XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
   { MODKEY,                       XK_y,      spawn,          SHCMD("clipmenu-run")},
   { MODKEY,                       XK_p,      spawn,          SHCMD("dmenu-prockill")},
-  { MODKEY,                       XK_Home,   spawn,          SHCMD("passmenu-otp")},
+  { MODKEY,                       XK_F12,    spawn,          SHCMD("passmenu-otp")},
   { MODKEY,                       XK_Insert, spawn,          SHCMD("brave")},
-  { MODKEY,                       XK_Prior,  spawn,          SHCMD("osrs-launcher")},
-  { MODKEY,                       XK_Delete, spawn,          SHCMD("qutebrowser")},
+  { MODKEY,                       XK_Delete, spawn,          SHCMD("smplayer")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
   STACKKEYS(MODKEY|AltMask,                  swalsel)

@@ -1,6 +1,6 @@
 #!/bin/sh
+nm-applet &
 pamixer --set-volume 40
-pamixer --source "alsa_input.pci-0000_00_1f.3.analog-stereo" --set-volume 20
 hsetroot -solid '#000000'
 #hsetroot -solid '#ffffff'
 #feh --bg-scale ~/Pictures/wallpaper/wp1.png &
@@ -9,5 +9,3 @@ xsettingsd -c ~/.xsettingsd &
 dunst &
 udiskie &
 dwmblocks &
-pkill 'pinknoise'
-pinknoise &
