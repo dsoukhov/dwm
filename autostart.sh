@@ -1,5 +1,4 @@
 #!/bin/sh
-nm-applet &
 pamixer --set-volume 40
 hsetroot -solid '#000000'
 #hsetroot -solid '#ffffff'
