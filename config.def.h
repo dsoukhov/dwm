@@ -30,8 +30,8 @@ static char *colors[][3]            = {
                                       };
 
 /* sticky symbol */
-static const XPoint stickyicon[]    = { {0,0}, {4,0}, {4,8}, {2,6}, {0,8}, {0,0} }; /* represents the icon as an array of vertices */
-static const XPoint stickyiconbb    = {4,8};	/* defines the bottom right corner of the polygon's bounding box (speeds up scaling) */
+static const XPoint stickyicon[] = { {0,0}, {4,0}, {4,8}, {2,6}, {0,8}, {0,0} }; /* represents the icon as an array of vertices */
+static const XPoint stickyiconbb = {4,8};	/* defines the bottom right corner of the polygon's bounding box (speeds up scaling) */
 
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
@@ -39,17 +39,17 @@ static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 /* window swallowing */
 static const int swaldecay = 3;
 static const int swalretroactive = 1;
-static const XPoint swaliconbb = {2,16};	/* defines the bottom right corner of the polygon's bounding box (speeds up scaling) */
+static const XPoint swaliconbb = { 2,16 }; /* defines the bottom right corner of the polygon's bounding box (speeds up scaling) */
 
 static const Rule rules[] = {
   /* xprop(1):
    *	WM_CLASS(STRING) = instance, class
    *	WM_NAME(STRING) = title
    */
-  /* class      instance    title       tags mask     isfloating   iscentered   ispermanent  monitor  ignoreReqest scratch key*/
-  {  NULL,      NULL,       "scratchpad", 0,          1,           1,           1,               -1 , 0, 'S'},
-  {  NULL,      NULL,       "floatterm", 0,          1,           1,           1,               -1 , 0, 'T'},
-  { "net-runelite-client-RuneLite", NULL, NULL, 0, 0, 0, 0, -1, 1,0},
+  /* class      instance    title               tags-mask    isfloating   iscentered   ispermanent  monitor  ignoreReqest scratch key*/
+  {  NULL,      NULL,       "scratchpad",       0,           1,           1,           1,           0,       0,           'S' },
+  {  NULL,      NULL,       "floatterm",        0,           1,           1,           1,           0,       0,           'T' },
+  { "net-runelite-client-RuneLite", NULL, NULL, 0,           0,           0,           0,           0,       1,            0  },
 };
 
 /* layout(s) */
@@ -108,26 +108,26 @@ static const char *floattermcmd[]  = {"T", "st", "-t", floattermname, "-g","100x
  * Xresources preferences to load at startup
  */
 ResourcePref resources[] = {
-		{ "font",               STRING,  &font },
-		{ "font2",              STRING,  &font2 },
-		{ "dmenufont",          STRING,  &dmenufont },
-		{ "normbgcolor",        STRING,  &normbgcolor },
-		{ "normbordercolor",    STRING,  &normbordercolor },
-		{ "normfgcolor",        STRING,  &normfgcolor },
-		{ "selbgcolor",         STRING,  &selbgcolor },
-		{ "selbordercolor",     STRING,  &selbordercolor },
-		{ "selfgcolor",         STRING,  &selfgcolor },
-		{ "borderpx",          	INTEGER, &borderpx },
-		{ "gappx",          	  INTEGER, &gappx},
-		{ "urgborder",          INTEGER, &urgborder },
-		{ "snap",          		  INTEGER, &snap },
-		{ "topbar",          	  INTEGER, &topbar },
-		{ "nmaster",          	INTEGER, &nmaster },
-		{ "resizehints",       	INTEGER, &resizehints },
-    { "mfact",      	 	    FLOAT,   &mfact },
-    { "systraypinning",     INTEGER, &systraypinning },
-    { "systrayonleft",      INTEGER, &systrayonleft },
-    { "systrayspacing",     INTEGER, &systrayspacing },
+  { "font",               STRING,  &font },
+  { "font2",              STRING,  &font2 },
+  { "dmenufont",          STRING,  &dmenufont },
+  { "normbgcolor",        STRING,  &normbgcolor },
+  { "normbordercolor",    STRING,  &normbordercolor },
+  { "normfgcolor",        STRING,  &normfgcolor },
+  { "selbgcolor",         STRING,  &selbgcolor },
+  { "selbordercolor",     STRING,  &selbordercolor },
+  { "selfgcolor",         STRING,  &selfgcolor },
+  { "borderpx",           INTEGER, &borderpx },
+  { "gappx",              INTEGER, &gappx},
+  { "urgborder",          INTEGER, &urgborder },
+  { "snap",               INTEGER, &snap },
+  { "topbar",             INTEGER, &topbar },
+  { "nmaster",            INTEGER, &nmaster },
+  { "resizehints",        INTEGER, &resizehints },
+  { "mfact",              FLOAT,   &mfact },
+  { "systraypinning",     INTEGER, &systraypinning },
+  { "systrayonleft",      INTEGER, &systrayonleft },
+  { "systrayspacing",     INTEGER, &systrayspacing },
 };
 
 static Key keys[] = {
