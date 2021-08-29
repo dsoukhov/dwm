@@ -3025,24 +3025,36 @@ togglefullscr(const Arg *arg)
 void
 togglescratch(const Arg *arg)
 {
-  Client *c;
+  Client *c, *k;
   unsigned int found = 0;
 
   for (c = selmon->clients; c && !(found = c->scratchkey == ((char**)arg->v)[0][0]); c = c->next);
   if (found) {
-    c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2); /* center in x direction */
-    c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2); /* center in y direction */
-    c->tags = ISVISIBLE(c) ? 0 : selmon->tagset[selmon->seltags];
+    if (!ISVISIBLE(c)) {
+      c->tags = selmon->tagset[selmon->seltags];
+      for (k = selmon->clients; k; k = k->next) {
+        if (c != k && k->scratchkey)
+          k->tags = 0;
+      }
+    } else {
+      c->tags = 0;
+    }
     focus(NULL);
     arrange(selmon);
 
     if (ISVISIBLE(c)) {
+      c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2); /* center in x direction */
+      c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2); /* center in y direction */
       focus(c);
       restack(selmon);
     }
 
-  } else{
+  } else {
     spawnscratch(arg);
+    for (k = selmon->clients; k; k = k->next) {
+      if (k->scratchkey)
+        k->tags = 0;
+    }
   }
 }
 
