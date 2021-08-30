@@ -1571,13 +1571,17 @@ manage(Window w, XWindowAttributes *wa)
   setclientstate(c, NormalState);
   if (c->mon == selmon)
     unfocus(selmon->sel, 0);
-  if (selmon->pertag->fullscreens[selmon->pertag->curtag]) {
+  if (ISFULLSCREEN(c->mon->sel)) {
     c->mon->sel = selmon->pertag->fullscreens[selmon->pertag->curtag];
     focus(c->mon->sel);
   }
-  if (ISFULLSCREEN(selmon->sticky)){
+  if (ISFULLSCREEN(selmon->sticky)) {
     c->mon->sel = selmon->sticky;
     focus(selmon->sticky);
+  }
+  if (c->scratchkey) {
+    c->mon->sel = c;
+    focus(c);
   }
   arrange(c->mon);
   XMapWindow(dpy, c->win);
@@ -2770,7 +2774,6 @@ swalstopsel(const Arg *unused)
   if (selmon->sel)
     swalstop(selmon->sel, NULL);
 }
-
 
 void
 spawn(const Arg *arg)
