@@ -126,6 +126,7 @@ struct Client {
   int isfixed, ispermanent, isfloating, iscentered, isurgent, neverfocus, oldstate, needresize;
   int ignoreRequest;
   char scratchkey;
+  int canGetSwal;
   Client *next;
   Client *snext;
   Client *swallowedby;
@@ -182,6 +183,7 @@ typedef struct {
   int monitor;
   int ignoreRequest;
   const char scratchkey;
+  int canGetSwal;
 } Rule;
 
 /* Xresources preferences */
@@ -436,6 +438,7 @@ applyrules(Client *c)
   c->tags = 0;
   c->ignoreRequest = 0;
   c->scratchkey = 0;
+  c->canGetSwal = 0;
   XGetClassHint(dpy, c->win, &ch);
   class    = ch.res_class ? ch.res_class : broken;
   instance = ch.res_name  ? ch.res_name  : broken;
@@ -451,6 +454,7 @@ applyrules(Client *c)
       c->ispermanent = r->ispermanent;
       c->tags |= r->tags;
       c->scratchkey = r->scratchkey;
+      c->canGetSwal= r->canGetSwal;
       for (m = mons; m && m->num != r->monitor; m = m->next);
       if (m)
         c->mon = m;
@@ -2436,6 +2440,10 @@ void
 swal(Client *swer, Client *swee, int manage)
 {
   Client *c, **pc;
+
+  if(!swer->canGetSwal)
+    return;
+
   int sweefocused = selmon->sel == swee;
 
   /* Remove any swallows registered for the swer. Asking a swallower to
@@ -2507,7 +2515,7 @@ void swalreg(Client *c, const char *class, const char *inst, const char *title)
 {
   Swallow *s;
 
-  if (!c)
+  if (!c || !c->canGetSwal)
     return;
 
   for (s = swallows; s; s = s->next) {
