@@ -157,7 +157,8 @@ static Key keys[] = {
   { MODKEY,                       XK_F12,    spawn,          SHCMD("passmenu-otp")},
   { MODKEY,                       XK_Insert, spawn,          SHCMD("brave")},
   { MODKEY,                       XK_Delete, spawn,          SHCMD("smplayer")},
-  { MODKEY,                       XK_i,	     spawn,          SHCMD("dmenu-iwd")},
+  { MODKEY,                       XK_F5,     spawn,          SHCMD("dmenu-iwd")},
+  { 0,                            XF86TouchpadToggle, spawn, SHCMD("toggle-touchpad")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
   STACKKEYS(MODKEY|AltMask,                  swalsel)
