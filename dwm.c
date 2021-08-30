@@ -2743,7 +2743,8 @@ swalstop(Client *swee, Client *root)
   root->next = swer;
   swer->snext = root->snext;
   root->snext = swer;
-  swer->isfloating = swee->isfloating;
+  if(!ISFULLSCREEN(swee))
+    swer->isfloating = swee->isfloating;
 
   /* Configure geometry params obtained from patches (e.g. cfacts) here. */
   // swer->cfact = 1.0;
@@ -3361,7 +3362,7 @@ updatesizehints(Client *c)
 
   if (!XGetWMNormalHints(dpy, c->win, &size, &msize))
     /* size is uninitialized, ensure that size.flags aren't used */
-    size.flags = PSize;
+    size.flags = 0;
   if (size.flags & PBaseSize) {
     c->basew = size.base_width;
     c->baseh = size.base_height;
@@ -3393,6 +3394,11 @@ updatesizehints(Client *c)
     c->maxa = (float)size.max_aspect.x / size.max_aspect.y;
   } else
     c->maxa = c->mina = 0.0;
+  if(size.flags & PSize) {
+    c->basew = size.base_width;
+    c->baseh = size.base_height;
+    //c->isfloating = True;
+  }
   c->isfixed = (c->maxw && c->maxh && c->maxw == c->minw && c->maxh == c->minh);
 }
 
