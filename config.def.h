@@ -49,13 +49,13 @@ static const Rule rules[] = {
   /* class      instance    title               tags-mask    isfloating   iscentered   ispermanent  monitor  ignoreReqest scratch key*/
   {  NULL,      NULL,       "scratchpad",       0,           1,           1,           1,           0,       0,           'S' },
   {  NULL,      NULL,       "floatterm",        0,           1,           1,           1,           0,       0,           'T' },
-  { "net-runelite-client-RuneLite", NULL, NULL, 0,           0,           0,           0,           0,       1,            0  },
+  //{ "net-runelite-client-RuneLite", NULL, NULL, 0,           0,           0,           0,           0,       1,            0  },
 };
 
 /* layout(s) */
 static float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
 static int nmaster     = 1;    /* number of clients in master area */
-static int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
+static int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
 
 static const int defaultatchdir = 0;
                             /*    set the default attach dir
@@ -77,6 +77,7 @@ static const Layout layouts[] = {
 
 /* key definitions */
 #define MODKEY Mod4Mask
+#define AltMask Mod1Mask
 #define TAGKEYS(KEY,TAG) \
   { MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
   { MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -157,7 +158,7 @@ static Key keys[] = {
   { MODKEY,                       XK_Delete, spawn,          SHCMD("qutebrowser")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
-  STACKKEYS(MODKEY|ControlMask,              swalsel)
+  STACKKEYS(MODKEY|AltMask,                  swalsel)
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
   { MODKEY|ControlMask,           XK_h,      setmfact,       {.f = -0.05} },
   { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
