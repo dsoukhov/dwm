@@ -3548,11 +3548,11 @@ updatetitle(Client *c)
 void
 updatewindowtype(Client *c)
 {
-  Atom state = getatomprop(c, netatom[NetWMState]);
+  //Atom state = getatomprop(c, netatom[NetWMState]);
   Atom wtype = getatomprop(c, netatom[NetWMWindowType]);
 
-  if (state == netatom[NetWMFullscreen])
-    setfullscreen(c, 1);
+  /* if (state == netatom[NetWMFullscreen]) */
+  /*   setfullscreen(c, 1); */
   if (wtype == netatom[NetWMWindowTypeDialog])
     c->isfloating = 1;
 }
