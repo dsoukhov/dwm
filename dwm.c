@@ -1500,8 +1500,6 @@ killclient(const Arg *arg)
 {
 if(!selmon->sel || selmon->sel->ispermanent)
     return;
-if ISFULLSCREEN(selmon->sel)
-  setfullscreen(selmon->sel, 0);
 if (!sendevent(selmon->sel->win, wmatom[WMDelete], NoEventMask, wmatom[WMDelete], CurrentTime, 0 , 0, 0)) {
   XGrabServer(dpy);
   XSetErrorHandler(xerrordummy);
@@ -2440,11 +2438,17 @@ void
 swal(Client *swer, Client *swee, int manage)
 {
   Client *c, **pc;
+  int fs = 0;
 
   if(!swer->canGetSwal)
     return;
 
   int sweefocused = selmon->sel == swee;
+
+  if (ISFULLSCREEN(swer)){
+    setfullscreen(swer, 0);
+    fs = 1;
+  }
 
   /* Remove any swallows registered for the swer. Asking a swallower to
    * swallow another window is ambiguous and is thus avoided altogether. In
@@ -2456,8 +2460,8 @@ swal(Client *swer, Client *swee, int manage)
   /* Disable fullscreen prior to swallow. Swallows involving fullscreen
    * windows produces quirky artefacts such as fullscreen terminals or tiled
    * pseudo-fullscreen windows. */
-  setfullscreen(swer, 0);
-  setfullscreen(swee, 0);
+  /* setfullscreen(swer, 0); */
+  /* setfullscreen(swee, 0); */
 
   /* Swap swallowee into client and focus lists. Keeps current focus unless
    * the swer (which gets unmapped) is focused in which case the swee will
@@ -2502,6 +2506,9 @@ swal(Client *swer, Client *swee, int manage)
     XMapWindow(dpy, swee->win);
   XUnmapWindow(dpy, swer->win);
   restack(swer->mon);
+
+  if (fs)
+    setfullscreen(swee, 1);
 }
 
 /*
@@ -2739,9 +2746,15 @@ void
 swalstop(Client *swee, Client *root)
 {
   Client *swer;
+  int fs = 0;
 
   if (!swee || !(swer = swee->swallowedby))
     return;
+
+  if (ISFULLSCREEN(swee)){
+    setfullscreen(swee, 0);
+    fs = 1;
+  }
 
   swee->swallowedby = NULL;
   root = root ? root : swee;
@@ -2772,6 +2785,9 @@ swalstop(Client *swee, Client *root)
   XMapWindow(dpy, swer->win);
   focus(NULL);
   arrange(swer->mon);
+
+  if (fs)
+    setfullscreen(swer, 1);
 }
 
 /*
