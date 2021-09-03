@@ -3058,6 +3058,8 @@ togglescratch(const Arg *arg)
 
   for (c = selmon->clients; c && !(found = c->scratchkey == ((char**)arg->v)[0][0]); c = c->next);
   if (found) {
+    c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2); /* center in x direction */
+    c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2); /* center in y direction */
     if (!ISVISIBLE(c)) {
       c->tags = selmon->tagset[selmon->seltags];
       for (k = selmon->clients; k; k = k->next) {
@@ -3071,8 +3073,6 @@ togglescratch(const Arg *arg)
     arrange(selmon);
 
     if (ISVISIBLE(c)) {
-      c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2); /* center in x direction */
-      c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2); /* center in y direction */
       focus(c);
       restack(selmon);
     }

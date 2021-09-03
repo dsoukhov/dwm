@@ -48,6 +48,7 @@ static const Rule rules[] = {
    */
   /* class      instance    title               tags-mask    isfloating   iscentered   ispermanent  monitor  ignoreReqest scratch-key can-get-swallowed*/
   {  "St",      NULL,       NULL,               0,           0,           0,           0,           0,       0,            0,         1 },
+  {  "st",      NULL,       NULL,               0,           0,           0,           0,           0,       0,            0,         1 },
   {  NULL,      NULL,       "scratchpad",       0,           1,           1,           1,           0,       0,           'S',        1 },
   {  NULL,      NULL,       "floatterm",        0,           1,           1,           1,           0,       0,           'T',        1 },
   { "net-runelite-client-RuneLite", NULL, NULL, 0,           0,           0,           0,           0,       1,            0,         0 },
