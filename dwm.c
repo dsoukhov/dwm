@@ -54,9 +54,10 @@
 #define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
 #define ISINC(X)                ((X) > 1000 && (X) < 3000)
-#define ISFULLSCREEN(C)         ((C && (selmon->pertag->fullscreens[selmon->pertag->curtag] == C || (selmon->sticky == C && selmon->pertag->fullscreens[C->tags] == C))))
-#define ISVISIBLEONTAG(C, T)    ((C->tags & T) || (ISFULLSCREEN(C)))
-#define ISVISIBLE(C)            (C && (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || (selmon->sticky == C && (!selmon->pertag->fullscreens[selmon->pertag->curtag] || ISFULLSCREEN(C)))))
+#define ISFULLSCREEN(C)         ((C && (selmon->pertag->fullscreens[selmon->pertag->curtag] == C || (C->scratchkey && selmon->pertag->fullscreens[C->fstag] == C) || (selmon->sticky == C && selmon->pertag->fullscreens[C->tags] == C))))
+#define ISVISIBLEONTAG(C, T)    ((C->tags & T) || (ISFULLSCREEN(C) && !C->scratchkey))
+#define ISVISIBLESTICKY(C)      (selmon->sticky == C && (!selmon->pertag->fullscreens[selmon->pertag->curtag] || ISFULLSCREEN(C)))
+#define ISVISIBLE(C)            (C && (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || ISVISIBLESTICKY(C)))
 #define PREVSEL                 3000
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 #define MOD(N,M)                ((N)%(M) < 0 ? (N)%(M) + (M) : (N)%(M))
@@ -125,6 +126,7 @@ struct Client {
   unsigned int tags;
   int isfixed, ispermanent, isfloating, iscentered, isurgent, neverfocus, oldstate, needresize;
   int ignoreRequest;
+  int fstag;
   char scratchkey;
   int canGetSwal;
   Client *next;
@@ -439,6 +441,7 @@ applyrules(Client *c)
   c->ignoreRequest = 0;
   c->scratchkey = 0;
   c->canGetSwal = 0;
+  c->fstag = 0;
   XGetClassHint(dpy, c->win, &ch);
   class    = ch.res_class ? ch.res_class : broken;
   instance = ch.res_name  ? ch.res_name  : broken;
@@ -2225,8 +2228,11 @@ setfullscreen(Client *c, int fullscreen)
 
   int tag = selmon->pertag->curtag;
 
-  if(selmon->sticky == c) {
+  if (selmon->sticky == c)
     tag = c->tags;
+
+  if (c->scratchkey && !fullscreen) {
+    tag = c->fstag;
   }
 
   if (fullscreen && !ISFULLSCREEN(c)) {
@@ -2239,6 +2245,7 @@ setfullscreen(Client *c, int fullscreen)
     c->oldbw = c->bw;
     c->bw = 0;
     c->isfloating = 1;
+    c->fstag = tag;
     resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
     XRaiseWindow(dpy, c->win);
   } else if (!fullscreen && ISFULLSCREEN(c)){
@@ -2251,6 +2258,7 @@ setfullscreen(Client *c, int fullscreen)
     c->y = c->oldy;
     c->w = c->oldw;
     c->h = c->oldh;
+    c->fstag = 0;
     resizeclient(c, c->x, c->y, c->w, c->h);
     arrange(c->mon);
   }
@@ -3069,6 +3077,7 @@ togglescratch(const Arg *arg)
     } else {
       c->tags = 0;
     }
+    setfullscreen(c, 0);
     focus(NULL);
     arrange(selmon);
 
