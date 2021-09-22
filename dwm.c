@@ -2153,6 +2153,7 @@ sendmon(Client *c, Monitor *m)
   if (c->mon == m)
     return;
   unfocus(c, 1);
+  setfullscreen(c, 0);
   detach(c);
   detachstack(c);
   c->mon = m;
@@ -2873,6 +2874,7 @@ tag(const Arg *arg)
     selmon->sel->tags = arg->ui & TAGMASK;
     Client *c = selmon->sel;
     if (c && selmon->sticky != c) {
+      setfullscreen(c, 0);
       detach(c);
       if (selmon->pertag->attachdir[arg->ui & TAGMASK] > 1)
         attachtop(c);
