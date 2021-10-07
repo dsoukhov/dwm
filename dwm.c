@@ -1907,10 +1907,30 @@ resizeclient(Client *c, int x, int y, int w, int h)
     }
   }
 
-  c->oldx = c->x; c->x = wc.x = x + gapoffset;
-  c->oldy = c->y; c->y = wc.y = y + gapoffset;
+  /*
+  x == 0 , left touching
+  y - bary == 0 top touching
+  x + w == screen width, right touching
+  y + h == screen height, bot touching
+  */
+
+  c->oldx = c->x; c->x = wc.x = x;
   c->oldw = c->w; c->w = wc.width = w - gapincr;
   c->oldh = c->h; c->h = wc.height = h - gapincr;
+
+  if (selmon->topbar) {
+    c->oldy = c->y; c->y = wc.y = y + gapoffset;
+  } else {
+    c->oldy = c->y; c->y = wc.y = y;
+  }
+
+  if (x + w + borderpx * 2 == selmon->ww && wc.border_width != 0) {
+    c->oldw = c->w; c->w = wc.width = w;
+  }
+
+  if (selmon->topbar && (y + h + borderpx * 2 >= selmon->wh) && wc.border_width != 0) {
+    c->oldh = c->h; c->h = wc.height = h - gapoffset;
+  }
 
   XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);
   configure(c);
@@ -2958,12 +2978,12 @@ fibonacci(Monitor *mon, int s) {
   for(n = 0, c = nexttiled(mon->clients); c; c = nexttiled(c->next), n++);
   if(n == 0)
     return;
-  
+
   nx = mon->wx;
   ny = 0;
   nw = mon->ww;
-  nh = mon->wh;
-  
+  nh = mon->wh + 1;
+
   for(i = 0, c = nexttiled(mon->clients); c; c = nexttiled(c->next)) {
     if((i % 2 && nh / 2 > 2 * c->bw)
        || (!(i % 2) && nw / 2 > 2 * c->bw)) {
