@@ -820,7 +820,6 @@ clientmessage(XEvent *e)
     if (i < LENGTH(tags)) {
       const Arg a = {.ui = 1 << i};
       selmon = c->mon;
-      if (selmon->sticky != c)
         view(&a);
       focus(c);
       restack(selmon);

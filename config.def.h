@@ -5,6 +5,8 @@
 #define XF86AudioLowerVolume	0x1008ff11
 #define XF86AudioRaiseVolume	0x1008ff13
 #define XF86TouchpadToggle	0x1008ffa9
+#define XF86XK_MonBrightnessUp   0x1008FF02  /* Monitor/panel brightness */
+#define XF86XK_MonBrightnessDown 0x1008FF03  /* Monitor/panel brightness */
 
 /* appearance */
 static unsigned int borderpx        = 3;   /* border pixel of windows */
@@ -159,6 +161,8 @@ static Key keys[] = {
   { MODKEY,                       XK_Delete, spawn,          SHCMD("smplayer")},
   { MODKEY,                       XK_F5,     spawn,          SHCMD("pkill wpa_gui; wpa_gui")},
   { 0,                            XF86TouchpadToggle, spawn, SHCMD("toggle-touchpad")},
+  { 0,                            XF86XK_MonBrightnessUp,  spawn, SHCMD("sleep 0.2 && notify-send -t 350 $(cat /sys/class/backlight/intel_backlight/brightness)")},
+  { 0,                            XF86XK_MonBrightnessDown,spawn, SHCMD("sleep 0.2 && notify-send -t 350 $(cat /sys/class/backlight/intel_backlight/brightness)")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
   STACKKEYS(MODKEY|AltMask,                  swalsel)
