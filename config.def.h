@@ -160,6 +160,7 @@ static Key keys[] = {
   { MODKEY,                       XK_Insert, spawn,          SHCMD("brave")},
   { MODKEY,                       XK_Delete, spawn,          SHCMD("smplayer")},
   { MODKEY,                       XK_F5,     spawn,          SHCMD("pkill wpa_gui; wpa_gui")},
+  { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-winswitch")},
   { 0,                            XF86TouchpadToggle, spawn, SHCMD("toggle-touchpad")},
   { 0,                            XF86XK_MonBrightnessUp,  spawn, SHCMD("sleep 0.2 && notify-send -t 350 $(cat /sys/class/backlight/intel_backlight/brightness)")},
   { 0,                            XF86XK_MonBrightnessDown,spawn, SHCMD("sleep 0.2 && notify-send -t 350 $(cat /sys/class/backlight/intel_backlight/brightness)")},
