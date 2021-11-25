@@ -51,7 +51,7 @@ static const Rule rules[] = {
   {  "st",      NULL,       NULL,               0,           0,           0,           0,           0,       0,            0,         1 },
   {  NULL,      NULL,       "scratchpad",       0,           1,           1,           1,           0,       0,           'S',        1 },
   {  NULL,      NULL,       "floatterm",        0,           1,           1,           1,           0,       0,           'T',        1 },
-  { "net-runelite-client-RuneLite", NULL, NULL, 0,           0,           0,           0,           0,       1,            0,         0 },
+  { "net-runelite-client-RuneLite", NULL, NULL, 0,           1,           0,           0,           0,       1,            0,         0 },
 };
 
 /* layout(s) */
@@ -158,6 +158,7 @@ static Key keys[] = {
   { MODKEY,                       XK_Insert, spawn,          SHCMD("brave")},
   { MODKEY,                       XK_Prior,  spawn,          SHCMD("osrs-launcher")},
   { MODKEY,                       XK_Delete, spawn,          SHCMD("qutebrowser")},
+  { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-winswitch")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
   STACKKEYS(MODKEY|AltMask,                  swalsel)
