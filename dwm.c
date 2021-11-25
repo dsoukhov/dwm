@@ -1500,16 +1500,16 @@ keypress(XEvent *e)
 void
 killclient(const Arg *arg)
 {
-if(!selmon->sel || selmon->sel->ispermanent)
+  if(!selmon->sel || selmon->sel->ispermanent)
     return;
-if (!sendevent(selmon->sel->win, wmatom[WMDelete], NoEventMask, wmatom[WMDelete], CurrentTime, 0 , 0, 0)) {
-  XGrabServer(dpy);
-  XSetErrorHandler(xerrordummy);
-  XSetCloseDownMode(dpy, DestroyAll);
-  XKillClient(dpy, selmon->sel->win);
-  XSync(dpy, False);
-  XSetErrorHandler(xerror);
-  XUngrabServer(dpy);
+  if (!sendevent(selmon->sel->win, wmatom[WMDelete], NoEventMask, wmatom[WMDelete], CurrentTime, 0, 0, 0)) {
+    XGrabServer(dpy);
+    XSetErrorHandler(xerrordummy);
+    XSetCloseDownMode(dpy, DestroyAll);
+    XKillClient(dpy, selmon->sel->win);
+    XSync(dpy, False);
+    XSetErrorHandler(xerror);
+    XUngrabServer(dpy);
   }
 }
 
@@ -1810,7 +1810,7 @@ pushstack(const Arg *arg) {
   int i = stackpos(arg);
   Client *sel = selmon->sel, *c, *p;
 
-  if(i < 0)
+  if(i < 0 || !sel)
     return;
   else if(i == 0) {
     detach(sel);
