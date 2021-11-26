@@ -148,9 +148,9 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_c,      togglescratch,  {.v = scratchpadcmd } },
   { MODKEY,                       XK_c,      togglescratch,  {.v = floattermcmd} },
   { MODKEY,                       XK_b,      togglebar,      {0} },
-  { 0,                            XF86AudioMute,          spawn,          SHCMD("pamixer -t && pkill -RTMIN+1 dwmblocks")},
-  { 0,                            XF86AudioLowerVolume,   spawn,          SHCMD("pamixer -d 5 && pkill -RTMIN+1 dwmblocks")},
-  { 0,                            XF86AudioRaiseVolume,   spawn,          SHCMD("pamixer -i 5 && pkill -RTMIN+1 dwmblocks")},
+  { 0,                            XF86AudioMute,          spawn,          SHCMD("volume mute && pkill -RTMIN+1 dwmblocks")},
+  { 0,                            XF86AudioLowerVolume,   spawn,          SHCMD("volume down && pkill -RTMIN+1 dwmblocks")},
+  { 0,                            XF86AudioRaiseVolume,   spawn,          SHCMD("volume up && pkill -RTMIN+1 dwmblocks")},
   { MODKEY,                       XK_F9,     spawn,          SHCMD("pavucontrol && pkill -RTMIN+1 dwmblocks && pkill -RTMIN+2 dwmblocks")},
   { 0,                            XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
   { MODKEY,                       XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
@@ -162,8 +162,8 @@ static Key keys[] = {
   { MODKEY,                       XK_F5,     spawn,          SHCMD("pkill wpa_gui; wpa_gui")},
   { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-winswitch")},
   { 0,                            XF86TouchpadToggle, spawn, SHCMD("toggle-touchpad")},
-  { 0,                            XF86XK_MonBrightnessUp,  spawn, SHCMD("sleep 0.2 && notify-send -t 350 $(cat /sys/class/backlight/intel_backlight/brightness)")},
-  { 0,                            XF86XK_MonBrightnessDown,spawn, SHCMD("sleep 0.2 && notify-send -t 350 $(cat /sys/class/backlight/intel_backlight/brightness)")},
+  { 0,                            XF86XK_MonBrightnessUp,  spawn, SHCMD("sleep 0.1 && brightness")},
+  { 0,                            XF86XK_MonBrightnessDown,spawn, SHCMD("sleep 0.1 && brightness")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
   STACKKEYS(MODKEY|AltMask,                  swalsel)
