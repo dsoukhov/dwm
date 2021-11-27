@@ -1162,16 +1162,6 @@ enternotify(XEvent *e)
   } else if (!c || c == selmon->sel)
     return;
   focus(c);
-  /* hide all scratchpads when non scratchpad float is focused */
-  if ((c->isfloating || selmon->lt[selmon->sellt]->arrange == NULL) && !c->scratchkey && !ISFULLSCREEN(c)) {
-    for (c = selmon->clients; c != NULL; c = c->next)
-      if (c->scratchkey) {
-        c->tags = 0;
-        focus(NULL);
-        arrange(selmon);
-     }
-  restack(selmon);
-  }
 }
 
 void
