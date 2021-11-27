@@ -1,7 +1,6 @@
 #!/bin/sh
 #pamixer --set-volume 40 && pkill -RTMIN+1 dwmblocks
-#pamixer --source "alsa_input.pci-0000_00_1f.3.analog-stereo" --set-volume 20 && pkill -RTMIN+2 dwmblocks
-pamixer --source "alsa_input.pci-0000_00_1f.3.analog-stereo"
+pamixer --source "alsa_input.pci-0000_00_1f.3.analog-stereo" --set-volume 20 && pkill -RTMIN+2 dwmblocks
 hsetroot -solid '#000000'
 #hsetroot -solid '#ffffff'
 #feh --bg-scale ~/Pictures/wallpaper/wp1.png &
