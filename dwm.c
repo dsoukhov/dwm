@@ -2512,8 +2512,6 @@ swal(Client *swer, Client *swee, int manage)
   swee->tags = swer->tags;
   swee->isfloating = swer->isfloating;
   swee->scratchkey = swer->scratchkey;
-  if(swee->scratchkey)
-    strcpy(swee->name, swer->name);
   for (c = swee; c->swallowedby; c = c->swallowedby);
   c->swallowedby = swer;
 
@@ -2775,15 +2773,9 @@ void
 swalstop(Client *swee, Client *root)
 {
   Client *swer;
-  int fs = 0;
 
   if (!swee || !(swer = swee->swallowedby))
     return;
-
-  if (ISFULLSCREEN(swee)){
-    setfullscreen(swee, 0);
-    fs = 1;
-  }
 
   swee->swallowedby = NULL;
   root = root ? root : swee;
@@ -2794,13 +2786,15 @@ swalstop(Client *swee, Client *root)
   swer->snext = root->snext;
   root->snext = swer;
   if(!ISFULLSCREEN(swee))
-    swer->isfloating = swee->isfloating;
-
+    swee->isfloating = swee->isfloating;
+  if(swee->scratchkey) {
+    swee->scratchkey = 0;
+  }
   /* Configure geometry params obtained from patches (e.g. cfacts) here. */
   // swer->cfact = 1.0;
 
-  /* If swer is not in tiling mode reuse swee's geometry. */
-  if (swer->isfloating || !root->mon->lt[root->mon->sellt]->arrange) {
+  /* If swer is not in tiling mode nor scratch reuse swee's geometry. */
+  if ((swer->isfloating && !swer->scratchkey) || !root->mon->lt[root->mon->sellt]->arrange) {
     XRaiseWindow(dpy, swer->win);
     resize(swer, swee->x, swee->y, swee->w, swee->h, 0);
   }
@@ -2814,9 +2808,6 @@ swalstop(Client *swee, Client *root)
   XMapWindow(dpy, swer->win);
   focus(NULL);
   arrange(swer->mon);
-
-  if (fs)
-    setfullscreen(swer, 1);
 }
 
 /*
