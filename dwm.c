@@ -3250,7 +3250,7 @@ unmanage(Client *c, int destroyed)
   }
   if (ISFULLSCREEN(c))
     selmon->pertag->fullscreens[selmon->pertag->curtag] = NULL;
-  if (selmon->sticky)
+  if (selmon->sticky == c)
     selmon->sticky = NULL;
   free(c);
   focus(NULL);
