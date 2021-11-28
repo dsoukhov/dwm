@@ -290,6 +290,7 @@ static void pop(Client *);
 static void propertynotify(XEvent *e);
 static void pushstack(const Arg *arg);
 static void quit(const Arg *arg);
+static void raiseclient(Client *c);
 static Monitor *recttomon(int x, int y, int w, int h);
 static void removesystrayicon(Client *i);
 static void resize(Client *c, int x, int y, int w, int h, int interact);
@@ -1176,6 +1177,7 @@ enternotify(XEvent *e)
   } else if (!c || c == selmon->sel)
     return;
   focus(c);
+  restack(m);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &xev));
 }
 
@@ -1302,6 +1304,7 @@ focus(Client *c)
     /* Move all visible floating windows that are not marked as on top below the current window */
     wc.stack_mode = Below;
     wc.sibling = c->win;
+    for (f = c->mon->stack; f; f = f->snext)
       if (f != c && f->isfloating && ISVISIBLE(f) && !f->alwaysontop) {
         XConfigureWindow(dpy, f->win, CWSibling|CWStackMode, &wc);
         wc.sibling = f->win;
@@ -1873,6 +1876,16 @@ quit(const Arg *arg)
   running = 0;
 }
 
+void
+raiseclient(Client *c)
+{
+  XWindowChanges wc;
+  wc.stack_mode = Above;
+  wc.sibling = c->mon->barwin;
+  XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
+  focus(c);
+}
+
 Monitor *
 recttomon(int x, int y, int w, int h)
 {
@@ -2076,7 +2089,7 @@ restack(Monitor *m)
   if (!m->sel)
     return;
   if (m->sel->isfloating || !m->lt[m->sellt]->arrange)
-    XRaiseWindow(dpy, m->sel->win);
+    raiseclient(m->sel);
   if (m->lt[m->sellt]->arrange) {
     wc.stack_mode = Below;
     wc.sibling = m->barwin;
@@ -2303,7 +2316,6 @@ setfocus(Client *c)
 void
 setfullscreen(Client *c, int fullscreen)
 {
-
   if (ISFULLSCREEN(selmon->sticky) && c != selmon->sticky)
     return;
 
@@ -2328,7 +2340,7 @@ setfullscreen(Client *c, int fullscreen)
     c->isfloating = 1;
     c->fstag = tag;
     resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
-    XRaiseWindow(dpy, c->win);
+    raiseclient(c);
   } else if (!fullscreen && ISFULLSCREEN(c)){
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
       PropModeReplace, (unsigned char*)0, 0);
@@ -2618,7 +2630,7 @@ swal(Client *swer, Client *swee, int manage)
     setclientstate(swee, NormalState);
 
   if (swee->isfloating || !swee->mon->lt[swee->mon->sellt]->arrange)
-    XRaiseWindow(dpy, swee->win);
+    raiseclient(swee);
   resize(swee, swer->x, swer->y, swer->w, swer->h, 0);
 
   focus(NULL);
@@ -2890,7 +2902,7 @@ swalstop(Client *swee, Client *root)
 
   /* If swer is not in tiling mode nor scratch reuse swee's geometry. */
   if ((swer->isfloating && !swer->scratchkey) || !root->mon->lt[root->mon->sellt]->arrange) {
-    XRaiseWindow(dpy, swer->win);
+    raiseclient(swer);
     resize(swer, swee->x, swee->y, swee->w, swee->h, 0);
   }
 
@@ -3185,7 +3197,6 @@ togglescratch(const Arg *arg)
     } else {
       c->tags = 0;
     }
-    setfullscreen(c, 0);
     focus(NULL);
     arrange(selmon);
 
