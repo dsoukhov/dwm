@@ -1177,7 +1177,6 @@ enternotify(XEvent *e)
   } else if (!c || c == selmon->sel)
     return;
   focus(c);
-  restack(m);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &xev));
 }
 
@@ -1298,9 +1297,7 @@ focus(Client *c)
       }
     }
     /* Move the currently focused client above the bar window */
-    wc.stack_mode = Above;
-    wc.sibling = c->mon->barwin;
-    XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
+    raiseclient(c);
     /* Move all visible floating windows that are not marked as on top below the current window */
     wc.stack_mode = Below;
     wc.sibling = c->win;
@@ -1883,7 +1880,6 @@ raiseclient(Client *c)
   wc.stack_mode = Above;
   wc.sibling = c->mon->barwin;
   XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
-  focus(c);
 }
 
 Monitor *
