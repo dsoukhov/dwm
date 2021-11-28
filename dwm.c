@@ -1163,6 +1163,7 @@ enternotify(XEvent *e)
   } else if (!c || c == selmon->sel)
     return;
   focus(c);
+  restack(selmon);
 }
 
 void
@@ -1256,20 +1257,10 @@ fakesignal(void)
 void
 focus(Client *c)
 {
-  if (!c || !ISVISIBLE(c)) {
-    int cont = 1;
-    c = selmon->stack;
-    while (cont && c) {
-      if (selmon->sticky == c && selmon->sel && selmon->sel != c && c->snext)
-        c = c->snext;
-      else if (ISVISIBLE(c))
-        cont = 0;
-      else
-        c = c->snext;
-    }
-  }
+  if (!c || !ISVISIBLE(c))
+      for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
   if (selmon->sel && selmon->sel != c)
-    unfocus(selmon->sel, 0);
+      unfocus(selmon->sel, 0);
   if (c) {
     if (c->mon != selmon)
       selmon = c->mon;
