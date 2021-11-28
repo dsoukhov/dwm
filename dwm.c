@@ -268,6 +268,7 @@ static void focus(Client *c);
 static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
+static void focustopclient(Monitor *m);
 static Atom getatomprop(Client *c, Atom prop);
 static int getrootptr(int *x, int *y);
 static long getstate(Window w);
@@ -476,8 +477,7 @@ applyrules(Client *c)
     }
   }
 
-  c->alwaysontop = 1 ? ( c->scratchkey ||
-    (wintype == netatom[NetWMWindowTypeSplash]) ||
+  c->alwaysontop = 1 ? ((wintype == netatom[NetWMWindowTypeSplash]) ||
     (wintype == netatom[NetWMWindowTypeToolbar]) ||
     (wintype == netatom[NetWMWindowTypeDialog]) ||
     (wintype == netatom[NetWMWindowTypeUtility])) : 0;
@@ -1271,7 +1271,7 @@ fakesignal(void)
 void
 focus(Client *c)
 {
-  Client *f;
+  Client *f, *t = NULL;
   XWindowChanges wc;
   if (!c || !ISVISIBLE(c))
       for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
@@ -1287,29 +1287,40 @@ focus(Client *c)
     grabbuttons(c, 1);
     XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColBorder].pixel);
     setfocus(c);
-    /* Move all visible tiled clients that are not marked as on top below the bar window */
-    wc.stack_mode = Below;
-    wc.sibling = c->mon->barwin;
-    for (f = c->mon->stack; f; f = f->snext) {
-      if (f != c && !f->isfloating && ISVISIBLE(f) && !f->alwaysontop) {
-        XConfigureWindow(dpy, f->win, CWSibling|CWStackMode, &wc);
-        wc.sibling = f->win;
-      }
-    }
-    /* Move the currently focused client above the bar window */
-    raiseclient(c);
-    /* Move all visible floating windows that are not marked as on top below the current window */
-    wc.stack_mode = Below;
-    wc.sibling = c->win;
-    for (f = c->mon->stack; f; f = f->snext)
-      if (f != c && f->isfloating && ISVISIBLE(f) && !f->alwaysontop) {
-        XConfigureWindow(dpy, f->win, CWSibling|CWStackMode, &wc);
-        wc.sibling = f->win;
-      }
+    focustopclient(selmon);
+    /* if ((c->isfloating || !(selmon->lt[selmon->sellt]->arrange))) { */
+      /*/1*find any top clients *1/ */
+      /*for (f = c->mon->stack; f; f = f->snext) { */
+      /*  if(f->alwaysontop && ISVISIBLE(f)) */
+      /*    t = f; */
+      /*} */
+      /*wc.stack_mode = Below; */
+      /*wc.sibling = c->win; */
+      /*raiseclient(c); */
+      /*if (t) { */
+      /*/1* Move all visible windows that are not marked as on top below the top client *1/ */
+      /*  for (f = c->mon->stack; f; f = f->snext) { */
+      /*    if (ISFULLSCREEN(f) && ISVISIBLE(f)) setfullscreen(f, 0); */
+      /*    if (f != c && ISVISIBLE(f) && !f->alwaysontop) { */
+      /*      XConfigureWindow(dpy, f->win, CWSibling|CWStackMode, &wc); */
+      /*      wc.sibling = f->win; */
+      /*    } */
+      /*  } */
+      /*} else { */
+     /*/1* Move all visible non scratch windows that are not marked as on top below the current window *1/ */
+      /*    for (f = c->mon->stack; f; f = f->snext) { */
+      /*      if (f != c && ISVISIBLE(f) && !f->scratchkey) { */
+      /*        XConfigureWindow(dpy, f->win, CWSibling|CWStackMode, &wc); */
+      /*        wc.sibling = f->win; */
+      /*      } */
+      /*    } */
+      /*} */
+    /* } */
   } else {
     XSetInputFocus(dpy, root, RevertToPointerRoot, CurrentTime);
     XDeleteProperty(dpy, root, netatom[NetActiveWindow]);
   }
+
   selmon->sel = c;
   drawbars();
 }
@@ -1345,13 +1356,69 @@ focusstack(const Arg *arg)
   Client *c, *p;
   XEvent xev;
 
-  if (!selmon->sel || ISFULLSCREEN(selmon->sel))
+  if (!selmon->sel)
     return;
 
   for(p = NULL, c = selmon->clients; c && (i || !ISVISIBLE(c));
       i -= ISVISIBLE(c) ? 1 : 0, p = c, c = c->next);
-  focus(c ? c : p);
+  c = c ? c : p;
+  if(ISFULLSCREEN(selmon->sel) && !c->scratchkey)
+    return;
+  focus(c);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &xev));
+}
+
+void focustopclient(Monitor *m)
+{
+  Client *c;
+  int t = 0;
+  int s = 0;
+  XWindowChanges wc;
+
+  for (c = m->stack; c; c = c->snext) {
+    if (ISVISIBLE(c) && c->alwaysontop)
+      t = 1;
+    if (ISVISIBLE(c) && c->scratchkey)
+      s = 1;
+  }
+
+  wc.stack_mode = Below;
+  if (!t) {
+    wc.sibling = m->barwin;
+    for (c = m->stack; c; c = c->snext)
+      if(ISVISIBLE(c)) {
+        if (!s) {
+          if (!c->isfloating) {
+            XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
+            wc.sibling = c->win;
+          } else {
+            raiseclient(c);
+          }
+        } else {
+            if (!c->scratchkey) {
+              if (ISFULLSCREEN(c)) setfullscreen(c, 0);
+              XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
+              wc.sibling = c->win;
+            } else {
+              raiseclient(c);
+            }
+        }
+      }
+  } else {
+    wc.sibling = m->barwin;
+    for (c = m->stack; c; c = c->snext) {
+      if(ISVISIBLE(c)) {
+        if (ISFULLSCREEN(c)) setfullscreen(c, 0);
+        if (!c->alwaysontop) {
+          XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
+          wc.sibling = c->win;
+        }
+        else if (c->alwaysontop) {
+          raiseclient(c);
+        }
+      }
+    }
+  }
 }
 
 Atom
@@ -2077,24 +2144,13 @@ resizerequest(XEvent *e)
 void
 restack(Monitor *m)
 {
-  Client *c;
   XEvent ev;
-  XWindowChanges wc;
 
   drawbar(m);
   if (!m->sel)
     return;
-  if (m->sel->isfloating || !m->lt[m->sellt]->arrange)
-    raiseclient(m->sel);
-  if (m->lt[m->sellt]->arrange) {
-    wc.stack_mode = Below;
-    wc.sibling = m->barwin;
-    for (c = m->stack; c; c = c->snext)
-      if (!c->isfloating && ISVISIBLE(c)) {
-        XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
-        wc.sibling = c->win;
-      }
-  }
+
+  focustopclient(m);
   XSync(dpy, False);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
 }
@@ -2336,7 +2392,6 @@ setfullscreen(Client *c, int fullscreen)
     c->isfloating = 1;
     c->fstag = tag;
     resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
-    raiseclient(c);
   } else if (!fullscreen && ISFULLSCREEN(c)){
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
       PropModeReplace, (unsigned char*)0, 0);
@@ -2349,8 +2404,8 @@ setfullscreen(Client *c, int fullscreen)
     c->h = c->oldh;
     c->fstag = 0;
     resizeclient(c, c->x, c->y, c->w, c->h);
-    arrange(c->mon);
   }
+  arrange(selmon);
 }
 
 void
@@ -3193,13 +3248,15 @@ togglescratch(const Arg *arg)
     } else {
       c->tags = 0;
     }
+
+    if ISFULLSCREEN(c)
+      setfullscreen(c, 0);
     focus(NULL);
-    arrange(selmon);
 
     if (ISVISIBLE(c)) {
       focus(c);
-      restack(selmon);
     }
+    arrange(selmon);
 
   } else {
     spawnscratch(arg);
@@ -3309,8 +3366,9 @@ unmanage(Client *c, int destroyed)
     XSetErrorHandler(xerror);
     XUngrabServer(dpy);
   }
-  if (ISFULLSCREEN(c))
+  if (ISFULLSCREEN(c)) {
     selmon->pertag->fullscreens[selmon->pertag->curtag] = NULL;
+  }
   if (selmon->sticky == c)
     selmon->sticky = NULL;
   free(c);
@@ -3683,7 +3741,7 @@ updatesystray(void)
   x -= w;
   XMoveResizeWindow(dpy, systray->win, x, m->by, w, bh);
   wc.x = x; wc.y = m->by; wc.width = w; wc.height = bh;
-  wc.stack_mode = Above; wc.sibling = m->barwin;
+  wc.stack_mode = Below; wc.sibling = m->barwin;
   XConfigureWindow(dpy, systray->win, CWX|CWY|CWWidth|CWHeight|CWSibling|CWStackMode, &wc);
   XMapWindow(dpy, systray->win);
   XMapSubwindows(dpy, systray->win);
