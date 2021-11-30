@@ -1271,8 +1271,6 @@ fakesignal(void)
 void
 focus(Client *c)
 {
-  Client *f, *t = NULL;
-  XWindowChanges wc;
   if (!c || !ISVISIBLE(c))
       for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
   if (selmon->sel && selmon->sel != c)
@@ -1288,34 +1286,6 @@ focus(Client *c)
     XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColBorder].pixel);
     setfocus(c);
     focustopclient(selmon);
-    /* if ((c->isfloating || !(selmon->lt[selmon->sellt]->arrange))) { */
-      /*/1*find any top clients *1/ */
-      /*for (f = c->mon->stack; f; f = f->snext) { */
-      /*  if(f->alwaysontop && ISVISIBLE(f)) */
-      /*    t = f; */
-      /*} */
-      /*wc.stack_mode = Below; */
-      /*wc.sibling = c->win; */
-      /*raiseclient(c); */
-      /*if (t) { */
-      /*/1* Move all visible windows that are not marked as on top below the top client *1/ */
-      /*  for (f = c->mon->stack; f; f = f->snext) { */
-      /*    if (ISFULLSCREEN(f) && ISVISIBLE(f)) setfullscreen(f, 0); */
-      /*    if (f != c && ISVISIBLE(f) && !f->alwaysontop) { */
-      /*      XConfigureWindow(dpy, f->win, CWSibling|CWStackMode, &wc); */
-      /*      wc.sibling = f->win; */
-      /*    } */
-      /*  } */
-      /*} else { */
-     /*/1* Move all visible non scratch windows that are not marked as on top below the current window *1/ */
-      /*    for (f = c->mon->stack; f; f = f->snext) { */
-      /*      if (f != c && ISVISIBLE(f) && !f->scratchkey) { */
-      /*        XConfigureWindow(dpy, f->win, CWSibling|CWStackMode, &wc); */
-      /*        wc.sibling = f->win; */
-      /*      } */
-      /*    } */
-      /*} */
-    /* } */
   } else {
     XSetInputFocus(dpy, root, RevertToPointerRoot, CurrentTime);
     XDeleteProperty(dpy, root, netatom[NetActiveWindow]);
