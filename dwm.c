@@ -1382,11 +1382,15 @@ void focustopclient(Monitor *m)
     for (c = m->stack; c; c = c->snext) {
       if(ISVISIBLE(c)) {
         if (ISFULLSCREEN(c)) setfullscreen(c, 0);
+        if (c->scratchkey) {
+          c->tags = 0;
+          arrange(c->mon);
+        }
         if (!c->alwaysontop) {
           XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
           wc.sibling = c->win;
         }
-        else if (c->alwaysontop) {
+        else {
           raiseclient(c);
         }
       }
