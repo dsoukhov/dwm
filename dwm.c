@@ -1343,6 +1343,7 @@ void focustopclient(Monitor *m)
   Client *c;
   int t = 0;
   int s = 0;
+  Client *f = NULL;
   XWindowChanges wc;
 
   for (c = m->stack; c; c = c->snext) {
@@ -1350,6 +1351,8 @@ void focustopclient(Monitor *m)
       t = 1;
     if (ISVISIBLE(c) && c->scratchkey)
       s = 1;
+    if (ISVISIBLE(c) && ISFULLSCREEN(c))
+      f = c;
   }
 
   wc.stack_mode = Below;
@@ -1358,22 +1361,22 @@ void focustopclient(Monitor *m)
     for (c = m->stack; c; c = c->snext)
       if(ISVISIBLE(c)) {
         if (!s) {
-          if (!c->isfloating) {
+          if (!c->isfloating || (f && c->isfloating && c != f)) {
             XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
             wc.sibling = c->win;
-          } else {
+            } else if(!ISFULLSCREEN(c)) {
             raiseclient(c);
           }
         } else {
             if (!c->scratchkey) {
-              if (ISFULLSCREEN(c)) setfullscreen(c, 0);
               XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
               wc.sibling = c->win;
-            } else {
+            } else if(!ISFULLSCREEN(c)) {
               raiseclient(c);
             }
         }
       }
+    if (f) raiseclient(f);
   } else {
     wc.sibling = m->barwin;
     for (c = m->stack; c; c = c->snext) {
@@ -1641,8 +1644,6 @@ manage(Window w, XWindowAttributes *wa)
   /*   (unsigned char *) &(c->win), 1); */
   XMoveResizeWindow(dpy, c->win, c->x + 2 * sw, c->y, c->w, c->h); /* some windows require this */
   setclientstate(c, NormalState);
-  if (c->mon == selmon)
-    unfocus(selmon->sel, 0);
   if (ISFULLSCREEN(c->mon->sel)) {
     c->mon->sel = selmon->pertag->fullscreens[selmon->pertag->curtag];
     focus(c->mon->sel);
@@ -1650,6 +1651,10 @@ manage(Window w, XWindowAttributes *wa)
   if (ISFULLSCREEN(selmon->sticky)) {
     c->mon->sel = selmon->sticky;
     focus(selmon->sticky);
+  }
+  if(selmon->pertag->fullscreens[selmon->pertag->curtag] != NULL) {
+    c->mon->sel = selmon->pertag->fullscreens[selmon->pertag->curtag];
+    focus(selmon->pertag->fullscreens[selmon->pertag->curtag]);
   }
   if (c->scratchkey) {
     c->mon->sel = c;
