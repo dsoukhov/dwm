@@ -639,10 +639,10 @@ attach(Client *c){
       attachabove(c);
       break;
     case 3:
-      attach(c);
+      attachtop(c);
       break;
     default:
-      attach(c);
+      attachtop(c);
   }
 }
 void
