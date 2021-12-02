@@ -44,9 +44,6 @@ static const XPoint stickyiconbb = {4,8};	/* defines the bottom right corner of 
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
-/* window swallowing */
-static const int swaldecay = 3;
-static const int swalretroactive = 1;
 static const XPoint swaliconbb = { 2,16 }; /* defines the bottom right corner of the polygon's bounding box (speeds up scaling) */
 
 static const Rule rules[] = {
@@ -166,7 +163,6 @@ static Key keys[] = {
   { 0,                            XF86XK_MonBrightnessDown,spawn, SHCMD("sleep 0.1 && brightness")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
-  STACKKEYS(MODKEY|AltMask,                  swalsel)
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
   { MODKEY|ControlMask,           XK_h,      setmfact,       {.f = -0.05} },
   { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
@@ -184,7 +180,6 @@ static Key keys[] = {
   { MODKEY,                       XK_0,      view,           {.ui = ~0 } },
   { MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
   { MODKEY,                       XK_m,      togglesticky,   {0} },
-  { MODKEY,                       XK_g,      swalstopsel,    {0} },
   { MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
   { MODKEY,                       XK_period, focusmon,       {.i = +1 } },
   { MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
@@ -213,5 +208,4 @@ static Button buttons[] = {
   { ClkTagBar,            0,              Button3,        toggleview,     {0} },
   { ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
   { ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
-  { ClkClientWin,         MODKEY|ShiftMask, Button1,      swalmouse,      {0} },
 };
