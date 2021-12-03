@@ -1208,7 +1208,7 @@ void focustopclient(Monitor *m)
 {
   Client *c;
   int t = 0;
-  int s = 0;
+  Client *s = NULL;
   Client *f = NULL;
   XWindowChanges wc;
 
@@ -1216,7 +1216,7 @@ void focustopclient(Monitor *m)
     if (ISVISIBLE(c) && c->alwaysontop)
       t = 1;
     if (ISVISIBLE(c) && c->scratchkey)
-      s = 1;
+      s = c;
     if (ISVISIBLE(c) && ISFULLSCREEN(c))
       f = c;
   }
@@ -1224,25 +1224,23 @@ void focustopclient(Monitor *m)
   wc.stack_mode = Below;
   if (!t) {
     wc.sibling = m->barwin;
-    for (c = m->stack; c; c = c->snext)
+    for (c = m->stack; c; c = c->snext) {
       if(ISVISIBLE(c)) {
-        if (!s) {
-          if (!c->isfloating || (f && c->isfloating && c != f)) {
-            XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
-            wc.sibling = c->win;
-            } else if(!ISFULLSCREEN(c)) {
-            raiseclient(c);
-          }
-        } else {
-            if (!c->scratchkey) {
-              XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
-              wc.sibling = c->win;
-            } else if(!ISFULLSCREEN(c)) {
-              raiseclient(c);
-            }
-        }
+        if (!c->isfloating || (f && c->isfloating && c != f)) {
+          XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
+          wc.sibling = c->win;
+        } else if(!ISFULLSCREEN(c) && !c->scratchkey)
+          raiseclient(c);
       }
+    }
     if (f) raiseclient(f);
+    if (f && s) {
+      wc.stack_mode = Above;
+      wc.sibling = f->win;
+      XConfigureWindow(dpy, s->win, CWSibling|CWStackMode, &wc);
+    }
+    else if(s)
+      raiseclient(s);
   } else {
     wc.sibling = m->barwin;
     for (c = m->stack; c; c = c->snext) {
@@ -2708,7 +2706,6 @@ togglescratch(const Arg *arg)
     if ISFULLSCREEN(c)
       setfullscreen(c, 0);
     focus(NULL);
-
     if (ISVISIBLE(c)) {
       focus(c);
     }
