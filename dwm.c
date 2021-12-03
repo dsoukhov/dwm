@@ -124,7 +124,7 @@ struct Client {
   int bw, oldbw;
   int initx, inity;
   unsigned int tags;
-  int isfixed, ispermanent, isfloating, iscentered, isurgent, neverfocus, oldstate, needresize;
+  int isfixed, ispermanent, isfloating, isurgent, neverfocus, oldstate, needresize;
   int alwaysontop;
   int ignoreRequest;
   int fstag;
@@ -180,7 +180,6 @@ typedef struct {
   const char *title;
   unsigned int tags;
   int isfloating;
-  int iscentered;
   int ispermanent;
   int monitor;
   int ignoreRequest;
@@ -407,7 +406,6 @@ applyrules(Client *c)
   /* rule matching */
   c->isfloating = 0;
   c->ispermanent = 0;
-  c->iscentered = 0;
   c->tags = 0;
   c->ignoreRequest = 0;
   c->scratchkey = 0;
@@ -425,7 +423,6 @@ applyrules(Client *c)
     && (!r->instance || strstr(instance, r->instance)))
     {
       c->isfloating = r->isfloating;
-      c->iscentered= r->iscentered;
       c->ispermanent = r->ispermanent;
       c->tags |= r->tags;
       c->scratchkey = r->scratchkey;
@@ -1233,14 +1230,17 @@ void focustopclient(Monitor *m)
           raiseclient(c);
       }
     }
-    if (f) raiseclient(f);
     if (f && s) {
       wc.stack_mode = Above;
       wc.sibling = f->win;
       XConfigureWindow(dpy, s->win, CWSibling|CWStackMode, &wc);
     }
-    else if(s)
-      raiseclient(s);
+    else if(f) raiseclient(f);
+    else if(s) {
+      wc.stack_mode = TopIf;
+      wc.sibling = m->stack->win;
+      XConfigureWindow(dpy, s->win, CWSibling|CWStackMode, &wc);
+    }
   } else {
     wc.sibling = m->barwin;
     for (c = m->stack; c; c = c->snext) {
