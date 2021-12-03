@@ -128,6 +128,7 @@ struct Client {
   int alwaysontop;
   int ignoreRequest;
   int fstag;
+  int graburgent;
   char scratchkey;
   int canGetSwal;
   Client *next;
@@ -185,6 +186,7 @@ typedef struct {
   int ignoreRequest;
   const char scratchkey;
   int canGetSwal;
+  int grabfocus;
 } Rule;
 
 /* Xresources preferences */
@@ -308,6 +310,7 @@ static void toggletag(const Arg *arg);
 static void togglesticky(const Arg *arg);
 static void toggleview(const Arg *arg);
 static void fibonacci(Monitor *m, int s);
+static void grabfocus (Client *c);
 static void unfocus(Client *c, int setfocus);
 static void unmanage(Client *c, int destroyed);
 static void unmapnotify(XEvent *e);
@@ -411,6 +414,7 @@ applyrules(Client *c)
   c->scratchkey = 0;
   c->canGetSwal = 0;
   c->fstag = 0;
+  c->graburgent = 0;
   XGetClassHint(dpy, c->win, &ch);
   class    = ch.res_class ? ch.res_class : broken;
   instance = ch.res_name  ? ch.res_name  : broken;
@@ -427,6 +431,7 @@ applyrules(Client *c)
       c->tags |= r->tags;
       c->scratchkey = r->scratchkey;
       c->canGetSwal= r->canGetSwal;
+      c->graburgent= r->grabfocus;
       for (m = mons; m && m->num != r->monitor; m = m->next);
       if (m)
         c->mon = m;
@@ -735,7 +740,6 @@ clientmessage(XEvent *e)
   XSetWindowAttributes swa;
   XClientMessageEvent *cme = &e->xclient;
   Client *c = wintoclient(cme->window);
-  unsigned int i;
 
   if (showsystray && cme->window == systray->win && cme->message_type == netatom[NetSystemTrayOP]) {
     /* add systray icons */
@@ -793,15 +797,8 @@ clientmessage(XEvent *e)
     /* else if (cme->data.l[1] == netatom[NetWMStateAbove] */
     /*   || cme->data.l[2] == netatom[NetWMStateAbove]) */
     /*   c->alwaysontop = (cme->data.l[0] || cme->data.l[1]); */
-  } else if (cme->message_type == netatom[NetActiveWindow]) {
-    for (i = 0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
-    if (i < LENGTH(tags)) {
-      const Arg a = {.ui = 1 << i};
-      selmon = c->mon;
-        view(&a);
-      focus(c);
-      restack(selmon);
-    }
+  } else if (cme->message_type == netatom[NetActiveWindow] && c->graburgent) {
+    grabfocus(c);
   }
 }
 
@@ -2631,6 +2628,20 @@ fibonacci(Monitor *mon, int s) {
 }
 
 void
+grabfocus(Client *c)
+{
+int i;
+for(i=0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
+if(i < LENGTH(tags)) {
+  const Arg a = {.ui = 1 << i};
+  if (selmon->sticky != c )
+    view(&a);
+  focus(c);
+  restack(selmon);
+}
+
+}
+void
 dwindle(Monitor *mon) {
   fibonacci(mon, 1);
 }
@@ -3201,8 +3212,10 @@ updatewmhints(Client *c)
       XSetWMHints(dpy, c->win, wmh);
     } else {
       c->isurgent = (wmh->flags & XUrgencyHint) ? 1 : 0;
-      if (c->isurgent)
-        XSetWindowBorder(dpy, c->win, scheme[SchemeUrg][ColBorder].pixel);
+      if (c->isurgent) {
+        if (c->graburgent) grabfocus(c);
+        else XSetWindowBorder(dpy, c->win, scheme[SchemeUrg][ColBorder].pixel);
+      }
     }
     if (wmh->flags & InputHint)
       c->neverfocus = !wmh->input;
