@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static unsigned int borderpx        = 3;   /* border pixel of windows */
+static unsigned int borderpx        = 5;   /* border pixel of windows */
 static unsigned int gappx           = 4;   /* gaps between windows */
 static unsigned int snap            = 32;  /* snap pixel */
 static unsigned int systraypinning  = 0;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
