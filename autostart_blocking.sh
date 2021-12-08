@@ -1,4 +1,5 @@
 #!/bin/sh
+pkill dunst
 dunst-cfg &
 killall bat_hib
 bat_hib &
