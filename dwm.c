@@ -1518,18 +1518,17 @@ manage(Window w, XWindowAttributes *wa)
   if (c->mon == selmon)
     unfocus(selmon->sel, 0);
   if (ISFULLSCREEN(c->mon->sel)) {
-    c->mon->sel = selmon->pertag->fullscreens[selmon->pertag->curtag];
     focus(c->mon->sel);
   }
   if (ISFULLSCREEN(selmon->sticky)) {
     c->mon->sel = selmon->sticky;
     focus(selmon->sticky);
   }
-  if (selmon->pertag->fullscreens[selmon->pertag->curtag] != NULL) {
+  else if (selmon->pertag->fullscreens[selmon->pertag->curtag] != NULL) {
     c->mon->sel = selmon->pertag->fullscreens[selmon->pertag->curtag];
     focus(selmon->pertag->fullscreens[selmon->pertag->curtag]);
   }
-  if (c->scratchkey) {
+  else if (c->scratchkey) {
     c->mon->sel = c;
     focus(c);
   }
@@ -2213,6 +2212,7 @@ setfullscreen(Client *c, int fullscreen)
     c->isfloating = 1;
     c->fstag = tag;
     resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
+    raiseclient(c);
   } else if (!fullscreen && ISFULLSCREEN(c)){
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
       PropModeReplace, (unsigned char*)0, 0);
