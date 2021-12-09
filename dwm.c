@@ -1246,12 +1246,14 @@ void focustopclient(Monitor *m)
     wc.sibling = m->barwin;
     for (c = m->stack; c; c = c->snext) {
       if(ISVISIBLE(c)) {
-        if (ISFULLSCREEN(c)) setfullscreen(c, 0);
+        if (ISFULLSCREEN(c)) {
+          setfullscreen(c, 0);
+        }
         if (c->scratchkey) {
           c->tags = 0;
           arrange(c->mon);
         }
-        if (!c->alwaysontop) {
+        if (!c->alwaysontop & !c->scratchkey) {
           XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
           wc.sibling = c->win;
         }
@@ -1523,7 +1525,7 @@ manage(Window w, XWindowAttributes *wa)
     c->mon->sel = selmon->sticky;
     focus(selmon->sticky);
   }
-  if(selmon->pertag->fullscreens[selmon->pertag->curtag] != NULL) {
+  if (selmon->pertag->fullscreens[selmon->pertag->curtag] != NULL) {
     c->mon->sel = selmon->pertag->fullscreens[selmon->pertag->curtag];
     focus(selmon->pertag->fullscreens[selmon->pertag->curtag]);
   }
