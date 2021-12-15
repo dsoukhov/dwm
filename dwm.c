@@ -2939,7 +2939,7 @@ unmanage(Client *c, int destroyed)
     XUngrabServer(dpy);
   }
   if (ISFULLSCREEN(c)) {
-    selmon->pertag->fullscreens[selmon->pertag->curtag] = NULL;
+    setfullscreen(c, 0);
   }
   if (selmon->sticky == c)
     selmon->sticky = NULL;
