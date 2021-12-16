@@ -51,13 +51,14 @@ static const Rule rules[] = {
    *	WM_CLASS(STRING) = instance, class
    *	WM_NAME(STRING) = title
    */
-  /* class      instance    title               tags-mask    isfloating     ispermanent  monitor  ignoreReqest scratch-key  grabfocus-on-urgent no-swallow*/
-  {  "St",      NULL,       NULL,               0,           0,             0,           0,       0,            0,          0,                  0},
-  {  "st",      NULL,       NULL,               0,           0,             0,           0,       0,            0,          0,                  0},
-  {  NULL,      NULL,       "scratchpad",       0,           1,             1,           0,       0,           'S',         0,                  0},
-  {  NULL,      NULL,       "floatterm",        0,           1,             1,           0,       0,           'T',         0,                  0},
-  { "net-runelite-client-RuneLite", NULL, NULL, 0,           1,             0,           0,       1,            0,          1,                  0},
-  {  NULL, NULL, "Event Tester",                0,           1,             0,           0,       1,            0,          1,                  1},
+  /* class      instance    title               tags-mask    isfloating     ispermanent  monitor  ignoreReqest scratch-key  grabfocus-on-urgent no-swallow   is-term*/
+  {  "St",      NULL,       NULL,               0,           0,             0,           0,       0,            0,          0,                  0,           1},
+  {  "st",      NULL,       NULL,               0,           0,             0,           0,       0,            0,          0,                  0,           1},
+  {  NULL,      NULL,       "scratchpad",       0,           1,             1,           0,       0,           'S',         0,                  0,           1},
+  {  NULL,      NULL,       "floatterm",        0,           1,             1,           0,       0,           'T',         0,                  0,           1},
+  {  NULL,      NULL,       "st-vimmode",       0,           1,             1,           0,       0,           'T',         0,                  0,           0},
+  { "net-runelite-client-RuneLite", NULL, NULL, 0,           1,             0,           0,       1,            0,          1,                  0,           0},
+  {  NULL, NULL, "Event Tester",                0,           1,             0,           0,       1,            0,          1,                  1,           0},
 };
 
 /* layout(s) */

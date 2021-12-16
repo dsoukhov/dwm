@@ -131,7 +131,7 @@ struct Client {
   int initx, inity;
   unsigned int tags;
   int isfixed, ispermanent, isfloating, isurgent, neverfocus, oldstate, needresize;
-  int alwaysontop, ignoreRequest, fstag, graburgent, noswallow;
+  int alwaysontop, ignoreRequest, fstag, graburgent, noswallow, isterminal;
   pid_t pid;
   char scratchkey;
   Client *next;
@@ -191,6 +191,7 @@ typedef struct {
   const char scratchkey;
   int grabfocus;
   int noswallow;
+  int isterminal;
 } Rule;
 
 /* Xresources preferences */
@@ -427,6 +428,7 @@ applyrules(Client *c)
   c->fstag = 0;
   c->graburgent = 0;
   c->noswallow = 0;
+  c->isterminal = 0;
   XGetClassHint(dpy, c->win, &ch);
   class    = ch.res_class ? ch.res_class : broken;
   instance = ch.res_name  ? ch.res_name  : broken;
@@ -444,6 +446,7 @@ applyrules(Client *c)
       c->scratchkey = r->scratchkey;
       c->graburgent= r->grabfocus;
       c->noswallow= r->noswallow;
+      c->isterminal= r->isterminal;
       for (m = mons; m && m->num != r->monitor; m = m->next);
       if (m)
         c->mon = m;
@@ -685,7 +688,7 @@ unswallow(Client *c)
   XWindowChanges wc;
   c->win = c->swallowing->win;
 
-  if (c->scratchkey || c->swallowing->ispermanent)
+  if (c->scratchkey)
     c->ispermanent = 1;
 
   free(c->swallowing);
@@ -3478,12 +3481,12 @@ termforwin(const Client *w)
   Client *c;
   Monitor *m;
 
-  if (!w->pid)
+  if (!w->pid || w->isterminal)
     return NULL;
 
   for (m = mons; m; m = m->next) {
     for (c = m->clients; c; c = c->next) {
-      if (!c->swallowing && c->pid && isdescprocess(c->pid, w->pid))
+      if (c->isterminal && !c->swallowing && c->pid && isdescprocess(c->pid, w->pid))
         return c;
     }
   }
