@@ -131,7 +131,7 @@ struct Client {
   int initx, inity;
   unsigned int tags;
   int isfixed, ispermanent, isfloating, isurgent, neverfocus, oldstate, needresize;
-  int alwaysontop, ignoreRequest, fstag, graburgent, noswallow, isterminal;
+  int alwaysontop, ignorerequest, fstag, graburgent, noswallow, isterminal;
   pid_t pid;
   char scratchkey;
   Client *next;
@@ -187,7 +187,7 @@ typedef struct {
   int isfloating;
   int ispermanent;
   int monitor;
-  int ignoreRequest;
+  int ignorerequest;
   const char scratchkey;
   int grabfocus;
   int noswallow;
@@ -423,7 +423,7 @@ applyrules(Client *c)
   c->isfloating = 0;
   c->ispermanent = 0;
   c->tags = 0;
-  c->ignoreRequest = 0;
+  c->ignorerequest = 0;
   c->scratchkey = 0;
   c->fstag = 0;
   c->graburgent = 0;
@@ -447,12 +447,10 @@ applyrules(Client *c)
       c->graburgent= r->grabfocus;
       c->noswallow= r->noswallow;
       c->isterminal= r->isterminal;
+      c->ignorerequest = r->ignorerequest;
       for (m = mons; m && m->num != r->monitor; m = m->next);
       if (m)
         c->mon = m;
-      if (r->ignoreRequest) {
-        c->ignoreRequest = 1;
-      }
     }
   }
 
@@ -954,7 +952,7 @@ configurerequest(XEvent *e)
       c->bw = ev->border_width;
     else if (c->isfloating || !selmon->lt[selmon->sellt]->arrange) {
       m = c->mon;
-      if (!c->ignoreRequest) {
+      if (!c->ignorerequest) {
         if (ev->value_mask & CWX) {
           c->oldx = c->x;
           c->x = m->mx + ev->x;
