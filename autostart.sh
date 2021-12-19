@@ -8,9 +8,7 @@ pkill picon
 picom -CGb
 pkill xsettingsd
 xsettingsd -c ~/.xsettingsd &
-pkill udiskie
-udiskie &
 pkill dwmblocks
 dwmblocks &
-pkill 'pinknoise'
-pinknoise &
+# pkill 'pinknoise'
+# pinknoise &

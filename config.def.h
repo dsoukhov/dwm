@@ -7,6 +7,8 @@
 #define XF86TouchpadToggle	0x1008ffa9
 #define XF86XK_MonBrightnessUp   0x1008FF02  /* Monitor/panel brightness */
 #define XF86XK_MonBrightnessDown 0x1008FF03  /* Monitor/panel brightness */
+#define XF86AudioMicMute 0x1008ffb2
+#define XF86Display 0x1008ff59
 
 /* appearance */
 static unsigned int borderpx        = 3;   /* border pixel of windows */
@@ -57,7 +59,7 @@ static const Rule rules[] = {
   {  NULL,      NULL,       "scratchpad",       0,           1,             1,           0,       0,           'S',         0,                  0,           1},
   {  NULL,      NULL,       "floatterm",        0,           1,             1,           0,       0,           'T',         0,                  0,           1},
   {  NULL,      NULL,       "st-vimmode",       0,           1,             1,           0,       0,           'T',         0,                  0,           0},
-  { "net-runelite-client-RuneLite", NULL, NULL, 0,           1,             0,           0,       1,            0,          1,                  0,           0},
+  { "net-runelite-client-RuneLite", NULL, NULL, 0,           0,             0,           0,       1,            0,          1,                  0,           0},
   {  NULL, NULL, "Event Tester",                0,           1,             0,           0,       1,            0,          1,                  1,           0},
 };
 
@@ -150,6 +152,9 @@ static Key keys[] = {
   { 0,                            XF86AudioMute,          spawn,          SHCMD("volume mute && pkill -RTMIN+1 dwmblocks")},
   { 0,                            XF86AudioLowerVolume,   spawn,          SHCMD("volume down && pkill -RTMIN+1 dwmblocks")},
   { 0,                            XF86AudioRaiseVolume,   spawn,          SHCMD("volume up && pkill -RTMIN+1 dwmblocks")},
+  { 0,                            XF86AudioMicMute,       spawn,          SHCMD("mic mute")},
+  { MODKEY,                       XF86AudioLowerVolume,   spawn,          SHCMD("mic down")},
+  { MODKEY,                       XF86AudioRaiseVolume,   spawn,          SHCMD("mic up")},
   { MODKEY,                       XK_F9,     spawn,          SHCMD("pavucontrol && pkill -RTMIN+1 dwmblocks && pkill -RTMIN+2 dwmblocks")},
   { 0,                            XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
   { MODKEY,                       XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
