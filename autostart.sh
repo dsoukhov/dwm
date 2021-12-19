@@ -11,8 +11,6 @@ pkill xsettingsd
 xsettingsd -c ~/.xsettingsd &
 pkill dunst
 dunst &
-pkill udiskie
-udiskie &
 pkill dwmblocks
 dwmblocks &
 pkill 'pinknoise'
