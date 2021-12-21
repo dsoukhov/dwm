@@ -5,10 +5,8 @@ hsetroot -solid '#000000'
 pkill clipmenud
 CM_DIR=~/.cache clipmenud &
 pkill picon
-picom -CGb
+picom -CGb &
 pkill xsettingsd
 xsettingsd -c ~/.xsettingsd &
 pkill dwmblocks
 dwmblocks &
-# pkill 'pinknoise'
-# pinknoise &
