@@ -950,7 +950,7 @@ configurerequest(XEvent *e)
   if ((c = wintoclient(ev->window))) {
     if (ev->value_mask & CWBorderWidth)
       c->bw = ev->border_width;
-    else if (c->isfloating || !selmon->lt[selmon->sellt]->arrange) {
+    else if ((c->isfloating && !ISFULLSCREEN(c)) || !selmon->lt[selmon->sellt]->arrange) {
       m = c->mon;
       if (!c->ignorerequest) {
         if (ev->value_mask & CWX) {
