@@ -60,8 +60,8 @@
 #define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
 #define ISINC(X)                ((X) > 1000 && (X) < 3000)
-#define ISFULLSCREEN(C)         ((C && (selmon->pertag->fullscreens[selmon->pertag->curtag] == C || (C->scratchkey && selmon->pertag->fullscreens[C->fstag] == C) || (selmon->sticky == C && selmon->pertag->fullscreens[C->tags] == C))))
-#define ISVISIBLEONTAG(C, T)    ((C->tags & T) || (ISFULLSCREEN(C) && !C->scratchkey))
+#define ISFULLSCREEN(C)         (C && C->fstag)
+#define ISVISIBLEONTAG(C, T)    ((C->tags & T) || (C->fstag & T))
 #define ISVISIBLESTICKY(C)      (selmon->sticky == C && (!selmon->pertag->fullscreens[selmon->pertag->curtag] || ISFULLSCREEN(C)))
 #define ISVISIBLE(C)            (C && (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || ISVISIBLESTICKY(C)))
 #define PREVSEL                 3000
@@ -129,9 +129,9 @@ struct Client {
   int basew, baseh, incw, inch, maxw, maxh, minw, minh;
   int bw, oldbw;
   int initx, inity;
-  unsigned int tags;
+  unsigned int tags, fstag;
   int isfixed, ispermanent, isfloating, isurgent, neverfocus, oldstate, needresize;
-  int alwaysontop, ignorerequest, fstag, graburgent, noswallow, isterminal;
+  int alwaysontop, ignorerequest, graburgent, noswallow, isterminal;
   pid_t pid;
   char scratchkey;
   Client *next;
@@ -1609,15 +1609,7 @@ manage(Window w, XWindowAttributes *wa)
   if (ISFULLSCREEN(c->mon->sel)) {
     focus(c->mon->sel);
   }
-  if (ISFULLSCREEN(selmon->sticky)) {
-    c->mon->sel = selmon->sticky;
-    focus(selmon->sticky);
-  }
-  else if (selmon->pertag->fullscreens[selmon->pertag->curtag] != NULL) {
-    c->mon->sel = selmon->pertag->fullscreens[selmon->pertag->curtag];
-    focus(selmon->pertag->fullscreens[selmon->pertag->curtag]);
-  }
-  else if (c->scratchkey) {
+  if (c->scratchkey) {
     c->mon->sel = c;
     focus(c);
   }
@@ -2280,17 +2272,10 @@ setfocus(Client *c)
 void
 setfullscreen(Client *c, int fullscreen)
 {
-  if (ISFULLSCREEN(selmon->sticky) && c != selmon->sticky)
-    return;
-
   int tag = selmon->pertag->curtag;
 
-  if (selmon->sticky == c)
-    tag = c->tags;
-
-  if (c->scratchkey && !fullscreen) {
+  if ((c->scratchkey || selmon->sticky) && !fullscreen)
     tag = c->fstag;
-  }
 
   if (fullscreen && !ISFULLSCREEN(c)) {
     if(selmon->pertag->fullscreens[tag])
@@ -2805,15 +2790,15 @@ togglescratch(const Arg *arg)
     if (!ISVISIBLE(c)) {
       c->tags = selmon->tagset[selmon->seltags];
       for (k = selmon->clients; k; k = k->next) {
-        if (c != k && k->scratchkey)
+        if (c != k && k->scratchkey && ISVISIBLE(k)) {
+          setfullscreen(k, 0);
           k->tags = 0;
+        }
       }
     } else {
       c->tags = 0;
     }
-
-    if ISFULLSCREEN(c)
-      setfullscreen(c, 0);
+    setfullscreen(c, 0);
     focus(NULL);
     if (ISVISIBLE(c)) {
       focus(c);
@@ -2823,8 +2808,10 @@ togglescratch(const Arg *arg)
   } else {
     spawnscratch(arg);
     for (k = selmon->clients; k; k = k->next) {
-      if (k->scratchkey)
+      if (k->scratchkey && ISVISIBLE(k)) {
+        setfullscreen(k, 0);
         k->tags = 0;
+      }
     }
   }
 }
@@ -2834,10 +2821,13 @@ togglesticky(const Arg *arg)
 {
   if (!selmon->sel)
     return;
-  if(selmon->sticky)
+  if(selmon->sticky) {
+    setfullscreen(selmon->sticky, 0);
     selmon->sticky = NULL;
+  }
   else if(!selmon->sticky)
     selmon->sticky = selmon->sel;
+  focus(NULL);
   arrange(selmon);
 }
 
