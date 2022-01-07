@@ -1336,9 +1336,7 @@ void focustopclient(Monitor *m)
     wc.sibling = m->barwin;
     for (c = m->stack; c; c = c->snext) {
       if(ISVISIBLE(c)) {
-        if (ISFULLSCREEN(c)) {
-          setfullscreen(c, 0);
-        }
+        setfullscreen(c, 0);
         if (c->scratchkey) {
           c->tags = 0;
           arrange(c->mon);
@@ -2277,7 +2275,7 @@ setfullscreen(Client *c, int fullscreen)
 {
   int tag = selmon->pertag->curtag;
 
-  if ((c->scratchkey || selmon->sticky) && !fullscreen)
+  if ((c->scratchkey || selmon->sticky == c) && !fullscreen)
     tag = c->fstag;
 
   if (fullscreen && !ISFULLSCREEN(c)) {
@@ -2293,7 +2291,8 @@ setfullscreen(Client *c, int fullscreen)
     c->fstag = tag;
     resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
     raiseclient(c);
-  } else if (!fullscreen && ISFULLSCREEN(c)){
+    arrange(selmon);
+  } else if (!fullscreen && ISFULLSCREEN(c)) {
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
       PropModeReplace, (unsigned char*)0, 0);
     selmon->pertag->fullscreens[tag] = NULL;
@@ -2305,8 +2304,8 @@ setfullscreen(Client *c, int fullscreen)
     c->h = c->oldh;
     c->fstag = 0;
     resizeclient(c, c->x, c->y, c->w, c->h);
+    arrange(selmon);
   }
-  arrange(selmon);
 }
 
 void
@@ -2932,9 +2931,7 @@ unmanage(Client *c, int destroyed)
     XSetErrorHandler(xerror);
     XUngrabServer(dpy);
   }
-  if (ISFULLSCREEN(c)) {
-    setfullscreen(c, 0);
-  }
+  setfullscreen(c, 0);
   if (selmon->sticky == c)
     selmon->sticky = NULL;
   free(c);
