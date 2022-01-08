@@ -131,7 +131,7 @@ struct Client {
   int initx, inity;
   unsigned int tags, fstag;
   int isfixed, ispermanent, isfloating, isurgent, neverfocus, oldstate, needresize;
-  int alwaysontop, ignorerequest, graburgent, noswallow, isterminal;
+  int alwaysontop, ignorerequest, noswallow, isterminal;
   pid_t pid;
   char scratchkey;
   Client *next;
@@ -189,7 +189,6 @@ typedef struct {
   int monitor;
   int ignorerequest;
   const char scratchkey;
-  int grabfocus;
   int noswallow;
   int isterminal;
 } Rule;
@@ -426,7 +425,6 @@ applyrules(Client *c)
   c->ignorerequest = 0;
   c->scratchkey = 0;
   c->fstag = 0;
-  c->graburgent = 0;
   c->noswallow = 0;
   c->isterminal = 0;
   XGetClassHint(dpy, c->win, &ch);
@@ -444,7 +442,6 @@ applyrules(Client *c)
       c->ispermanent = r->ispermanent;
       c->tags |= r->tags;
       c->scratchkey = r->scratchkey;
-      c->graburgent= r->grabfocus;
       c->noswallow= r->noswallow;
       c->isterminal= r->isterminal;
       c->ignorerequest = r->ignorerequest;
@@ -887,7 +884,7 @@ clientmessage(XEvent *e)
     /* else if (cme->data.l[1] == netatom[NetWMStateAbove] */
     /*   || cme->data.l[2] == netatom[NetWMStateAbove]) */
     /*   c->alwaysontop = (cme->data.l[0] || cme->data.l[1]); */
-  } else if (cme->message_type == netatom[NetActiveWindow] && c->graburgent) {
+  } else if (cme->message_type == netatom[NetActiveWindow]) {
     grabfocus(c);
   }
 }
@@ -3319,8 +3316,7 @@ updatewmhints(Client *c)
     } else {
       c->isurgent = (wmh->flags & XUrgencyHint) ? 1 : 0;
       if (c->isurgent) {
-        if (c->graburgent) grabfocus(c);
-        else XSetWindowBorder(dpy, c->win, scheme[SchemeUrg][ColBorder].pixel);
+        grabfocus(c);
       }
     }
     if (wmh->flags & InputHint)
