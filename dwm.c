@@ -61,7 +61,7 @@
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
 #define ISINC(X)                ((X) > 1000 && (X) < 3000)
 #define ISFULLSCREEN(C)         (C && C->fstag)
-#define ISVISIBLEONTAG(C, T)    ((C->tags & T) || (C->fstag & T))
+#define ISVISIBLEONTAG(C, T)    ((C->tags & T) || selmon->pertag->fullscreens[T] == C)
 #define ISVISIBLESTICKY(C)      (selmon->sticky == C && (!selmon->pertag->fullscreens[selmon->pertag->curtag] || ISFULLSCREEN(C)))
 #define ISVISIBLE(C)            (C && (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || ISVISIBLESTICKY(C)))
 #define PREVSEL                 3000
@@ -2576,8 +2576,6 @@ tag(const Arg *arg)
     selmon->sel->tags = arg->ui & TAGMASK;
     Client *c = selmon->sel;
     if (c && selmon->sticky != c) {
-      if (selmon->pertag->fullscreens[selmon->sel->tags])
-        setfullscreen(selmon->pertag->fullscreens[selmon->sel->tags], 0);
       setfullscreen(c, 0);
       detach(c);
       if (selmon->pertag->attachdir[arg->ui & TAGMASK] > 1)
@@ -3361,7 +3359,13 @@ view(const Arg *arg)
   if (selmon->showbar != selmon->pertag->showbars[selmon->pertag->curtag])
     togglebar(NULL);
 
-  focus(NULL);
+  Client *fs = selmon->pertag->fullscreens[arg->ui & TAGMASK];
+  if (fs) {
+    selmon->sel = fs;
+    focus(fs);
+  }
+  else
+    focus(NULL);
   arrange(selmon);
   updatecurrentdesktop();
 }
