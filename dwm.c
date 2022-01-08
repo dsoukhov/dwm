@@ -2579,6 +2579,8 @@ tag(const Arg *arg)
     selmon->sel->tags = arg->ui & TAGMASK;
     Client *c = selmon->sel;
     if (c && selmon->sticky != c) {
+      if (selmon->pertag->fullscreens[selmon->sel->tags])
+        setfullscreen(selmon->pertag->fullscreens[selmon->sel->tags], 0);
       setfullscreen(c, 0);
       detach(c);
       if (selmon->pertag->attachdir[arg->ui & TAGMASK] > 1)
