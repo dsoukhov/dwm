@@ -58,8 +58,8 @@ static const Rule rules[] = {
   {  NULL,      NULL,       "scratchpad",       0,           1,             1,           0,       0,           'S',         0,           1},
   {  NULL,      NULL,       "floatterm",        0,           1,             1,           0,       0,           'T',         0,           1},
   {  NULL,      NULL,       "st-vimmode",       0,           1,             1,           0,       0,           'T',         0,           0},
-  { "net-runelite-client-RuneLite", NULL, NULL, 1 << 0,      1,             0,           0,       1,            0,          0,           0},
-  { "net-runelite-launcher-Launcher", NULL, NULL, 1 << 0,    1,             0,           0,       1,            0,          0,           0},
+  { "net-runelite-client-RuneLite", NULL, NULL, 1 << 0,      0,             0,           0,       1,            0,          0,           0},
+  { "net-runelite-launcher-Launcher", NULL, NULL, 1 << 0,    0,             0,           0,       1,            0,          0,           0},
   {  NULL, NULL, "Event Tester",                0,           0,             0,           0,       0,            0,          1,           0},
 };
 
