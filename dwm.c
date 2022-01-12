@@ -316,6 +316,7 @@ static void toggleview(const Arg *arg);
 static void fibonacci(Monitor *m, int s);
 static void grabfocus (Client *c);
 static void unfocus(Client *c, int setfocus);
+static void unfocusmon(Monitor *m);
 static void unmanage(Client *c, int destroyed);
 static void unmapnotify(XEvent *e);
 static void updatecurrentdesktop(void);
@@ -1603,7 +1604,7 @@ manage(Window w, XWindowAttributes *wa)
   XMoveResizeWindow(dpy, c->win, c->x + 2 * sw, c->y, c->w, c->h); /* some windows require this */
   setclientstate(c, NormalState);
   if (c->mon == selmon)
-    unfocus(selmon->sel, 0);
+    unfocusmon(selmon);
   if (ISFULLSCREEN(c->mon->sel)) {
     focus(c->mon->sel);
   }
@@ -2880,6 +2881,16 @@ toggleview(const Arg *arg)
     arrange(selmon);
   }
   updatecurrentdesktop();
+}
+
+void
+unfocusmon(Monitor *m)
+{
+  if (!m)
+    return;
+  for (Client *c = m->stack; c ; c = c->snext) {
+    unfocus(c, 0);
+  }
 }
 
 void
