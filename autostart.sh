@@ -5,7 +5,7 @@ hsetroot -solid '#000000'
 #feh --bg-scale ~/Pictures/wallpaper/wp1.png &
 pkill clipmenud
 CM_DIR=~/.cache clipmenud &
-pkill picon
+pkill picom
 picom -CGb
 pkill xsettingsd
 xsettingsd -c ~/.xsettingsd &
