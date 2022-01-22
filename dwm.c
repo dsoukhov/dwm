@@ -1167,8 +1167,6 @@ drawbar(Monitor *m)
         drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
       if (selmon->sticky == m->sel)
         drw_polygon(drw, x + boxs, m->sel->isfloating ? boxs * 2 + boxw : boxs, stickyiconbb.x, stickyiconbb.y, boxw, boxw * stickyiconbb.y / stickyiconbb.x, stickyicon, LENGTH(stickyicon), Nonconvex, m->sel->tags & m->tagset[m->seltags]);
-      /* if (m->sel && m->sel->swallowedby) */
-      /*   drw_rect(drw, m->sel == selmon->sticky ? x + boxs + 5 : x + boxs, boxs, swaliconbb.x, swaliconbb.y , 1, 0); */
     } else {
       drw_setscheme(drw, scheme[SchemeNorm]);
       drw_rect(drw, x, 0, w, bh, 1, 1);
@@ -1224,9 +1222,9 @@ void
 focus(Client *c)
 {
   if (!c || !ISVISIBLE(c))
-      for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
+    for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
   if (selmon->sel && selmon->sel != c)
-      unfocus(selmon->sel, 0);
+    unfocus(selmon->sel, 0);
   if (c) {
     if (c->mon != selmon)
       selmon = c->mon;
@@ -1605,7 +1603,9 @@ manage(Window w, XWindowAttributes *wa)
   setclientstate(c, NormalState);
   if (c->mon == selmon)
     unfocusmon(selmon);
-  if (ISFULLSCREEN(c->mon->sel)) {
+  int tag = selmon->pertag->curtag;
+  if (selmon->pertag->fullscreens[tag]) {
+    c->mon->sel = selmon->pertag->fullscreens[tag];
     focus(c->mon->sel);
   }
   if (c->scratchkey) {
@@ -2714,6 +2714,8 @@ void
 grabfocus(Client *c)
 {
 int i;
+if (selmon->pertag->fullscreens[selmon->pertag->curtag] && ISVISIBLEONTAG(c, selmon->pertag->curtag))
+  return;
 for(i=0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
 if(i < LENGTH(tags)) {
   const Arg a = {.ui = 1 << i};
