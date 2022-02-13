@@ -2719,8 +2719,11 @@ if (selmon->pertag->fullscreens[selmon->pertag->curtag] && ISVISIBLEONTAG(c, sel
 for(i=0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
 if(i < LENGTH(tags)) {
   const Arg a = {.ui = 1 << i};
-  if (selmon->sticky != c )
+  if (selmon->sticky != c)
     view(&a);
+  Client *fs = selmon->pertag->fullscreens[selmon->pertag->curtag];
+  if (fs && fs != c)
+      setfullscreen(fs, 0);
   focus(c);
   restack(selmon);
 }
