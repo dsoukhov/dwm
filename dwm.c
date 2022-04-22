@@ -1605,7 +1605,7 @@ manage(Window w, XWindowAttributes *wa)
   XSelectInput(dpy, w, EnterWindowMask|FocusChangeMask|PropertyChangeMask|StructureNotifyMask);
   grabbuttons(c, 0);
   if (!c->isfloating)
-    c->isfloating = c->oldstate = t || c->isfixed;
+    c->isfloating = c->oldstate = trans != None || c->isfixed;
   attach(c);
   attachstack(c);
   XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
