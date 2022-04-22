@@ -80,7 +80,7 @@ static const char *stack_symbols[] = { "*∨", "∨", "*∧", "∧" };
 static const Layout layouts[] = {
   /* symbol     arrange function */
   { "[\\]",     dwindle }, /* first entry is default */
-  { "[]=",      tile },
+  { "[]=",      righttile },
   { "=[]",      lefttile },
   { "[D]",      deck },
   { "><>",      NULL },    /* no layout function means floating behavior */
@@ -172,6 +172,9 @@ static Key keys[] = {
   STACKKEYS(MODKEY|ShiftMask,                push)
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
   { MODKEY|ControlMask,           XK_h,      setmfact,       {.f = -0.05} },
+  { MODKEY|ControlMask,           XK_j,      setcfact,       {.f = +0.25} },
+  { MODKEY|ControlMask,           XK_k,      setcfact,       {.f = -0.25} },
+  { MODKEY|ControlMask,           XK_equal,  setcfact,       {.f =  0.00} },
   { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
   { MODKEY|ShiftMask,             XK_i,      incnmaster,     {.i = -1 } },
   { MODKEY,                       XK_o,      resetnmaster,   {0} },

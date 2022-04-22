@@ -123,6 +123,7 @@ typedef struct Client Client;
 struct Client {
   char name[256];
   float mina, maxa;
+  float cfact;
   int x, y, w, h;
   int sfx, sfy, sfw, sfh; /* stored float geometry, used on mode revert */
   int oldx, oldy, oldw, oldh;
@@ -292,6 +293,7 @@ static void setfocus(Client *c);
 static void setfullscreen(Client *c, int fullscreen);
 static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
+static void setcfact(const Arg *arg);
 static void setnumdesktops(void);
 static void setup(void);
 static void setviewport(void);
@@ -304,8 +306,9 @@ static Monitor *systraytomon(Monitor *m);
 static void spawnscratch(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
-static void tile(Monitor *m);
+static void tile(Monitor *m, int s);
 static void lefttile(Monitor *m);
+static void righttile(Monitor *m);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void togglefullscr(const Arg *arg);
@@ -1059,9 +1062,13 @@ destroynotify(XEvent *e)
 void
 deck(Monitor *m) {
   unsigned int i, n, h, mw, my;
+  float mfacts = 0;
   Client *c;
 
-  for(n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++) {
+    if (n < m->nmaster)
+      mfacts += c->cfact;
+  }
   if(n == 0)
     return;
 
@@ -1073,9 +1080,11 @@ deck(Monitor *m) {
     mw = m->ww;
   for(i = my = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
     if(i < m->nmaster) {
-      h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+      h = (m->wh - my) * (c->cfact / mfacts);
       resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), False);
-      my += HEIGHT(c);
+      if (my + HEIGHT(c) < m->wh)
+        my += HEIGHT(c);
+      mfacts -= c->cfact;
     }
     else
       resize(c, m->wx + mw, m->wy, m->ww - mw - (2*c->bw), m->wh - (2*c->bw), False);
@@ -1553,6 +1562,7 @@ manage(Window w, XWindowAttributes *wa)
   c->w = c->oldw = wa->width;
   c->h = c->oldh = wa->height;
   c->oldbw = wa->border_width;
+  c->cfact = 1.0;
 
   updatetitle(c);
   if (XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
@@ -2194,6 +2204,30 @@ sendmon(Client *c, Monitor *m)
 }
 
 void
+setcfact(const Arg *arg)
+{
+  float f;
+  Client *c;
+
+  c = selmon->sel;
+
+  if (!arg || !c || !selmon->lt[selmon->sellt]->arrange)
+    return;
+  if (!arg->f)
+    f = 1.0;
+  else if (arg->f > 4.0) // set fact absolutely
+    f = arg->f - 4.0;
+  else
+    f = arg->f + c->cfact;
+  if (f < 0.25)
+    f = 0.25;
+  else if (f > 4.0)
+    f = 4.0;
+  c->cfact = f;
+  arrange(selmon);
+}
+
+void
 setclientstate(Client *c, long state)
 {
   long data[] = { state, None };
@@ -2603,38 +2637,28 @@ tagmon(const Arg *arg)
 void
 lefttile(Monitor *m)
 {
-  unsigned int i, n, h, mw, my, ty;
-  Client *c;
-
-  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
-  if (n == 0)
-    return;
-
-  if (n > m->nmaster)
-    mw = m->nmaster ? m->ww * m->mfact : 0;
-  else
-    mw = m->ww;
-  for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
-    if (i < m->nmaster) {
-      h = (m->wh - my) / (MIN(n, m->nmaster) - i);
-      resize(c, m->wx + m->ww - mw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
-      if (my + HEIGHT(c) < m->wh)
-        my += HEIGHT(c);
-    } else {
-      h = (m->wh - ty) / (n - i);
-      resize(c, m->wx, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
-      if (ty + HEIGHT(c) < m->wh)
-        ty += HEIGHT(c);
-    }
+  tile(m, 0);
 }
 
 void
-tile(Monitor *m)
+righttile(Monitor *m)
+{
+  tile(m, 1);
+}
+
+void
+tile(Monitor *m, int s)
 {
   unsigned int i, n, h, mw, my, ty;
+  float mfacts = 0, sfacts = 0;
   Client *c;
 
-  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++) {
+    if (n < m->nmaster)
+      mfacts += c->cfact;
+    else
+      sfacts += c->cfact;
+  }
   if (n == 0)
     return;
 
@@ -2644,15 +2668,23 @@ tile(Monitor *m)
     mw = m->ww;
   for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
     if (i < m->nmaster) {
-      h = (m->wh - my) / (MIN(n, m->nmaster) - i);
-      resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+      h = (m->wh - my) * (c->cfact / mfacts);
+      if (s)
+        resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+      else
+        resize(c, m->wx + m->ww - mw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
       if (my + HEIGHT(c) < m->wh)
         my += HEIGHT(c);
+      mfacts -= c->cfact;
     } else {
-      h = (m->wh - ty) / (n - i);
-      resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+      h = (m->wh - ty) * (c->cfact / sfacts);
+      if (s)
+        resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+      else
+        resize(c, m->wx, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
       if (ty + HEIGHT(c) < m->wh)
         ty += HEIGHT(c);
+      sfacts -= c->cfact;
     }
 }
 
