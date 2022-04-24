@@ -281,6 +281,7 @@ static void resizeclient(Client *c, int x, int y, int w, int h);
 static void resizemouse(const Arg *arg);
 static void resizerequest(XEvent *e);
 static void restack(Monitor *m);
+static void resetfact(const Arg *arg);
 static void run(void);
 static void runautostart(void);
 static void scan(void);
@@ -2058,6 +2059,13 @@ resizerequest(XEvent *e)
 }
 
 void
+resetfact(const Arg *arg){
+  selmon->mfact = selmon->pertag->mfacts[selmon->pertag->curtag] = mfact;
+  selmon->sel->cfact = 1.0;
+  arrange(selmon);
+}
+
+void
 restack(Monitor *m)
 {
   XEvent ev;
@@ -2693,10 +2701,14 @@ fibonacci(Monitor *m, int s)
 {
   unsigned int i, n;
   int nx, ny, nw, nh;
+  float cfacts = 0;
   int nv, hrest = 0, wrest = 0, r = 1;
   Client *c;
 
-  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++) {
+    if (n > 0)
+      cfacts += c->cfact;
+  }
   if (n == 0)
     return;
 
@@ -2713,9 +2725,12 @@ fibonacci(Monitor *m, int s)
       }
       if (r && i < n - 1) {
         if (i % 2) {
+          float scale = c->cfact / (cfacts / (n - i));
           nv = nh / 2;
+          nv *= scale;
           hrest = nh - 2*nv;
           nh = nv;
+          cfacts -= c->cfact;
         } else {
           nv = nw / 2;
           wrest = nw - 2*nv;
