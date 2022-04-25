@@ -2318,6 +2318,9 @@ setfullscreen(Client *c, int fullscreen)
 {
   int tag = selmon->pertag->curtag;
 
+  if (!c || (tag == 0 && fullscreen))
+    return;
+
   if ((c->scratchkey || selmon->sticky == c) && !fullscreen)
     tag = c->fstag;
 
@@ -3454,13 +3457,20 @@ view(const Arg *arg)
   if (selmon->showbar != selmon->pertag->showbars[selmon->pertag->curtag])
     togglebar(NULL);
 
-  Client *fs = selmon->pertag->fullscreens[arg->ui & TAGMASK];
-  if (fs) {
-    selmon->sel = fs;
-    focus(fs);
+  if (arg->ui != ~0) {
+    Client *fs = selmon->pertag->fullscreens[arg->ui & TAGMASK];
+    if (fs) {
+      selmon->sel = fs;
+      focus(fs);
+    }
+    else
+      focus(NULL);
+  } else {
+    for (i = 0; i <= LENGTH(tags); i++) {
+      setfullscreen(selmon->pertag->fullscreens[i], 0);
+      selmon->pertag->fullscreens[i] = NULL;
+    }
   }
-  else
-    focus(NULL);
   arrange(selmon);
   updatecurrentdesktop();
 }
