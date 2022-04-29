@@ -132,7 +132,7 @@ struct Client {
   int initx, inity;
   unsigned int tags, fstag;
   int isfixed, isfloating, isurgent, neverfocus, oldstate, needresize;
-  int alwaysontop, ignorerequest, noswallow, isterminal;
+  int alwaysontop, ignorerequest, grabonurgent, noswallow, isterminal;
   pid_t pid;
   char scratchkey;
   Client *next;
@@ -188,6 +188,7 @@ typedef struct {
   int isfloating;
   int monitor;
   int ignorerequest;
+  int grabonurgent;
   const char scratchkey;
   int noswallow;
   int isterminal;
@@ -427,6 +428,7 @@ applyrules(Client *c)
   c->isfloating = 0;
   c->tags = 0;
   c->ignorerequest = 0;
+  c->grabonurgent = 1;
   c->scratchkey = 0;
   c->fstag = 0;
   c->noswallow = 0;
@@ -448,6 +450,7 @@ applyrules(Client *c)
       c->noswallow= r->noswallow;
       c->isterminal= r->isterminal;
       c->ignorerequest = r->ignorerequest;
+      c->grabonurgent = r->grabonurgent;
       for (m = mons; m && m->num != r->monitor; m = m->next);
       if (m)
         c->mon = m;
@@ -887,7 +890,9 @@ clientmessage(XEvent *e)
     /*   || cme->data.l[2] == netatom[NetWMStateAbove]) */
     /*   c->alwaysontop = (cme->data.l[0] || cme->data.l[1]); */
   } else if (cme->message_type == netatom[NetActiveWindow]) {
-    grabfocus(c);
+    seturgent(c, 1);
+    if (c->grabonurgent)
+      grabfocus(c);
   }
 }
 
@@ -2330,6 +2335,7 @@ setfullscreen(Client *c, int fullscreen)
     c->fstag = tag;
     resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
     raiseclient(c);
+    focus(c);
     arrange(selmon);
   } else if (!fullscreen && ISFULLSCREEN(c)) {
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
@@ -3418,7 +3424,7 @@ updatewmhints(Client *c)
       XSetWMHints(dpy, c->win, wmh);
     } else {
       c->isurgent = (wmh->flags & XUrgencyHint) ? 1 : 0;
-      if (c->isurgent) {
+      if (c->isurgent && c->grabonurgent) {
         grabfocus(c);
       }
     }
