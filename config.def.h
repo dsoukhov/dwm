@@ -21,6 +21,7 @@ static int systraypinningfailfirst  = 1;   /* 1: if pinning fails, display systr
 static const int showsystray        = 1;   /* 0 means no systray */
 static const int showbar            = 1;   /* 0 means no bar */
 static int topbar                   = 1;   /* 0 means bottom bar */
+static char scratchdim[]            = "100x40"; /*st dims rowxcols NOT PIXELS*/
 static char font[]                  = "Hack Nerd Font Mono:size=9";
 static char font2[]                 = "Noto Color Emoji:style=Regular:pixelsize=12:antialias=true:autohint=true";
 static const char *fonts[]          = { font, font2 };
@@ -53,14 +54,14 @@ static const Rule rules[] = {
    *	WM_CLASS(STRING) = instance, class
    *	WM_NAME(STRING) = title
    */
-  /* class      instance    title               tags-mask    isfloating     ispermanent  monitor  ignoreReqest scratch-key  no-swallow   is-term*/
-  {  "st",      NULL,       NULL,               0,           0,             0,           0,       0,            0,          0,           1},
-  {  NULL,      NULL,       "scratchpad",       0,           1,             1,           0,       0,           'S',         0,           1},
-  {  NULL,      NULL,       "floatterm",        0,           1,             1,           0,       0,           'T',         0,           1},
-  {  NULL,      NULL,       "st-vimmode",       0,           1,             1,           0,       0,           'T',         0,           0},
-  { "net-runelite-client-RuneLite", NULL, NULL, 1 << 0,      0,             0,           0,       1,            0,          0,           0},
-  { "net-runelite-launcher-Launcher", NULL, NULL, 1 << 0,    0,             0,           0,       1,            0,          0,           0},
-  {  NULL, NULL, "Event Tester",                0,           0,             0,           0,       0,            0,          1,           0},
+  /* class      instance    title               tags-mask    isfloating     monitor  ignoreReqest scratch-key  no-swallow   is-term*/
+  {  "st",      NULL,       NULL,               0,           0,             0,       0,            0,          0,           1},
+  {  NULL,      NULL,       "scratchpad",       0,           1,             0,       0,           'S',         0,           1},
+  {  NULL,      NULL,       "floatterm",        0,           1,             0,       0,           'T',         0,           1},
+  {  NULL,      NULL,       "st-vimmode",       0,           0,             0,       0,            0,         0,           0},
+  { "net-runelite-client-RuneLite", NULL, NULL, 1 << 0,      0,             0,       1,            0,          0,           0},
+  { "net-runelite-launcher-Launcher", NULL, NULL, 1 << 0,    0,             0,       1,            0,          0,           0},
+  {  NULL, NULL, "Event Tester",                0,           0,             0,       0,            0,          1,           0},
 };
 
 /* layout(s) */
@@ -112,9 +113,9 @@ static char dmenumon[2]            = "0"; /* component of dmenucmd, manipulated 
 static const char *dmenucmd[]      = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbordercolor, "-sf", selfgcolor, NULL };
 static const char *termcmd[]       = { "st", NULL };
 static const char scratchpadname[] = "scratchpad";
-static const char *scratchpadcmd[] = {"S", "st", "-t", scratchpadname, "-g","100x40", NULL };
+static const char *scratchpadcmd[] = {"S", "st", "-t", scratchpadname, "-g", scratchdim, NULL };
 static const char floattermname[]  = "floatterm";
-static const char *floattermcmd[]  = {"T", "st", "-t", floattermname, "-g","100x40", NULL };
+static const char *floattermcmd[]  = {"T", "st", "-t", floattermname, "-g", scratchdim, NULL };
 
 /*
  * Xresources preferences to load at startup
@@ -140,6 +141,7 @@ ResourcePref resources[] = {
   { "systraypinning",     INTEGER, &systraypinning },
   { "systrayonleft",      INTEGER, &systrayonleft },
   { "systrayspacing",     INTEGER, &systrayspacing },
+  { "scratchdim",         STRING,  &scratchdim},
 };
 
 static Key keys[] = {
