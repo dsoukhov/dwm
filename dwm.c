@@ -131,7 +131,7 @@ struct Client {
   int bw, oldbw;
   int initx, inity;
   unsigned int tags, fstag;
-  int isfixed, ispermanent, isfloating, isurgent, neverfocus, oldstate, needresize;
+  int isfixed, isfloating, isurgent, neverfocus, oldstate, needresize;
   int alwaysontop, ignorerequest, noswallow, isterminal;
   pid_t pid;
   char scratchkey;
@@ -186,7 +186,6 @@ typedef struct {
   const char *title;
   unsigned int tags;
   int isfloating;
-  int ispermanent;
   int monitor;
   int ignorerequest;
   const char scratchkey;
@@ -361,6 +360,7 @@ static const char autostartsh[] = "autostart.sh";
 static const char broken[] = "broken";
 static const char dwmdir[] = "config/dwm";
 static const char localshare[] = ".local/share";
+static int scw, sch;         /*scratch width, height calced at runtime */
 static char stext[256];
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
@@ -425,7 +425,6 @@ applyrules(Client *c)
 
   /* rule matching */
   c->isfloating = 0;
-  c->ispermanent = 0;
   c->tags = 0;
   c->ignorerequest = 0;
   c->scratchkey = 0;
@@ -444,7 +443,6 @@ applyrules(Client *c)
     && (!r->instance || strstr(instance, r->instance)))
     {
       c->isfloating = r->isfloating;
-      c->ispermanent = r->ispermanent;
       c->tags |= r->tags;
       c->scratchkey = r->scratchkey;
       c->noswallow= r->noswallow;
@@ -665,10 +663,8 @@ swallow(Client *p, Client *c)
   p->win = c->win;
   c->win = w;
 
-  if (p->scratchkey || p->ispermanent) {
-    p->ispermanent = 0;
+  if (p->scratchkey)
     raiseclient(p);
-  }
 
   XChangeProperty(dpy, c->win, netatom[NetClientList], XA_WINDOW, 32, PropModeReplace,
     (unsigned char *) &(p->win), 1);
@@ -689,9 +685,6 @@ unswallow(Client *c)
 {
   XWindowChanges wc;
   c->win = c->swallowing->win;
-
-  if (c->scratchkey)
-    c->ispermanent = 1;
 
   free(c->swallowing);
   c->swallowing = NULL;
@@ -956,7 +949,7 @@ configurerequest(XEvent *e)
   if ((c = wintoclient(ev->window))) {
     if (ev->value_mask & CWBorderWidth)
       c->bw = ev->border_width;
-    else if ((c->isfloating && !ISFULLSCREEN(c)) || !selmon->lt[selmon->sellt]->arrange) {
+    else if ((c->isfloating && !ISFULLSCREEN(c) && !c->swallowing) || !selmon->lt[selmon->sellt]->arrange) {
       m = c->mon;
       if (!c->ignorerequest) {
         if (ev->value_mask & CWX) {
@@ -1533,7 +1526,7 @@ keypress(XEvent *e)
 void
 killclient(const Arg *arg)
 {
-  if(!selmon->sel || selmon->sel->ispermanent)
+  if(!selmon->sel || selmon->sel->scratchkey)
     return;
   if (!sendevent(selmon->sel->win, wmatom[WMDelete], NoEventMask, wmatom[WMDelete], CurrentTime, 0, 0, 0)) {
     XGrabServer(dpy);
@@ -2461,6 +2454,16 @@ setup(void)
   scheme = ecalloc(LENGTH(colors), sizeof(Clr *));
   for (i = 0; i < LENGTH(colors); i++)
     scheme[i] = drw_scm_create(drw, colors[i], 3);
+  /* set scracpad dims from config */
+  char dimcp[10];
+  strncpy(dimcp, scratchdim, 10);
+  char *token = strtok(dimcp, "x");
+  if (token) {
+    scw = atoi(token);
+    token = strtok(NULL, "x");
+  }
+  if (token)
+    sch = atoi(token);
   /* init system tray */
   updatesystray();
   /* init bars */
@@ -2872,6 +2875,10 @@ togglescratch(const Arg *arg)
 
   for (c = selmon->clients; c && !(found = c->scratchkey == ((char**)arg->v)[0][0]); c = c->next);
   if (found) {
+    c->oldh = c->h;
+    c->oldw = c->w;
+    c->w = scw * 10 + 2 * c->bw + gappx;
+    c->h = sch * 22 + 2 * c->bw + gappx;
     c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2); /* center in x direction */
     c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2); /* center in y direction */
     if (!ISVISIBLE(c)) {
