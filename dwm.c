@@ -235,6 +235,7 @@ static void configurenotify(XEvent *e);
 static void configurerequest(XEvent *e);
 static void cyclelayout(const Arg *arg);
 static Monitor *createmon(void);
+static void configureclientpos(Client *c, Window s, int pos);
 static void destroynotify(XEvent *e);
 static void deck(Monitor *m);
 static void dwindle(Monitor *m);
@@ -1007,6 +1008,15 @@ configurerequest(XEvent *e)
   XSync(dpy, False);
 }
 
+void
+configureclientpos(Client *c, Window s, int pos)
+{
+  XWindowChanges wc;
+  wc.stack_mode = pos;
+  wc.sibling = s;
+  XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
+}
+
 Monitor *
 createmon(void)
 {
@@ -1306,7 +1316,7 @@ void focustopclient(Monitor *m)
   int t = 0;
   Client *s = NULL;
   Client *f = NULL;
-  XWindowChanges wc;
+  Window sib;
 
   for (c = m->stack; c; c = c->snext) {
     if (ISVISIBLE(c) && c->alwaysontop)
@@ -1316,32 +1326,26 @@ void focustopclient(Monitor *m)
     if (ISVISIBLE(c) && ISFULLSCREEN(c))
       f = c;
   }
-
-  wc.stack_mode = Below;
-  if (!t) {
-    wc.sibling = m->barwin;
+    if (!t) {
+    sib = m->barwin;
     for (c = m->stack; c; c = c->snext) {
       if(ISVISIBLE(c)) {
         if (!c->isfloating || (f && c->isfloating && c != f)) {
-          XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
-          wc.sibling = c->win;
+          configureclientpos(c, sib, Below);
+          sib = c->win;
         } else if(!ISFULLSCREEN(c) && !c->scratchkey)
           raiseclient(c);
       }
     }
     if (f && s) {
-      wc.stack_mode = Above;
-      wc.sibling = f->win;
-      XConfigureWindow(dpy, s->win, CWSibling|CWStackMode, &wc);
+      configureclientpos(s, f->win, Above);
     }
     else if(f) raiseclient(f);
     else if(s) {
-      wc.stack_mode = TopIf;
-      wc.sibling = m->stack->win;
-      XConfigureWindow(dpy, s->win, CWSibling|CWStackMode, &wc);
+      configureclientpos(s, m->stack->win, TopIf);
     }
   } else {
-    wc.sibling = m->barwin;
+    sib = m->barwin;
     for (c = m->stack; c; c = c->snext) {
       if(ISVISIBLE(c)) {
         setfullscreen(c, 0);
@@ -1350,8 +1354,8 @@ void focustopclient(Monitor *m)
           arrange(c->mon);
         }
         if (!c->alwaysontop & !c->scratchkey) {
-          XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
-          wc.sibling = c->win;
+          configureclientpos(c, sib, Below);
+          sib = c->win;
         }
         else {
           raiseclient(c);
@@ -1858,10 +1862,7 @@ quit(const Arg *arg)
 void
 raiseclient(Client *c)
 {
-  XWindowChanges wc;
-  wc.stack_mode = Above;
-  wc.sibling = c->mon->barwin;
-  XConfigureWindow(dpy, c->win, CWSibling|CWStackMode, &wc);
+  configureclientpos(c, c->mon->barwin, Above);
 }
 
 Monitor *
