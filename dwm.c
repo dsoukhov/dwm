@@ -576,12 +576,10 @@ attachbelow(Client *c)
     attachbottom(c);
     return;
   }
-
   //Set the new client's next property to the same as the currently selected clients next
   c->next = c->mon->sel->next;
   //Set the currently selected clients next property to the new client
   c->mon->sel->next = c;
-
 }
 
 void
@@ -710,7 +708,6 @@ unswallow(Client *c)
   arrange(c->mon);
   updateclientlist();
 }
-
 
 void
 attachstack(Client *c)
@@ -1895,7 +1892,6 @@ removesystrayicon(Client *i)
   free(i);
 }
 
-
 void
 resize(Client *c, int x, int y, int w, int h, int interact)
 {
@@ -2634,7 +2630,9 @@ stackpos(const Arg *arg) {
   else
     return arg->i;
 }
-void spawnscratch(const Arg *arg)
+
+void
+spawnscratch(const Arg *arg)
 {
   if (fork() == 0) {
     if (dpy)
@@ -2816,7 +2814,6 @@ fibonacci(Monitor *m, int s)
         nw = m->ww - nw;
       i++;
     }
-
     resize(c, nx, ny, nw - (2*c->bw), nh - (2*c->bw), False);
   }
 }
@@ -2824,22 +2821,22 @@ fibonacci(Monitor *m, int s)
 void
 grabfocus(Client *c)
 {
-int i;
-if (selmon->pertag->fullscreens[selmon->pertag->curtag])
-  return;
-for(i=0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
-if(i < LENGTH(tags)) {
-  const Arg a = {.ui = 1 << i};
-  if (selmon->sticky != c)
-    view(&a);
-  Client *fs = selmon->pertag->fullscreens[selmon->pertag->curtag];
-  if (fs && fs != c)
+  int i;
+  if (selmon->pertag->fullscreens[selmon->pertag->curtag])
+    return;
+  for(i=0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
+  if(i < LENGTH(tags)) {
+    const Arg a = {.ui = 1 << i};
+    if (selmon->sticky != c)
+      view(&a);
+    Client *fs = selmon->pertag->fullscreens[selmon->pertag->curtag];
+    if (fs && fs != c)
       setfullscreen(fs, 0);
-  focus(c);
-  restack(selmon);
+    focus(c);
+    restack(selmon);
+  }
 }
 
-}
 void
 dwindle(Monitor *mon) {
   fibonacci(mon, 1);
