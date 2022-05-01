@@ -46,9 +46,9 @@ static const Rule rules[] = {
    */
   /* class      instance    title               tags-mask    isfloating     monitor  ignoreReqest grab-on-urgent scratch-key no-swallow   is-term*/
   {  "st",      NULL,       NULL,               0,           0,             0,       0,           1,             0,          0,           1},
-  {  NULL,      NULL,       "scratchpad",       0,           1,             0,       0,           0,            'S',         0,           1},
-  {  NULL,      NULL,       "floatterm",        0,           1,             0,       0,           0,            'T',         0,           1},
-  {  NULL,      NULL,       "st-vimmode",       0,           1,             0,       0,           1,             0,          0,           0},
+  {  NULL,      NULL,       "scratchpad",       0,           1,             0,       0,           1,            'S',         0,           1},
+  {  NULL,      NULL,       "floatterm",        0,           1,             0,       0,           1,            'T',         0,           1},
+  {  NULL,      NULL,       "st-vimmode",       0,           0,             0,       0,           1,             0,          0,           0},
   { "net-runelite-client-RuneLite", NULL, NULL, 0,           1,             0,       1,           1,             0,          0,           0},
   {  NULL, NULL, "Event Tester",                0,           0,             0,       0,           1,             0,          1,           0},
 };
