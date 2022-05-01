@@ -292,6 +292,7 @@ static void setclientstate(Client *c, long state);
 static void setcurrentdesktop(void);
 static void setdesktopnames(void);
 static void setfocus(Client *c);
+static void sethidden(Client *c, int hidden);
 static void setfullscreen(Client *c, int fullscreen);
 static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
@@ -1333,11 +1334,13 @@ void focustopclient(Monitor *m)
         if (!c->isfloating || (f && c->isfloating && c != f)) {
           configureclientpos(c, sib, Below);
           sib = c->win;
-        } else if(!ISFULLSCREEN(c) && !c->scratchkey)
-          raiseclient(c);
+        } else {
+          if (!ISFULLSCREEN(c) && !c->scratchkey)
+            raiseclient(c);
+        }
       }
     }
-    if (f && s) {
+    if (f && s && f != s) {
       configureclientpos(s, f->win, Above);
     }
     else if(f) raiseclient(f);
@@ -1350,7 +1353,7 @@ void focustopclient(Monitor *m)
       if(ISVISIBLE(c)) {
         setfullscreen(c, 0);
         if (c->scratchkey) {
-          c->tags = 0;
+          sethidden(c, 1);
           arrange(c->mon);
         }
         if (!c->alwaysontop & !c->scratchkey) {
@@ -2300,6 +2303,22 @@ setnumdesktops(void)
   XChangeProperty(dpy, root, netatom[NetNumberOfDesktops], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)data, 1);
 }
 
+
+void
+sethidden(Client *c, int hidden)
+{
+  if (hidden) {
+    c->tags = 0;
+    setclientstate(c, WithdrawnState);
+    focus(NULL);
+  } else {
+    c->tags = selmon->tagset[selmon->seltags];
+    setclientstate(c, NormalState);
+    focus(c);
+  }
+
+}
+
 void
 setfocus(Client *c)
 {
@@ -2882,36 +2901,29 @@ togglescratch(const Arg *arg)
 
   for (c = selmon->clients; c && !(found = c->scratchkey == ((char**)arg->v)[0][0]); c = c->next);
   if (found) {
-    c->oldh = c->h;
-    c->oldw = c->w;
+    setfullscreen(c, 0);
     c->w = scw * 10 + 2 * c->bw + gappx;
     c->h = sch * 22 + 2 * c->bw + gappx;
     c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2); /* center in x direction */
     c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2); /* center in y direction */
     if (!ISVISIBLE(c)) {
-      c->tags = selmon->tagset[selmon->seltags];
       for (k = selmon->clients; k; k = k->next) {
         if (c != k && k->scratchkey && ISVISIBLE(k)) {
           setfullscreen(k, 0);
-          k->tags = 0;
+          sethidden(k, 1);
         }
       }
+      sethidden(c, 0);
     } else {
-      c->tags = 0;
-    }
-    setfullscreen(c, 0);
-    focus(NULL);
-    if (ISVISIBLE(c)) {
-      focus(c);
+      sethidden(c, 1);
     }
     arrange(selmon);
-
   } else {
     spawnscratch(arg);
     for (k = selmon->clients; k; k = k->next) {
       if (k->scratchkey && ISVISIBLE(k)) {
         setfullscreen(k, 0);
-        k->tags = 0;
+        sethidden(k, 1);
       }
     }
   }
