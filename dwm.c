@@ -658,7 +658,7 @@ swallow(Client *p, Client *c)
   detach(c);
   detachstack(c);
 
-  setclientstate(c, WithdrawnState);
+  setclientstate(p, WithdrawnState);
   XUnmapWindow(dpy, p->win);
 
   p->swallowing = c;
