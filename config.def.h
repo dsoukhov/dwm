@@ -155,6 +155,7 @@ static Key keys[] = {
   { 0,                            XF86AudioLowerVolume,   spawn,          SHCMD("volume down && pkill -RTMIN+1 dwmblocks")},
   { 0,                            XF86AudioRaiseVolume,   spawn,          SHCMD("volume up && pkill -RTMIN+1 dwmblocks")},
   { 0,                            XF86AudioMicMute,       spawn,          SHCMD("mic mute")},
+  { 0,                            XF86Display,            spawn,          SHCMD("arandr")},
   { MODKEY,                       XF86AudioLowerVolume,   spawn,          SHCMD("mic down")},
   { MODKEY,                       XF86AudioRaiseVolume,   spawn,          SHCMD("mic up")},
   { MODKEY,                       XK_F9,     spawn,          SHCMD("pavucontrol && pkill -RTMIN+1 dwmblocks && pkill -RTMIN+2 dwmblocks")},
