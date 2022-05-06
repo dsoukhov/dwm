@@ -2330,20 +2330,20 @@ setfocus(Client *c)
 void
 setfullscreen(Client *c, int fullscreen)
 {
-  int tag = selmon->pertag->curtag;
+  int tag = c->mon->pertag->curtag;
 
   if (!c || (tag == 0 && fullscreen))
     return;
 
-  if ((c->scratchkey || selmon->sticky == c) && !fullscreen)
+  if ((c->scratchkey || c->mon->sticky == c) && !fullscreen)
     tag = c->fstag;
 
   if (fullscreen && !ISFULLSCREEN(c)) {
     if(selmon->pertag->fullscreens[tag])
-      setfullscreen(selmon->pertag->fullscreens[tag], 0);
+      setfullscreen(c->mon->pertag->fullscreens[tag], 0);
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
       PropModeReplace, (unsigned char*)&netatom[NetWMFullscreen], 1);
-    selmon->pertag->fullscreens[tag] = c;
+    c->mon->pertag->fullscreens[tag] = c;
     c->oldstate = c->isfloating;
     c->oldbw = c->bw;
     c->bw = 0;
@@ -2352,11 +2352,11 @@ setfullscreen(Client *c, int fullscreen)
     resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
     raiseclient(c);
     focus(c);
-    arrange(selmon);
+    arrange(c->mon);
   } else if (!fullscreen && ISFULLSCREEN(c)) {
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
       PropModeReplace, (unsigned char*)0, 0);
-    selmon->pertag->fullscreens[tag] = NULL;
+    c->mon->pertag->fullscreens[tag] = NULL;
     c->isfloating = c->oldstate;
     c->bw = c->oldbw;
     c->x = c->oldx;
@@ -2365,7 +2365,7 @@ setfullscreen(Client *c, int fullscreen)
     c->h = c->oldh;
     c->fstag = 0;
     resizeclient(c, c->x, c->y, c->w, c->h);
-    arrange(selmon);
+    arrange(c->mon);
   }
 }
 
@@ -2667,7 +2667,7 @@ tag(const Arg *arg)
 void
 tagmon(const Arg *arg)
 {
-  if (!selmon->sel || !mons->next)
+  if (!selmon->sel || !mons->next || selmon->sel->scratchkey)
     return;
   sendmon(selmon->sel, dirtomon(arg->i));
 }
@@ -2893,26 +2893,44 @@ togglefullscr(const Arg *arg)
 void
 togglescratch(const Arg *arg)
 {
-  Client *c, *k;
+  Client *k, *c = NULL;
+  Monitor *m;
   unsigned int found = 0;
+  int vis;
 
-  for (c = selmon->clients; c && !(found = c->scratchkey == ((char**)arg->v)[0][0]); c = c->next);
+  for(m = mons; m; m = m->next) {
+    for (c = m->clients; c; c = c->next) {
+      found = c->scratchkey == ((char**)arg->v)[0][0];
+      if (found)
+        break;
+    }
+    if (found)
+      break;
+  }
   if (found) {
+    vis = ISVISIBLE(c);
     setfullscreen(c, 0);
     c->w = scw * 10 + 2 * c->bw + gappx;
     c->h = sch * 22 + 2 * c->bw + gappx;
-    c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2); /* center in x direction */
-    c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2); /* center in y direction */
-    if (!ISVISIBLE(c)) {
-      for (k = selmon->clients; k; k = k->next) {
-        if (c != k && k->scratchkey && ISVISIBLE(k)) {
-          setfullscreen(k, 0);
-          sethidden(k, 1);
-        }
+    c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2);
+    c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2);
+    if (m == selmon) {
+      if (!vis) {
+        sethidden(c, 0);
+      } else {
+        sethidden(c, 1);
       }
-      sethidden(c, 0);
-    } else {
-      sethidden(c, 1);
+    }
+    if (m != selmon) {
+      sendmon(c, selmon);
+      if (!vis)
+        sethidden(c, 0);
+    }
+    for (k = selmon->clients; k; k = k->next) {
+      if (c != k && k->scratchkey && ISVISIBLE(k)) {
+        setfullscreen(k, 0);
+        sethidden(k, 1);
+      }
     }
     arrange(selmon);
   } else {
