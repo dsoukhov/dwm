@@ -1,14 +1,14 @@
 /* See LICENSE file for copyright and license details. */
 
 /* media-key-mappings */
-#define XF86AudioMute		0x1008ff12
-#define XF86AudioLowerVolume	0x1008ff11
-#define XF86AudioRaiseVolume	0x1008ff13
-#define XF86TouchpadToggle	0x1008ffa9
+#define XF86AudioMute            0x1008ff12
+#define XF86AudioLowerVolume     0x1008ff11
+#define XF86AudioRaiseVolume     0x1008ff13
+#define XF86TouchpadToggle       0x1008ffa9
 #define XF86XK_MonBrightnessUp   0x1008FF02  /* Monitor/panel brightness */
 #define XF86XK_MonBrightnessDown 0x1008FF03  /* Monitor/panel brightness */
-#define XF86AudioMicMute 0x1008ffb2
-#define XF86Display 0x1008ff59
+#define XF86AudioMicMute         0x1008ffb2
+#define XF86Display              0x1008ff59
 
 /* appearance */
 static unsigned int borderpx        = 3;   /* border pixel of windows */
@@ -55,13 +55,13 @@ static const Rule rules[] = {
    *	WM_NAME(STRING) = title
    */
   /* class      instance    title               tags-mask    isfloating     monitor  ignoreReqest grab-on-urgent scratch-key no-swallow   is-term*/
-  {  "st",      NULL,       NULL,               0,           0,             0,       0,           1,             0,          0,           1},
-  {  NULL,      NULL,       "scratchpad",       0,           1,             0,       0,           1,            'S',         0,           1},
-  {  NULL,      NULL,       "floatterm",        0,           1,             0,       0,           1,            'T',         0,           1},
-  {  NULL,      NULL,       "st-vimmode",       0,           0,             0,       0,           1,             0,          0,           0},
-  { "net-runelite-client-RuneLite", NULL, NULL, 1 << 0,      0,             0,       1,           1,             0,          0,           0},
-  { "net-runelite-launcher-Launcher", NULL, NULL, 1 << 0,    0,             0,       1,           1,             0,          0,           0},
-  {  NULL, NULL, "Event Tester",                0,           0,             0,       0,           1,             0,          1,           0},
+  {  "st",      NULL,       NULL,               0,           0,             -1,       0,           1,             0,          0,           1},
+  {  NULL,      NULL,       "scratchpad",       0,           1,             -1,       0,           1,            'S',         0,           1},
+  {  NULL,      NULL,       "floatterm",        0,           1,             -1,       0,           1,            'T',         0,           1},
+  {  NULL,      NULL,       "st-vimmode",       0,           0,             -1,       0,           1,             0,          0,           0},
+  { "net-runelite-client-RuneLite", NULL, NULL, 1 << 0,      0,             -1,       1,           1,             0,          0,           0},
+  { "net-runelite-launcher-Launcher", NULL, NULL, 1 << 0,    0,             -1,       1,           1,             0,          0,           0},
+  {  NULL, NULL, "Event Tester",                0,           0,             -1,       0,           1,             0,          1,           0},
 };
 
 /* layout(s) */
