@@ -294,6 +294,7 @@ static void setdesktopnames(void);
 static void setfocus(Client *c);
 static void sethidden(Client *c, int hidden);
 static void setfullscreen(Client *c, int fullscreen);
+static void setfullscreenontag(Client *c, int fullscreen, int tag);
 static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
 static void setcfact(const Arg *arg);
@@ -2328,16 +2329,8 @@ setfocus(Client *c)
 }
 
 void
-setfullscreen(Client *c, int fullscreen)
+setfullscreenontag(Client *c, int fullscreen, int tag)
 {
-  int tag = c->mon->pertag->curtag;
-
-  if (!c || (tag == 0 && fullscreen))
-    return;
-
-  if ((c->scratchkey || c->mon->sticky == c) && !fullscreen)
-    tag = c->fstag;
-
   if (fullscreen && !ISFULLSCREEN(c)) {
     if(selmon->pertag->fullscreens[tag])
       setfullscreen(c->mon->pertag->fullscreens[tag], 0);
@@ -2367,6 +2360,21 @@ setfullscreen(Client *c, int fullscreen)
     resizeclient(c, c->x, c->y, c->w, c->h);
     arrange(c->mon);
   }
+}
+
+void
+setfullscreen(Client *c, int fullscreen)
+{
+  int tag = c->mon->pertag->curtag;
+
+  if (!c || (tag == 0 && fullscreen))
+    return;
+
+  if ((c->scratchkey || c->mon->sticky == c) && !fullscreen)
+    tag = c->fstag;
+
+  setfullscreenontag(c, fullscreen, tag);
+
 }
 
 void
@@ -3508,8 +3516,7 @@ view(const Arg *arg)
       focus(NULL);
   } else {
     for (i = 0; i <= LENGTH(tags); i++) {
-      setfullscreen(selmon->pertag->fullscreens[i], 0);
-      selmon->pertag->fullscreens[i] = NULL;
+      setfullscreenontag(selmon->pertag->fullscreens[i], i, 0);
     }
   }
   arrange(selmon);
