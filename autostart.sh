@@ -15,3 +15,7 @@ pkill dwmblocks
 dwmblocks &
 pkill 'pinknoise'
 pinknoise &
+pkill autorandr-launcher
+pkill autorandr
+autorandr-launcher -d
+autorandr -c
