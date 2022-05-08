@@ -10,3 +10,7 @@ pkill xsettingsd
 xsettingsd -c ~/.xsettingsd &
 pkill dwmblocks
 dwmblocks &
+pkill autorandr-launcher
+pkill autorandr
+autorandr-launcher -d
+autorandr -c

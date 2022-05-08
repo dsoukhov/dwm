@@ -1152,8 +1152,8 @@ drawbar(Monitor *m)
   if(showsystray && m == systraytomon(m) && !systrayonleft)
     stw = getsystraywidth();
 
-  /* draw status first so it can be overdrawn by tags later */
-  if (m == selmon) { /* status is only drawn on selected monitor */
+  if (m == selmon) {
+    /* draw status first so it can be overdrawn by tags later */
     drw_setscheme(drw, scheme[SchemeNorm]);
     tw = TEXTW(stext) - lrpad / 2 + 2; /* 2px extra right padding */
     drw_text(drw, m->ww - tw - stw, 0, tw, bh, lrpad / 2 - 2, stext, 0);
@@ -2198,7 +2198,7 @@ sendmon(Client *c, Monitor *m)
 {
   if (c->mon == m)
     return;
-  unfocus(c, 1);
+  unfocus(c, 0);
   setfullscreen(c, 0);
   detach(c);
   detachstack(c);
@@ -2206,7 +2206,10 @@ sendmon(Client *c, Monitor *m)
   c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
   attach(c);
   attachstack(c);
-  focus(NULL);
+  if (m->pertag->fullscreens[m->pertag->curtag])
+    focus(m->pertag->fullscreens[m->pertag->curtag]);
+  else
+    focus(NULL);
   arrange(NULL);
 }
 
@@ -2830,8 +2833,6 @@ void
 grabfocus(Client *c)
 {
   int i;
-  if (selmon->pertag->fullscreens[selmon->pertag->curtag])
-    return;
   for(i=0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
   if(i < LENGTH(tags)) {
     const Arg a = {.ui = 1 << i};
@@ -3220,6 +3221,7 @@ updategeom(void)
       while ((c = m->clients)) {
         dirty = 1;
         m->clients = c->next;
+        setfullscreen(c, 0);
         detachstack(c);
         c->mon = mons;
         attach(c);
@@ -3516,7 +3518,7 @@ view(const Arg *arg)
       focus(NULL);
   } else {
     for (i = 0; i <= LENGTH(tags); i++) {
-      setfullscreenontag(selmon->pertag->fullscreens[i], i, 0);
+      setfullscreenontag(selmon->pertag->fullscreens[i], 0, i);
     }
   }
   arrange(selmon);
