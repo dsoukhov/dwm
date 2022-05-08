@@ -2898,7 +2898,7 @@ togglescratch(const Arg *arg)
   unsigned int found = 0;
   int vis;
 
-  for(m = mons; m; m = m->next) {
+  for (m = mons; m; m = m->next) {
     for (c = m->clients; c; c = c->next) {
       found = c->scratchkey == ((char**)arg->v)[0][0];
       if (found)
