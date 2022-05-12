@@ -2316,7 +2316,6 @@ sethidden(Client *c, int hidden)
     setclientstate(c, NormalState);
     focus(c);
   }
-
 }
 
 void
@@ -2377,7 +2376,6 @@ setfullscreen(Client *c, int fullscreen)
     tag = c->fstag;
 
   setfullscreenontag(c, fullscreen, tag);
-
 }
 
 void
@@ -2716,25 +2714,25 @@ tile(Monitor *m, int s)
   else
     mw = m->ww;
   for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
-    if (i < m->nmaster) {
-      h = (m->wh - my) * (c->cfact / mfacts);
-      if (s)
-        resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
-      else
-        resize(c, m->wx + m->ww - mw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
-      if (my + HEIGHT(c) < m->wh)
-        my += HEIGHT(c);
-      mfacts -= c->cfact;
-    } else {
-      h = (m->wh - ty) * (c->cfact / sfacts);
-      if (s)
-        resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
-      else
-        resize(c, m->wx, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
-      if (ty + HEIGHT(c) < m->wh)
-        ty += HEIGHT(c);
-      sfacts -= c->cfact;
-    }
+  if (i < m->nmaster) {
+    h = (m->wh - my) * (c->cfact / mfacts);
+    if (s)
+      resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+    else
+      resize(c, m->wx + m->ww - mw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+    if (my + HEIGHT(c) < m->wh)
+      my += HEIGHT(c);
+    mfacts -= c->cfact;
+  } else {
+    h = (m->wh - ty) * (c->cfact / sfacts);
+    if (s)
+      resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+    else
+      resize(c, m->wx, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+    if (ty + HEIGHT(c) < m->wh)
+      ty += HEIGHT(c);
+    sfacts -= c->cfact;
+  }
 }
 
 void
@@ -2814,7 +2812,7 @@ fibonacci(Monitor *m, int s)
           nh += hrest;
         }
       }
-      if (i == 0)	{
+      if (i == 0) {
         if (n != 1) {
           nw = m->ww - m->ww * (1 - m->mfact);
           wrest = 0;
@@ -2899,6 +2897,7 @@ togglefullscr(const Arg *arg)
   if(selmon->sel)
     setfullscreen(selmon->sel, !ISFULLSCREEN(selmon->sel));
 }
+
 void
 togglescratch(const Arg *arg)
 {
@@ -2916,6 +2915,7 @@ togglescratch(const Arg *arg)
     if (found)
       break;
   }
+
   if (found) {
     vis = ISVISIBLE(c);
     setfullscreen(c, 0);
@@ -3654,7 +3654,6 @@ swallowingclient(Window w)
 
   return NULL;
 }
-
 
 Client *
 wintoclient(Window w)
