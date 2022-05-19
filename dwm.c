@@ -2964,7 +2964,7 @@ togglescratch(const Arg *arg)
 void
 togglesticky(const Arg *arg)
 {
-  if (!selmon->sel)
+  if (!selmon->sel || selmon->sel->scratchkey)
     return;
   if(selmon->sticky) {
     setfullscreen(selmon->sticky, 0);
