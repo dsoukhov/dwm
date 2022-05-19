@@ -1242,8 +1242,18 @@ expose(XEvent *e)
 void
 focus(Client *c)
 {
-  if (!c || !ISVISIBLE(c))
-    for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
+  if (!c || !ISVISIBLE(c)) {
+    int cont = 1;
+    c = selmon->stack;
+    while (cont && c) {
+      if (selmon->sticky == c && selmon->sel && selmon->sel != c)
+        c = c->snext;
+      else if (ISVISIBLE(c))
+        cont = 0;
+      else
+        c = c->snext;
+    }
+  }
   if (selmon->sel && selmon->sel != c)
     unfocus(selmon->sel, 0);
   if (c) {
@@ -1622,11 +1632,9 @@ manage(Window w, XWindowAttributes *wa)
     unfocusmon(selmon);
   int tag = selmon->pertag->curtag;
   if (selmon->pertag->fullscreens[tag]) {
-    c->mon->sel = selmon->pertag->fullscreens[tag];
     focus(c->mon->sel);
   }
   if (c->scratchkey) {
-    c->mon->sel = c;
     focus(c);
   }
   arrange(c->mon);
@@ -3511,7 +3519,6 @@ view(const Arg *arg)
   if (arg->ui != ~0) {
     Client *fs = selmon->pertag->fullscreens[arg->ui & TAGMASK];
     if (fs) {
-      selmon->sel = fs;
       focus(fs);
     }
     else
