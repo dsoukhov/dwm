@@ -1243,13 +1243,12 @@ void
 focus(Client *c)
 {
   if (!c || !ISVISIBLE(c)) {
-    int cont = 1;
     c = selmon->stack;
-    while (cont && c) {
+    while (c) {
       if (selmon->sticky == c && selmon->sel && selmon->sel != c)
         c = c->snext;
       else if (ISVISIBLE(c))
-        cont = 0;
+        break;
       else
         c = c->snext;
     }
