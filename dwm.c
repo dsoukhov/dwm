@@ -61,8 +61,8 @@
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
 #define ISINC(X)                ((X) > 1000 && (X) < 3000)
 #define ISFULLSCREEN(C)         (C && C->fstag)
-#define ISVISIBLEONTAG(C, T)    ((C->tags & T) || selmon->pertag->fullscreens[T] == C)
-#define ISVISIBLESTICKY(C)      (selmon->sticky == C && (!selmon->pertag->fullscreens[selmon->pertag->curtag] || ISFULLSCREEN(C)))
+#define ISVISIBLEONTAG(C, T)    ((C->tags & T) || C->mon->pertag->fullscreens[T] == C)
+#define ISVISIBLESTICKY(C)      (C->mon->sticky == C && (!C->mon->pertag->fullscreens[C->mon->pertag->curtag] || ISFULLSCREEN(C)))
 #define ISVISIBLE(C)            (C && (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || ISVISIBLESTICKY(C)))
 #define PREVSEL                 3000
 #define LENGTH(X)               (sizeof X / sizeof X[0])
@@ -1245,7 +1245,7 @@ focus(Client *c)
   if (!c || !ISVISIBLE(c)) {
     c = selmon->stack;
     while (c) {
-      if (selmon->sticky == c && selmon->sel && selmon->sel != c)
+      if (selmon->sticky == c && selmon->sel != c)
         c = c->snext;
       else if (ISVISIBLE(c))
         break;
@@ -1253,6 +1253,8 @@ focus(Client *c)
         c = c->snext;
     }
   }
+  if (!c && selmon->sticky)
+    c = selmon->sticky;
   if (selmon->sel && selmon->sel != c)
     unfocus(selmon->sel, 0);
   if (c) {
