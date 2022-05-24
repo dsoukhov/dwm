@@ -169,6 +169,7 @@ struct Monitor {
   unsigned int tagset[2];
   int showbar;
   int topbar;
+  int configurelayout;
   Client *sticky;
   Client *clients;
   Client *sel;
@@ -249,7 +250,7 @@ static void focus(Client *c);
 static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
-static void focustopclient(Monitor *m);
+static void configuremonlayout(Monitor *m);
 static Atom getatomprop(Client *c, Atom prop);
 static int getrootptr(int *x, int *y);
 static long getstate(Window w);
@@ -1032,6 +1033,7 @@ createmon(void)
   strncpy(m->ltsymbol, layouts[0].symbol, sizeof m->ltsymbol);
   m->pertag = ecalloc(1, sizeof(Pertag));
   m->pertag->curtag = m->pertag->prevtag = 1;
+  m->configurelayout = 0;
 
   for (i = 0; i <= LENGTH(tags); i++) {
     m->pertag->nmasters[i] = m->nmaster;
@@ -1261,12 +1263,14 @@ focus(Client *c)
       selmon = c->mon;
     if (c->isurgent)
       seturgent(c, 0);
+    if (c->isfloating)
+      selmon->configurelayout = 1;
     detachstack(c);
     attachstack(c);
     grabbuttons(c, 1);
     XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColBorder].pixel);
     setfocus(c);
-    focustopclient(selmon);
+    configuremonlayout(selmon);
   } else {
     XSetInputFocus(dpy, root, RevertToPointerRoot, CurrentTime);
     XDeleteProperty(dpy, root, netatom[NetActiveWindow]);
@@ -1321,13 +1325,18 @@ focusstack(const Arg *arg)
   while (XCheckMaskEvent(dpy, EnterWindowMask, &xev));
 }
 
-void focustopclient(Monitor *m)
+void configuremonlayout(Monitor *m)
 {
   Client *c;
   int t = 0;
   Client *s = NULL;
   Client *f = NULL;
   Window sib;
+
+  if (!m->configurelayout)
+    return;
+  else
+   m->configurelayout = 0;
 
   for (c = m->stack; c; c = c->snext) {
     if (ISVISIBLE(c) && c->alwaysontop)
@@ -1337,7 +1346,8 @@ void focustopclient(Monitor *m)
     if (ISVISIBLE(c) && ISFULLSCREEN(c))
       f = c;
   }
-    if (!t) {
+
+  if (!t) {
     sib = m->barwin;
     for (c = m->stack; c; c = c->snext) {
       if(ISVISIBLE(c)) {
@@ -1350,25 +1360,23 @@ void focustopclient(Monitor *m)
         }
       }
     }
-    if (f && s && f != s) {
+    if (f && s && f != s)
       configureclientpos(s, f->win, Above);
-    }
-    else if(f) raiseclient(f);
-    else if(s) configureclientpos(s, m->stack->win, TopIf);
+    else if(f)
+      raiseclient(f);
+    else if(s)
+      configureclientpos(s, m->stack->win, TopIf);
   } else {
     sib = m->barwin;
     for (c = m->stack; c; c = c->snext) {
       if(ISVISIBLE(c)) {
         setfullscreen(c, 0);
-        if (c->scratchkey) {
+        if (c->scratchkey)
           sethidden(c, 1);
-          arrange(c->mon);
-        }
         if (!c->alwaysontop & !c->scratchkey) {
           configureclientpos(c, sib, Below);
           sib = c->win;
-        }
-        else {
+        } else {
           raiseclient(c);
         }
       }
@@ -1588,6 +1596,7 @@ manage(Window w, XWindowAttributes *wa)
     applyrules(c);
     term = termforwin(c);
   }
+  selmon->configurelayout = 1;
 
   if (c->x + WIDTH(c) > c->mon->mx + c->mon->mw)
     c->x = c->mon->mx + c->mon->mw - WIDTH(c);
@@ -2077,8 +2086,7 @@ restack(Monitor *m)
   drawbar(m);
   if (!m->sel)
     return;
-
-  focustopclient(m);
+  configuremonlayout(m);
   XSync(dpy, False);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &ev));
 }
@@ -2844,7 +2852,6 @@ grabfocus(Client *c)
     if (fs && fs != c)
       setfullscreen(fs, 0);
     focus(c);
-    restack(selmon);
   }
 }
 
@@ -3052,6 +3059,8 @@ unmanage(Client *c, int destroyed)
 {
   Monitor *m = c->mon;
   XWindowChanges wc;
+
+  m->configurelayout = 1;
 
   if (c->swallowing) {
     unswallow(c);
