@@ -169,7 +169,6 @@ struct Monitor {
   unsigned int tagset[2];
   int showbar;
   int topbar;
-  int configurelayout;
   Client *sticky;
   Client *clients;
   Client *sel;
@@ -569,6 +568,7 @@ attachtop(Client *c)
   c->next = c->mon->clients;
   c->mon->clients = c;
 }
+
 void
 attachbelow(Client *c)
 {
@@ -611,7 +611,7 @@ attachbottom(Client *c)
 
 void
 attach(Client *c){
-  switch (selmon->pertag->attachdir[selmon->pertag->curtag]) {
+  switch (c->mon->pertag->attachdir[c->mon->pertag->curtag]) {
     case 0:
       attachbelow(c);
       break;
@@ -1033,7 +1033,6 @@ createmon(void)
   strncpy(m->ltsymbol, layouts[0].symbol, sizeof m->ltsymbol);
   m->pertag = ecalloc(1, sizeof(Pertag));
   m->pertag->curtag = m->pertag->prevtag = 1;
-  m->configurelayout = 0;
 
   for (i = 0; i <= LENGTH(tags); i++) {
     m->pertag->nmasters[i] = m->nmaster;
@@ -1263,8 +1262,6 @@ focus(Client *c)
       selmon = c->mon;
     if (c->isurgent)
       seturgent(c, 0);
-    if (c->isfloating)
-      selmon->configurelayout = 1;
     detachstack(c);
     attachstack(c);
     grabbuttons(c, 1);
@@ -1316,10 +1313,10 @@ focusstack(const Arg *arg)
   if (!selmon->sel)
     return;
 
-  for(p = NULL, c = selmon->clients; c && (i || !ISVISIBLE(c));
+  for (p = NULL, c = selmon->clients; c && (i || !ISVISIBLE(c));
       i -= ISVISIBLE(c) ? 1 : 0, p = c, c = c->next);
   c = c ? c : p;
-  if(ISFULLSCREEN(selmon->sel) && !c->scratchkey)
+  if (ISFULLSCREEN(selmon->sel))
     return;
   focus(c);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &xev));
@@ -1328,24 +1325,27 @@ focusstack(const Arg *arg)
 void configuremonlayout(Monitor *m)
 {
   Client *c;
-  int t = 0;
+  Client *t = NULL;
   Client *s = NULL;
   Client *f = NULL;
+  int hasfloat = 0;
   Window sib;
 
-  if (!m->configurelayout)
-    return;
-  else
-   m->configurelayout = 0;
-
   for (c = m->stack; c; c = c->snext) {
-    if (ISVISIBLE(c) && c->alwaysontop)
-      t = 1;
-    if (ISVISIBLE(c) && c->scratchkey)
-      s = c;
-    if (ISVISIBLE(c) && ISFULLSCREEN(c))
-      f = c;
+    if (ISVISIBLE(c)) {
+      if (c->alwaysontop)
+        t = c;
+      if (c->scratchkey)
+        s = c;
+      if (ISFULLSCREEN(c))
+        f = c;
+      if (c->isfloating)
+        hasfloat = 1;
+    }
   }
+
+  if (!hasfloat)
+    return;
 
   if (!t) {
     sib = m->barwin;
@@ -1362,25 +1362,25 @@ void configuremonlayout(Monitor *m)
     }
     if (f && s && f != s)
       configureclientpos(s, f->win, Above);
-    else if(f)
+    else if (f)
       raiseclient(f);
-    else if(s)
+    else if (s)
       configureclientpos(s, m->stack->win, TopIf);
   } else {
     sib = m->barwin;
     for (c = m->stack; c; c = c->snext) {
       if(ISVISIBLE(c)) {
-        setfullscreen(c, 0);
-        if (c->scratchkey)
-          sethidden(c, 1);
-        if (!c->alwaysontop & !c->scratchkey) {
+        if(ISFULLSCREEN(c))
+          setfullscreen(c, 0);
+        if (!c->alwaysontop && !c->scratchkey) {
           configureclientpos(c, sib, Below);
           sib = c->win;
-        } else {
-          raiseclient(c);
         }
       }
     }
+    raiseclient(t);
+    if (t && s && t != s)
+      configureclientpos(s, t->win, Below);
   }
 }
 
@@ -1596,8 +1596,6 @@ manage(Window w, XWindowAttributes *wa)
     applyrules(c);
     term = termforwin(c);
   }
-  selmon->configurelayout = 1;
-
   if (c->x + WIDTH(c) > c->mon->mx + c->mon->mw)
     c->x = c->mon->mx + c->mon->mw - WIDTH(c);
   if (c->y + HEIGHT(c) > c->mon->my + c->mon->mh)
@@ -2848,8 +2846,10 @@ grabfocus(Client *c)
   for(i=0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
   if(i < LENGTH(tags)) {
     const Arg a = {.ui = 1 << i};
-    if (selmon->sticky != c)
+    if (c->mon->sticky != c) {
+      selmon = c->mon;
       view(&a);
+    }
     Client *fs = selmon->pertag->fullscreens[selmon->pertag->curtag];
     if (fs && fs != c)
       setfullscreen(fs, 0);
@@ -3061,8 +3061,6 @@ unmanage(Client *c, int destroyed)
 {
   Monitor *m = c->mon;
   XWindowChanges wc;
-
-  m->configurelayout = 1;
 
   if (c->swallowing) {
     unswallow(c);
