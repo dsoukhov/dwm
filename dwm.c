@@ -1630,13 +1630,10 @@ manage(Window w, XWindowAttributes *wa)
   setclientstate(c, NormalState);
   if (c->mon == selmon)
     unfocusmon(selmon);
-  int tag = selmon->pertag->curtag;
-  if (selmon->pertag->fullscreens[tag]) {
+  if (selmon->pertag->fullscreens[selmon->pertag->curtag])
     focus(c->mon->sel);
-  }
-  if (c->scratchkey) {
+  if (c->scratchkey)
     focus(c);
-  }
   arrange(c->mon);
   XMapWindow(dpy, c->win);
   if (term) {
