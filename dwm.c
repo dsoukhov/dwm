@@ -1618,6 +1618,7 @@ manage(Window w, XWindowAttributes *wa)
     (getatomprop(c, netatom[NetWMWindowType]) == netatom[NetWMWindowTypeDialog]) ||
     (getatomprop(c, netatom[NetWMWindowType]) == netatom[NetWMWindowTypeUtility]))
     c->alwaysontop = 1;
+  updatesizehints(c);
   updatewmhints(c);
   c->sfx = c->x;
   c->sfy = c->y;
