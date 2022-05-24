@@ -1354,7 +1354,7 @@ void focustopclient(Monitor *m)
       configureclientpos(s, f->win, Above);
     }
     else if(f) raiseclient(f);
-    else if(s) raiseclient(s);
+    else if(s) configureclientpos(s, m->stack->win, TopIf);
   } else {
     sib = m->barwin;
     for (c = m->stack; c; c = c->snext) {
