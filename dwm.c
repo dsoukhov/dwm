@@ -550,8 +550,10 @@ arrange(Monitor *m)
   if (m) {
     arrangemon(m);
     restack(m);
-  } else for (m = mons; m; m = m->next)
+  } else for (m = mons; m; m = m->next) {
     arrangemon(m);
+    restack(m);
+  }
 }
 
 void
@@ -1175,7 +1177,7 @@ drawbar(Monitor *m)
     drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
     x += w;
   }
-  strcat(strcpy(symbol_and_orei, m->ltsymbol), stack_symbols[selmon->pertag->attachdir[selmon->pertag->curtag]]);
+  strcat(strcpy(symbol_and_orei, m->ltsymbol), stack_symbols[m->pertag->attachdir[m->pertag->curtag]]);
   w = blw = TEXTW(symbol_and_orei);
   drw_setscheme(drw, scheme[SchemeNorm]);
   x = drw_text(drw, x, 0, w, bh, lrpad / 2, symbol_and_orei, 0);
@@ -1316,7 +1318,7 @@ focusstack(const Arg *arg)
   for (p = NULL, c = selmon->clients; c && (i || !ISVISIBLE(c));
       i -= ISVISIBLE(c) ? 1 : 0, p = c, c = c->next);
   c = c ? c : p;
-  if (ISFULLSCREEN(selmon->sel))
+  if(ISFULLSCREEN(selmon->sel) && !c->scratchkey)
     return;
   focus(c);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &xev));
@@ -1638,8 +1640,8 @@ manage(Window w, XWindowAttributes *wa)
   setclientstate(c, NormalState);
   if (c->mon == selmon)
     unfocusmon(selmon);
-  if (selmon->pertag->fullscreens[selmon->pertag->curtag])
-    focus(c->mon->sel);
+  if (c->mon->pertag->fullscreens[c->mon->pertag->curtag])
+    focus(c->mon->pertag->fullscreens[c->mon->pertag->curtag]);
   if (c->scratchkey)
     focus(c);
   arrange(c->mon);
@@ -2210,7 +2212,7 @@ sendmon(Client *c, Monitor *m)
 {
   if (c->mon == m)
     return;
-  unfocus(c, 0);
+  unfocus(c, 1);
   setfullscreen(c, 0);
   detach(c);
   detachstack(c);
@@ -2218,10 +2220,11 @@ sendmon(Client *c, Monitor *m)
   c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
   attach(c);
   attachstack(c);
-  if (m->pertag->fullscreens[m->pertag->curtag])
-    focus(m->pertag->fullscreens[m->pertag->curtag]);
-  else
-    focus(NULL);
+  if (m->pertag->fullscreens[m->pertag->curtag] && !c->alwaysontop) {
+    detachstack(m->pertag->fullscreens[m->pertag->curtag]);
+    attachstack(m->pertag->fullscreens[m->pertag->curtag]);
+  }
+  focus(NULL);
   arrange(NULL);
 }
 
