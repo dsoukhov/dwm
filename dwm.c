@@ -132,7 +132,7 @@ struct Client {
   int initx, inity;
   unsigned int tags, fstag;
   int isfixed, isfloating, isurgent, neverfocus, oldstate, needresize;
-  int alwaysontop, ignorerequest, grabonurgent, noswallow, isterminal;
+  int alwaysontop, ignoremoverequest, grabonurgent, noswallow, isterminal;
   pid_t pid;
   char scratchkey;
   Client *next;
@@ -186,7 +186,7 @@ typedef struct {
   unsigned int tags;
   int isfloating;
   int monitor;
-  int ignorerequest;
+  int ignoremoverequest;
   int grabonurgent;
   const char scratchkey;
   int noswallow;
@@ -429,7 +429,7 @@ applyrules(Client *c)
   /* rule matching */
   c->isfloating = 0;
   c->tags = 0;
-  c->ignorerequest = 0;
+  c->ignoremoverequest = 0;
   c->grabonurgent = 1;
   c->scratchkey = 0;
   c->fstag = 0;
@@ -451,7 +451,7 @@ applyrules(Client *c)
       c->scratchkey = r->scratchkey;
       c->noswallow= r->noswallow;
       c->isterminal= r->isterminal;
-      c->ignorerequest = r->ignorerequest;
+      c->ignoremoverequest = r->ignoremoverequest;
       c->grabonurgent = r->grabonurgent;
       for (m = mons; m && m->num != r->monitor; m = m->next);
       if (m)
@@ -958,7 +958,7 @@ configurerequest(XEvent *e)
       c->bw = ev->border_width;
     else if ((c->isfloating && !ISFULLSCREEN(c) && !c->swallowing) || !selmon->lt[selmon->sellt]->arrange) {
       m = c->mon;
-      if (!c->ignorerequest) {
+      if (!c->ignoremoverequest) {
         if (ev->value_mask & CWX) {
           c->oldx = c->x;
           c->x = m->mx + ev->x;
@@ -2342,6 +2342,8 @@ setfocus(Client *c)
       XA_WINDOW, 32, PropModeReplace,
       (unsigned char *) &(c->win), 1);
   }
+  if (c->ignoremoverequest)
+    setclientstate(c, NormalState);
   sendevent(c->win, wmatom[WMTakeFocus], NoEventMask, wmatom[WMTakeFocus], CurrentTime, 0, 0, 0);
 }
 
