@@ -1285,7 +1285,7 @@ focusin(XEvent *e)
 {
   XFocusChangeEvent *ev = &e->xfocus;
 
-  if (selmon->sel && ev->window != selmon->sel->win)
+  if (selmon->sel && ev->window != selmon->sel->win && wintoclient(ev->window))
     setfocus(selmon->sel);
 }
 
@@ -1642,8 +1642,6 @@ manage(Window w, XWindowAttributes *wa)
     unfocusmon(selmon);
   if (c->mon->pertag->fullscreens[c->mon->pertag->curtag] && !c->alwaysontop)
     focus(c->mon->pertag->fullscreens[c->mon->pertag->curtag]);
-  if (c->scratchkey)
-    focus(c);
   arrange(c->mon);
   XMapWindow(dpy, c->win);
   if (term) {
