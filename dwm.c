@@ -2212,10 +2212,14 @@ scan(void)
 void
 sendmon(Client *c, Monitor *m)
 {
+  int fs = 0;
   if (c->mon == m)
     return;
   unfocus(c, 1);
-  setfullscreen(c, 0);
+  if (ISFULLSCREEN(c)) {
+    setfullscreen(c, 0);
+    fs = 1;
+  }
   detach(c);
   detachstack(c);
   c->mon = m;
@@ -2226,6 +2230,8 @@ sendmon(Client *c, Monitor *m)
     detachstack(m->pertag->fullscreens[m->pertag->curtag]);
     attachstack(m->pertag->fullscreens[m->pertag->curtag]);
   }
+  if (fs)
+    setfullscreen(c, 1);
   focus(NULL);
   arrange(NULL);
 }
@@ -2352,7 +2358,7 @@ void
 setfullscreenontag(Client *c, int fullscreen, int tag)
 {
   if (fullscreen && !ISFULLSCREEN(c)) {
-    if(selmon->pertag->fullscreens[tag])
+    if(c->mon->pertag->fullscreens[tag])
       setfullscreen(c->mon->pertag->fullscreens[tag], 0);
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
       PropModeReplace, (unsigned char*)&netatom[NetWMFullscreen], 1);
