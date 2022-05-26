@@ -195,15 +195,15 @@ typedef struct {
 
 /* Xresources preferences */
 enum resource_type {
-	STRING = 0,
-	INTEGER = 1,
-	FLOAT = 2
+  STRING = 0,
+  INTEGER = 1,
+  FLOAT = 2
 };
 
 typedef struct {
-	char *name;
-	enum resource_type type;
-	void *dst;
+  char *name;
+  enum resource_type type;
+  void *dst;
 } ResourcePref;
 
 
@@ -230,6 +230,7 @@ static void cleanup(void);
 static void cleanupmon(Monitor *mon);
 static void clientmessage(XEvent *e);
 static void configure(Client *c);
+static void configuremonlayout(Monitor *m);
 static void configurenotify(XEvent *e);
 static void configurerequest(XEvent *e);
 static void cyclelayout(const Arg *arg);
@@ -249,7 +250,6 @@ static void focus(Client *c);
 static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
-static void configuremonlayout(Monitor *m);
 static Atom getatomprop(Client *c, Atom prop);
 static int getrootptr(int *x, int *y);
 static long getstate(Window w);
@@ -917,6 +917,65 @@ configure(Client *c)
   XSendEvent(dpy, c->win, False, StructureNotifyMask, (XEvent *)&ce);
 }
 
+void configuremonlayout(Monitor *m)
+{
+  Client *c;
+  Client *t = NULL;
+  Client *s = NULL;
+  Client *f = NULL;
+  int hasfloat = 0;
+  Window sib;
+
+  for (c = m->stack; c; c = c->snext) {
+    if (ISVISIBLE(c)) {
+      if (c->alwaysontop)
+        t = c;
+      if (c->scratchkey)
+        s = c;
+      if (ISFULLSCREEN(c))
+        f = c;
+      if (c->isfloating)
+        hasfloat = 1;
+    }
+  }
+
+  if (!hasfloat)
+    return;
+
+  if (!t) {
+    sib = m->barwin;
+    for (c = m->stack; c; c = c->snext) {
+      if (ISVISIBLE(c)) {
+        if (!c->isfloating || (f && c->isfloating && c != f)) {
+          configureclientpos(c, sib, Below);
+          sib = c->win;
+        } else {
+          raiseclient(c);
+        }
+      }
+    }
+    if (f && s && f != s)
+      configureclientpos(s, f->win, Above);
+    else if (s)
+      configureclientpos(s, m->stack->win, Above);
+  } else {
+    sib = m->barwin;
+    for (c = m->stack; c; c = c->snext) {
+      if (ISVISIBLE(c)) {
+        if (ISFULLSCREEN(c))
+          setfullscreen(c, 0);
+        if (!c->alwaysontop && !c->scratchkey) {
+          configureclientpos(c, sib, Below);
+          sib = c->win;
+        }
+      }
+    }
+    configureclientpos(t, m->stack->win, TopIf);
+    if (t && s && t != s)
+      configureclientpos(s, t->win, Below);
+  }
+}
+
 void
 configurenotify(XEvent *e)
 {
@@ -1325,65 +1384,6 @@ focusstack(const Arg *arg)
   focus(c);
   restack(selmon);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &xev));
-}
-
-void configuremonlayout(Monitor *m)
-{
-  Client *c;
-  Client *t = NULL;
-  Client *s = NULL;
-  Client *f = NULL;
-  int hasfloat = 0;
-  Window sib;
-
-  for (c = m->stack; c; c = c->snext) {
-    if (ISVISIBLE(c)) {
-      if (c->alwaysontop)
-        t = c;
-      if (c->scratchkey)
-        s = c;
-      if (ISFULLSCREEN(c))
-        f = c;
-      if (c->isfloating)
-        hasfloat = 1;
-    }
-  }
-
-  if (!hasfloat)
-    return;
-
-  if (!t) {
-    sib = m->barwin;
-    for (c = m->stack; c; c = c->snext) {
-      if (ISVISIBLE(c)) {
-        if (!c->isfloating || (f && c->isfloating && c != f)) {
-          configureclientpos(c, sib, Below);
-          sib = c->win;
-        } else {
-          raiseclient(c);
-        }
-      }
-    }
-    if (f && s && f != s)
-      configureclientpos(s, f->win, Above);
-    else if (s)
-      configureclientpos(s, m->stack->win, Above);
-  } else {
-    sib = m->barwin;
-    for (c = m->stack; c; c = c->snext) {
-      if (ISVISIBLE(c)) {
-        if (ISFULLSCREEN(c))
-          setfullscreen(c, 0);
-        if (!c->alwaysontop && !c->scratchkey) {
-          configureclientpos(c, sib, Below);
-          sib = c->win;
-        }
-      }
-    }
-    configureclientpos(t, m->stack->win, TopIf);
-    if (t && s && t != s)
-      configureclientpos(s, t->win, Below);
-  }
 }
 
 Atom
@@ -1847,7 +1847,8 @@ propertynotify(XEvent *e)
 }
 
 void
-pushstack(const Arg *arg) {
+pushstack(const Arg *arg)
+{
   int i = stackpos(arg);
   Client *sel = selmon->sel, *c, *p;
 
@@ -1916,7 +1917,8 @@ resize(Client *c, int x, int y, int w, int h, int interact)
 }
 
 void
-resizebarwin(Monitor *m) {
+resizebarwin(Monitor *m)
+{
   unsigned int w = m->ww;
   if (showsystray && m == systraytomon(m) && !systrayonleft)
     w -= getsystraywidth();
@@ -2291,8 +2293,7 @@ sendevent(Window w, Atom proto, int mask, long d0, long d1, long d2, long d3, lo
         exists = protocols[n] == proto;
       XFree(protocols);
     }
-  }
-  else {
+  } else {
     exists = True;
     mt = proto;
   }
@@ -3684,7 +3685,8 @@ wintoclient(Window w)
 }
 
 Client *
-wintosystrayicon(Window w) {
+wintosystrayicon(Window w)
+{
   Client *i = NULL;
 
   if (!showsystray || !w)
