@@ -1352,7 +1352,7 @@ void configuremonlayout(Monitor *m)
   if (!t) {
     sib = m->barwin;
     for (c = m->stack; c; c = c->snext) {
-      if(ISVISIBLE(c)) {
+      if (ISVISIBLE(c)) {
         if (!c->isfloating || (f && c->isfloating && c != f)) {
           configureclientpos(c, sib, Below);
           sib = c->win;
@@ -1371,8 +1371,8 @@ void configuremonlayout(Monitor *m)
   } else {
     sib = m->barwin;
     for (c = m->stack; c; c = c->snext) {
-      if(ISVISIBLE(c)) {
-        if(ISFULLSCREEN(c))
+      if (ISVISIBLE(c)) {
+        if (ISFULLSCREEN(c))
           setfullscreen(c, 0);
         if (!c->alwaysontop && !c->scratchkey) {
           configureclientpos(c, sib, Below);
@@ -1380,7 +1380,7 @@ void configuremonlayout(Monitor *m)
         }
       }
     }
-    raiseclient(t);
+    configureclientpos(t, m->stack->win, TopIf);
     if (t && s && t != s)
       configureclientpos(s, t->win, Below);
   }
@@ -1640,7 +1640,7 @@ manage(Window w, XWindowAttributes *wa)
   setclientstate(c, NormalState);
   if (c->mon == selmon)
     unfocusmon(selmon);
-  if (c->mon->pertag->fullscreens[c->mon->pertag->curtag])
+  if (c->mon->pertag->fullscreens[c->mon->pertag->curtag] && !c->alwaysontop)
     focus(c->mon->pertag->fullscreens[c->mon->pertag->curtag]);
   if (c->scratchkey)
     focus(c);
@@ -2361,7 +2361,6 @@ setfullscreenontag(Client *c, int fullscreen, int tag)
     resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
     raiseclient(c);
     focus(c);
-    arrange(c->mon);
   } else if (!fullscreen && ISFULLSCREEN(c)) {
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
       PropModeReplace, (unsigned char*)0, 0);
