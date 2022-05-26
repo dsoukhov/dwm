@@ -1225,6 +1225,7 @@ enternotify(XEvent *e)
   } else if (!c || c == selmon->sel)
     return;
   focus(c);
+  restack(selmon);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &xev));
 }
 
@@ -1269,7 +1270,6 @@ focus(Client *c)
     grabbuttons(c, 1);
     XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColBorder].pixel);
     setfocus(c);
-    configuremonlayout(selmon);
   } else {
     XSetInputFocus(dpy, root, RevertToPointerRoot, CurrentTime);
     XDeleteProperty(dpy, root, netatom[NetActiveWindow]);
@@ -1323,6 +1323,7 @@ focusstack(const Arg *arg)
   if(ISFULLSCREEN(selmon->sel) && !c->scratchkey)
     return;
   focus(c);
+  restack(selmon);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &xev));
 }
 
@@ -1359,17 +1360,14 @@ void configuremonlayout(Monitor *m)
           configureclientpos(c, sib, Below);
           sib = c->win;
         } else {
-          if (!ISFULLSCREEN(c) && !c->scratchkey)
-            raiseclient(c);
+          raiseclient(c);
         }
       }
     }
     if (f && s && f != s)
       configureclientpos(s, f->win, Above);
-    else if (f)
-      raiseclient(f);
     else if (s)
-      configureclientpos(s, m->stack->win, TopIf);
+      configureclientpos(s, m->stack->win, Above);
   } else {
     sib = m->barwin;
     for (c = m->stack; c; c = c->snext) {
@@ -1644,6 +1642,8 @@ manage(Window w, XWindowAttributes *wa)
     unfocusmon(selmon);
   if (c->mon->pertag->fullscreens[c->mon->pertag->curtag] && !c->alwaysontop)
     focus(c->mon->pertag->fullscreens[c->mon->pertag->curtag]);
+  if (c->scratchkey)
+    focus(c);
   arrange(c->mon);
   XMapWindow(dpy, c->win);
   if (term) {
@@ -2361,6 +2361,7 @@ setfullscreenontag(Client *c, int fullscreen, int tag)
     resizeclient(c, c->mon->mx, c->mon->my, c->mon->mw, c->mon->mh);
     raiseclient(c);
     focus(c);
+    arrange(c->mon);
   } else if (!fullscreen && ISFULLSCREEN(c)) {
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
       PropModeReplace, (unsigned char*)0, 0);
@@ -2373,6 +2374,7 @@ setfullscreenontag(Client *c, int fullscreen, int tag)
     c->h = c->oldh;
     c->fstag = 0;
     resizeclient(c, c->x, c->y, c->w, c->h);
+    focus(NULL);
     arrange(c->mon);
   }
 }
@@ -2943,9 +2945,9 @@ togglescratch(const Arg *arg)
       } else {
         sethidden(c, 1);
       }
-    }
-    if (m != selmon) {
+    } else {
       sendmon(c, selmon);
+      focus(c);
       if (!vis)
         sethidden(c, 0);
     }
@@ -2955,7 +2957,6 @@ togglescratch(const Arg *arg)
         sethidden(k, 1);
       }
     }
-    arrange(selmon);
   } else {
     spawnscratch(arg);
     for (k = selmon->clients; k; k = k->next) {
@@ -2965,6 +2966,7 @@ togglescratch(const Arg *arg)
       }
     }
   }
+  arrange(selmon);
 }
 
 void
