@@ -291,6 +291,7 @@ static void setclientstate(Client *c, long state);
 static void setcurrentdesktop(void);
 static void setdesktopnames(void);
 static void setfocus(Client *c);
+static void setclientgeo(Client *c, XWindowAttributes *wa);
 static void sethidden(Client *c, int hidden);
 static void setfullscreen(Client *c, int fullscreen, int f);
 static void setfullscreenontag(Client *c, int fullscreen, int tag, int f);
@@ -1581,14 +1582,6 @@ manage(Window w, XWindowAttributes *wa)
   c = ecalloc(1, sizeof(Client));
   c->win = w;
   c->pid = winpid(w);
-  /* geometry */
-  c->x = c->oldx = wa->x;
-  c->y = c->oldy = wa->y;
-  c->w = c->oldw = wa->width;
-  c->h = c->oldh = wa->height;
-  c->oldbw = wa->border_width;
-  c->cfact = 1.0;
-
   updatetitle(c);
   if (XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
     c->mon = t->mon;
@@ -1599,16 +1592,7 @@ manage(Window w, XWindowAttributes *wa)
     applyrules(c);
     term = termforwin(c);
   }
-  if (c->x + WIDTH(c) > c->mon->mx + c->mon->mw)
-    c->x = c->mon->mx + c->mon->mw - WIDTH(c);
-  if (c->y + HEIGHT(c) > c->mon->my + c->mon->mh)
-    c->y = c->mon->my + c->mon->mh - HEIGHT(c);
-  c->x = MAX(c->x, c->mon->mx);
-  /* only fix client y-offset, if the client center might cover the bar */
-  c->y = MAX(c->y, ((c->mon->by == c->mon->my) && (c->x + (c->w / 2) >= c->mon->wx)
-    && (c->x + (c->w / 2) < c->mon->wx + c->mon->ww)) ? bh : c->mon->my);
-  c->bw = borderpx;
-
+  setclientgeo(c, wa);
   wc.border_width = c->bw;
   XConfigureWindow(dpy, w, CWBorderWidth, &wc);
   XSetWindowBorder(dpy, w, scheme[SchemeNorm][ColBorder].pixel);
@@ -1625,8 +1609,6 @@ manage(Window w, XWindowAttributes *wa)
   c->sfy = c->y;
   c->sfw = c->w;
   c->sfh = c->h;
-  c->x = c->mon->mx + (c->mon->mw - WIDTH(c)) / 2;
-  c->y = c->mon->my + (c->mon->mh - HEIGHT(c)) / 2;
   XSelectInput(dpy, w, EnterWindowMask|FocusChangeMask|PropertyChangeMask|StructureNotifyMask);
   grabbuttons(c, 0);
   if (!c->isfloating)
@@ -1647,9 +1629,8 @@ manage(Window w, XWindowAttributes *wa)
     focus(c);
   arrange(c->mon);
   XMapWindow(dpy, c->win);
-  if (term) {
+  if (term)
     swallow(term, c);
-  }
   focus(NULL);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &xev));
 }
@@ -1943,6 +1924,10 @@ resizeclient(Client *c, int x, int y, int w, int h)
   /* Do nothing if layout is floating */
   if (c->isfloating || c->mon->lt[c->mon->sellt]->arrange == NULL) {
     gapincr = gapoffset = 0;
+    c->sfx = c->x;
+    c->sfy = c->y;
+    c->sfw = c->w;
+    c->sfh = c->h;
   } else {
     /* Remove border and gap if layout is monocle or only one client */
     if (c->mon->lt[c->mon->sellt]->arrange == monocle || n == 1) {
@@ -2351,6 +2336,33 @@ setfocus(Client *c)
       (unsigned char *) &(c->win), 1);
   }
   sendevent(c->win, wmatom[WMTakeFocus], NoEventMask, wmatom[WMTakeFocus], CurrentTime, 0, 0, 0);
+}
+
+void
+setclientgeo(Client *c, XWindowAttributes *wa)
+{
+  if (!c->scratchkey) {
+    c->x = c->oldx = wa->x;
+    c->y = c->oldy = wa->y;
+    c->w = c->oldw = wa->width;
+    c->h = c->oldh = wa->height;
+    c->oldbw = wa->border_width;
+  } else {
+    c->w = scw * 10 + 2 * c->bw + gappx;
+    c->h = sch * 22 + 2 * c->bw + gappx;
+    c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2);
+    c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2);
+  }
+  c->cfact = 1.0;
+  if (c->x + WIDTH(c) > c->mon->mx + c->mon->mw)
+    c->x = c->mon->mx + c->mon->mw - WIDTH(c);
+  if (c->y + HEIGHT(c) > c->mon->my + c->mon->mh)
+    c->y = c->mon->my + c->mon->mh - HEIGHT(c);
+  c->x = MAX(c->x, c->mon->mx);
+  /* only fix client y-offset, if the client center might cover the bar */
+  c->y = MAX(c->y, ((c->mon->by == c->mon->my) && (c->x + (c->w / 2) >= c->mon->wx)
+    && (c->x + (c->w / 2) < c->mon->wx + c->mon->ww)) ? bh : c->mon->my);
+  c->bw = borderpx;
 }
 
 void
@@ -2946,10 +2958,7 @@ togglescratch(const Arg *arg)
   if (found) {
     vis = ISVISIBLE(c);
     setfullscreen(c, 0, 0);
-    c->w = scw * 10 + 2 * c->bw + gappx;
-    c->h = sch * 22 + 2 * c->bw + gappx;
-    c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2);
-    c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2);
+    setclientgeo(c, NULL);
     if (m == selmon) {
       if (!vis) {
         sethidden(c, 0);
