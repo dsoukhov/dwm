@@ -992,9 +992,22 @@ configurenotify(XEvent *e)
       drw_resize(drw, sw, bh);
       updatebars();
       for (m = mons; m; m = m->next) {
-        for (c = m->clients; c; c = c->next)
+        for (c = m->clients; c; c = c->next) {
+          fprintf(stderr, "mon x:%dy:%dw:%d\n", m->my, m->mx, m->wh);
+          c->sfx = (c->sfx != -9999 ? c->sfx : c->x) + c->mon->wx;
+          c->sfy = (c->sfx != -9999 ? c->sfy : c->y) + c->mon->wy;
           if (ISFULLSCREEN(c) && ISVISIBLE(c))
             resizeclient(c, m->mx, m->my, m->mw, m->mh);
+          else if (c->isfloating && ISVISIBLE(c)) {
+            fprintf(stderr, "x:%dy:%d\n", c->x, c->y);
+            /* c->y = c->mon->my + (c->mon->mh - HEIGHT(c)) / 2; */
+            /* c->x = c->mon->mx + (c->mon->mw - WIDTH(c)) / 2; */
+            c->x = c->sfx;
+            c->y = c->sfy;
+            fprintf(stderr, "x:%dy:%d\n", c->x, c->y);
+            resizeclient(c, c->x, c->y, c->w, c->h);
+          }
+        }
         resizebarwin(m);
       }
       focus(NULL);
