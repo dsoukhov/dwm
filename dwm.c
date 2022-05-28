@@ -920,10 +920,7 @@ configure(Client *c)
 
 void configuremonlayout(Monitor *m)
 {
-  Client *c;
-  Client *t = NULL;
-  Client *s = NULL;
-  Client *f = NULL;
+  Client *c, *t = NULL, *s = NULL, *f = NULL;
   int hasfloat = 0;
   Window sib;
 
@@ -940,7 +937,7 @@ void configuremonlayout(Monitor *m)
     }
   }
 
-  if (!hasfloat)
+  if (!hasfloat && (selmon->lt[selmon->sellt]->arrange != monocle && selmon->lt[selmon->sellt]->arrange != deck))
     return;
 
   if (!t) {
