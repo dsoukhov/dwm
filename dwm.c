@@ -1921,10 +1921,12 @@ resizeclient(Client *c, int x, int y, int w, int h)
   /* Do nothing if layout is floating */
   if (c->isfloating || c->mon->lt[c->mon->sellt]->arrange == NULL) {
     gapincr = gapoffset = 0;
-    c->sfx = c->x;
-    c->sfy = c->y;
-    c->sfw = c->w;
-    c->sfh = c->h;
+    if (!ISFULLSCREEN(c)) {
+      c->sfx = c->x;
+      c->sfy = c->y;
+      c->sfw = c->w;
+      c->sfh = c->h;
+    }
   } else {
     /* Remove border and gap if layout is monocle or only one client */
     if (c->mon->lt[c->mon->sellt]->arrange == monocle || n == 1) {
