@@ -92,7 +92,7 @@
 #define XEMBED_EMBEDDED_VERSION (VERSION_MAJOR << 16) | VERSION_MINOR
 
 /* enums */
-enum { CurNormal, CurResize, CurMove, CurSwal, CurLast }; /* cursor */
+enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
 enum { SchemeNorm, SchemeSel, SchemeUrg }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMState, NetWMStateAbove, NetWMCheck,
        NetSystemTray, NetSystemTrayOP, NetSystemTrayOrientation, NetSystemTrayOrientationHorz,
@@ -937,7 +937,7 @@ void configuremonlayout(Monitor *m)
     }
   }
 
-  if (!hasfloat && (selmon->lt[selmon->sellt]->arrange != monocle && selmon->lt[selmon->sellt]->arrange != deck))
+  if (!hasfloat && selmon->lt[selmon->sellt]->arrange != monocle && selmon->lt[selmon->sellt]->arrange != deck)
     return;
 
   if (!t) {
