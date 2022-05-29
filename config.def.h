@@ -47,8 +47,6 @@ static const XPoint stickyiconbb = {4,8};	/* defines the bottom right corner of 
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
-static const XPoint swaliconbb = { 2,16 }; /* defines the bottom right corner of the polygon's bounding box (speeds up scaling) */
-
 static const Rule rules[] = {
   /* xprop(1):
    *	WM_CLASS(STRING) = instance, class
