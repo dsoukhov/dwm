@@ -2063,8 +2063,10 @@ resizerequest(XEvent *e)
 void
 resetfact(const Arg *arg)
 {
+  Client *c;
   selmon->mfact = selmon->pertag->mfacts[selmon->pertag->curtag] = mfact;
-  selmon->sel->cfact = 1.0;
+  for (c = nexttiled(selmon->clients); c; c = nexttiled(c->next))
+    c->cfact = 1.0;
   arrange(selmon);
 }
 
@@ -2778,14 +2780,13 @@ fibonacci(Monitor *m, int s)
 {
   unsigned int i, n;
   int nx, ny, nw, nh;
-  float cfacts = 0;
   int nv, hrest = 0, wrest = 0, r = 1;
-  Client *c;
+  const float MAX_SCALE = 1.75;
+  const float MIN_CFACT = 0.5;
+  float scale = 1.0;
+  Client *c, *next, *n1 = NULL, *n2 = NULL, *j;
 
-  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++) {
-    if (n > 0)
-      cfacts += c->cfact;
-  }
+  for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
   if (n == 0)
     return;
 
@@ -2802,12 +2803,44 @@ fibonacci(Monitor *m, int s)
       }
       if (r && i < n - 1) {
         if (i % 2) {
-          float scale = c->cfact / (cfacts / (n - i));
+          next = nexttiled(c->next);
+          if (((n - 1) % 2) && (i + 2) == (n - 1)) {
+            n1 = next;
+            n2 = nexttiled(n1->next);
+            for (j = m->stack; j; j = j->snext) {
+              if (n1 == j) {
+                next = j;
+                n2->cfact = n1->cfact;
+                break;
+              }
+              if (n2 == j) {
+                next = j;
+                n1->cfact = n2->cfact;
+                break;
+              }
+            }
+          }
+          scale = MIN(MAX_SCALE, c->cfact / next->cfact);
+          if (scale == 1.0)
+            c->cfact = next->cfact = 1.0;
+          if (scale == MAX_SCALE && c->cfact > 1.0) {
+            c->cfact = MAX_SCALE;
+            next->cfact = 1.0;
+          }
+          if (scale == MAX_SCALE && next->cfact < 1.0) {
+            c->cfact = 1.0;
+            next->cfact = MIN_CFACT;
+          }
+          if (n1 && n2) {
+            if (n2 == next)
+              n1->cfact = n2->cfact;
+            else
+              n2->cfact = n1->cfact;
+          }
           nv = nh / 2;
           nv *= scale;
           hrest = nh - 2*nv;
           nh = nv;
-          cfacts -= c->cfact;
         } else {
           nv = nw / 2;
           wrest = nw - 2*nv;
