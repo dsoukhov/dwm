@@ -120,6 +120,7 @@ typedef struct {
 
 typedef struct Monitor Monitor;
 typedef struct Client Client;
+
 struct Client {
   char name[256];
   float mina, maxa;
@@ -206,12 +207,10 @@ typedef struct {
   void *dst;
 } ResourcePref;
 
-
-typedef struct Systray   Systray;
-struct Systray {
+typedef struct {
   Window win;
   Client *icons;
-};
+} Systray;
 
 /* function declarations */
 static void applyrules(Client *c);
