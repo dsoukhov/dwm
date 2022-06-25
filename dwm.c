@@ -1765,6 +1765,7 @@ nexttiled(Client *c)
 int
 parentiseditor(pid_t w)
 {
+#ifdef __linux__
   FILE *f;
   char buf[256];
   char comm[256];
@@ -1778,6 +1779,7 @@ parentiseditor(pid_t w)
   fclose(f);
   if (strstr(comm, getenv("EDITOR")))
     return 1;
+#endif /* __linux__*/
   return 0;
 }
 
@@ -3699,29 +3701,38 @@ getparentprocess(pid_t p)
 int
 isdescprocess(pid_t p, pid_t c)
 {
-  while (p != c && c != 0)
+  int d = 0;
+  while (p != c && c != 0)  {
     c = getparentprocess(c);
-
-  return (int)c;
+    d++;
+  }
+  d = ((int)c) ? d : 0;
+  return d;
 }
 
 Client *
 termforwin(const Client *w)
 {
-  Client *c;
+  Client *c, *p = NULL;
   Monitor *m;
+  int mindepth = 999;
 
   if (!w->pid || w->isterminal || parentiseditor(w->pid))
     return NULL;
 
   for (m = mons; m; m = m->next) {
     for (c = m->clients; c; c = c->next) {
-      if (c->isterminal && !c->swallowing && c->pid && isdescprocess(c->pid, w->pid))
-        return c;
+      if (c->isterminal && !c->swallowing && c->pid) {
+        int d = isdescprocess(c->pid, w->pid);
+        if (d && mindepth > d) {
+          mindepth = d;
+          p = c;
+        }
+      }
     }
   }
 
-  return NULL;
+  return p;
 }
 
 Client *
