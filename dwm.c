@@ -268,6 +268,7 @@ static void monocle(Monitor *m);
 static void motionnotify(XEvent *e);
 static void movemouse(const Arg *arg);
 static Client *nexttiled(Client *c);
+static int parentiseditor(pid_t w);
 static void pop(Client *);
 static void propertynotify(XEvent *e);
 static void pushstack(const Arg *arg);
@@ -1760,6 +1761,25 @@ nexttiled(Client *c)
 {
   for (; c && (c->isfloating || !ISVISIBLE(c)); c = c->next);
   return c;
+}
+
+int
+parentiseditor(pid_t w)
+{
+  FILE *f;
+  char buf[256];
+  char comm[256];
+  int c = getparentprocess(w);
+  if (!c)
+    return 0;
+  snprintf(buf, sizeof(buf) - 1, "/proc/%u/comm", (unsigned)c);
+  if (!(f = fopen(buf, "r")))
+    return 0;
+  fscanf(f, "%s", comm);
+  fclose(f);
+  if (strstr(comm, getenv("EDITOR")))
+    return 1;
+  return 0;
 }
 
 void
@@ -3689,7 +3709,7 @@ termforwin(const Client *w)
   Client *c;
   Monitor *m;
 
-  if (!w->pid || w->isterminal)
+  if (!w->pid || w->isterminal || parentiseditor(w->pid))
     return NULL;
 
   for (m = mons; m; m = m->next) {
