@@ -6,7 +6,8 @@ hsetroot -solid '#000000'
 pkill clipmenud
 CM_DIR=~/.cache clipmenud &
 pkill picom
-picom -CGb
+#picom -CGb
+picom -b
 pkill xsettingsd
 xsettingsd -c ~/.xsettingsd &
 pkill dunst
@@ -16,6 +17,6 @@ dwmblocks &
 pkill 'pinknoise'
 pinknoise &
 pkill autorandr-launcher
-pkill autorandr
+# pkill autorandr
 autorandr-launcher -d
-autorandr -c
+# autorandr -c
