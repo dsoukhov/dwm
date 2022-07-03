@@ -2830,7 +2830,6 @@ fibonacci(Monitor *m, int s)
             n2 = nexttiled(n1->next);
             for (j = m->stack; j; j = j->snext) {
               if (n1 == j) {
-                next = j;
                 n2->cfact = n1->cfact;
                 break;
               }
