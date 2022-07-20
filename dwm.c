@@ -1943,12 +1943,6 @@ resizeclient(Client *c, int x, int y, int w, int h)
   /* Do nothing if layout is floating */
   if (c->isfloating || c->mon->lt[c->mon->sellt]->arrange == NULL) {
     gapincr = gapoffset = 0;
-    if (!ISFULLSCREEN(c)) {
-      c->sfx = c->x;
-      c->sfy = c->y;
-      c->sfw = c->w;
-      c->sfh = c->h;
-    }
   } else {
     /* Remove border and gap if layout is monocle or only one client */
     if (c->mon->lt[c->mon->sellt]->arrange == monocle || n == 1) {
@@ -1984,6 +1978,13 @@ resizeclient(Client *c, int x, int y, int w, int h)
 
   if (selmon->topbar && (y + h + borderpx * 2 >= selmon->wh) && wc.border_width != 0) {
     c->oldh = c->h; c->h = wc.height = h - gapoffset;
+  }
+
+  if ((c->isfloating && !ISFULLSCREEN(c)) || c->mon->lt[c->mon->sellt]->arrange == NULL) {
+    c->sfx = c->x;
+    c->sfy = c->y;
+    c->sfw = c->w;
+    c->sfh = c->h;
   }
 
   XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);
@@ -2971,13 +2972,6 @@ togglefloating(const Arg *arg)
     /* restore last known float dimensions */
     resize(selmon->sel, selmon->sel->sfx, selmon->sel->sfy,
            selmon->sel->sfw, selmon->sel->sfh, False);
-  else {
-    /* save last known float dimensions */
-    selmon->sel->sfx = selmon->sel->x;
-    selmon->sel->sfy = selmon->sel->y;
-    selmon->sel->sfw = selmon->sel->w;
-    selmon->sel->sfh = selmon->sel->h;
-  }
   arrange(selmon);
 }
 
