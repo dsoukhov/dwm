@@ -43,9 +43,9 @@ static const Rule rules[] = {
    *	WM_NAME(STRING) = title
    */
   /* class      instance    title               tags-mask  isfloating  monitor  ignore-move-request grab-on-urgent scratch-key no-swallow is-term*/
-  {  "st",      NULL,       NULL,               0,         0,          -1,      0,                  1,             0,          0,         1},
-  {  NULL,      NULL,       "scratchpad",       0,         1,          -1,      0,                  1,            'S',         0,         1},
-  {  NULL,      NULL,       "floatterm",        0,         1,          -1,      0,                  1,            'T',         0,         1},
+  {  "st",         NULL,    NULL,               0,         0,          -1,      0,                  1,             0,          0,         1},
+  {  "scratchpad", NULL,    NULL,               0,         1,          -1,      0,                  1,            'S',         0,         1},
+  {  "floatterm",  NULL,    NULL,               0,         1,          -1,      0,                  1,            'T',         0,         1},
   {  NULL,      NULL,       "st-vimmode",       0,         0,          -1,      0,                  1,             0,          0,         0},
   { "net-runelite-client-RuneLite", NULL, NULL, 1 << 0,    0,          -1,      1,                  1,             0,          0,         0},
   { "net-runelite-launcher-Launcher", NULL, NULL, 1 << 0,  0,          -1,      1,                  1,             0,          0,         0},
@@ -101,9 +101,9 @@ static char dmenumon[2]            = "0"; /* component of dmenucmd, manipulated 
 static const char *dmenucmd[]      = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbordercolor, "-sf", selfgcolor, NULL };
 static const char *termcmd[]       = { "st", NULL };
 static const char scratchpadname[] = "scratchpad";
-static const char *scratchpadcmd[] = {"S", "st", "-t", scratchpadname, "-g", scratchdim, NULL };
+static const char *scratchpadcmd[] = {"S", "st", "-c", scratchpadname, "-g", scratchdim, NULL };
 static const char floattermname[]  = "floatterm";
-static const char *floattermcmd[]  = {"T", "st", "-t", floattermname, "-g", scratchdim, NULL };
+static const char *floattermcmd[]  = {"T", "st", "-c", floattermname, "-g", scratchdim, NULL };
 
 /*
  * Xresources preferences to load at startup
