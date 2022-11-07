@@ -11,7 +11,7 @@ static int systraypinningfailfirst  = 1;   /* 1: if pinning fails, display systr
 static const int showsystray        = 1;   /* 0 means no systray */
 static const int showbar            = 1;   /* 0 means no bar */
 static int topbar                   = 1;   /* 0 means bottom bar */
-static char scratchdim[]            = "100x40"; /*st dims rowxcols NOT PIXELS*/
+static char scratchdim[]            = "90x30"; /*st dims rowxcols NOT PIXELS*/
 static char font[]                  = "Hack Nerd Font Mono:size=9";
 static char font2[]                 = "Noto Color Emoji:style=Regular:pixelsize=12:antialias=true:autohint=true";
 static const char *fonts[]          = { font, font2 };
@@ -157,8 +157,8 @@ static Key keys[] = {
   { MODKEY,                       XK_F5,     spawn,          SHCMD("pkill wpa_gui; wpa_gui")},
   { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-winswitch")},
   { 0,                            XF86XK_TouchpadToggle, spawn, SHCMD("toggle-touchpad")},
-  { 0,                            XF86XK_MonBrightnessUp,  spawn, SHCMD("sleep 0.1 && brightness")},
-  { 0,                            XF86XK_MonBrightnessDown,spawn, SHCMD("sleep 0.1 && brightness")},
+  { 0,                            XF86XK_MonBrightnessUp,  spawn, SHCMD("sleep 0.1 && brightness up")},
+  { 0,                            XF86XK_MonBrightnessDown,spawn, SHCMD("sleep 0.1 && brightness down")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
