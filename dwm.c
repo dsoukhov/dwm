@@ -1555,7 +1555,7 @@ keypress(XEvent *e)
 void
 killclient(const Arg *arg)
 {
-  if(!selmon->sel || selmon->sel->scratchkey)
+  if(!selmon->sel || (selmon->sel->scratchkey && !selmon->sel->swallowing))
     return;
   if (!sendevent(selmon->sel->win, wmatom[WMDelete], NoEventMask, wmatom[WMDelete], CurrentTime, 0, 0, 0)) {
     XGrabServer(dpy);
