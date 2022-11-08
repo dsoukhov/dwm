@@ -2548,9 +2548,7 @@ setup(void)
   for (i = 0; i < LENGTH(colors); i++)
     scheme[i] = drw_scm_create(drw, colors[i], 3);
   /* set scracpad dims from config */
-  char dimcp[10];
-  strncpy(dimcp, scratchdim, 10);
-  char *token = strtok(dimcp, "x");
+  char *token = strtok(scratchdim, "x");
   if (token) {
     scw = atoi(token);
     token = strtok(NULL, "x");
