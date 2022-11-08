@@ -12,8 +12,8 @@ static const int showsystray        = 1;   /* 0 means no systray */
 static const int showbar            = 1;   /* 0 means no bar */
 static int topbar                   = 1;   /* 0 means bottom bar */
 static char scratchdim[]            = "100x40"; /*st dims rowxcols NOT PIXELS*/
-static char font[]                  = "Hack Nerd Font Mono:size=9";
 static char font2[]                 = "Noto Color Emoji:style=Regular:pixelsize=12:antialias=true:autohint=true";
+static char font[]                  = "Hack Nerd Font Mono:size=9";
 static const char *fonts[]          = { font, font2 };
 static char dmenufont[]             = "Hack Nerd Font Mono:size=9";
 static char normbgcolor[]           = "#222222";
@@ -129,7 +129,7 @@ ResourcePref resources[] = {
   { "systraypinning",     INTEGER, &systraypinning },
   { "systrayonleft",      INTEGER, &systrayonleft },
   { "systrayspacing",     INTEGER, &systrayspacing },
-  { "scratchdim",         STRING,  &scratchdim},
+  { "scratchdim",         STRING,  &scratchdim }
 };
 
 static Key keys[] = {
