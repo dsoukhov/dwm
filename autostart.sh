@@ -9,8 +9,7 @@ CM_DIR=~/.cache clipmenud &
 # picom -b
 pkill xsettingsd
 xsettingsd -c ~/.xsettingsd &
-pkill dunst
-dunst &
+dunst-cfg &
 pkill dwmblocks
 dwmblocks &
 pkill 'pinknoise'
