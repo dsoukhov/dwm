@@ -213,6 +213,12 @@ typedef struct {
   Client *icons;
 } Systray;
 
+typedef struct {
+  unsigned int signum;
+  void (*func)(const Arg *);
+  const Arg arg;
+} Signal;
+
 /* function declarations */
 static void applyrules(Client *c);
 static int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
@@ -233,7 +239,6 @@ static void configure(Client *c);
 static void configuremonlayout(Monitor *m);
 static void configurenotify(XEvent *e);
 static void configurerequest(XEvent *e);
-static void cyclelayout(const Arg *arg);
 static Monitor *createmon(void);
 static void configureclientpos(Client *c, Window s, int pos);
 static void destroynotify(XEvent *e);
@@ -246,6 +251,7 @@ static void drawbar(Monitor *m);
 static void drawbars(void);
 static void enternotify(XEvent *e);
 static void expose(XEvent *e);
+static int fakesignal(void);
 static void focus(Client *c);
 static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
@@ -632,20 +638,12 @@ attach(Client *c){
       attachtop(c);
   }
 }
+
 void
 cycleattachdir(const Arg *arg)
 {
   selmon->pertag->attachdir[selmon->pertag->curtag] = MOD(selmon->pertag->attachdir[selmon->pertag->curtag] + (int)arg->i, (int)LENGTH(stack_symbols));
   drawbar(selmon);
-}
-
-void
-cyclelayout(const Arg *arg) {
-  Layout *l;
-  int curlayout;
-  for(l = (Layout *)layouts, curlayout = 0; l+curlayout != selmon->lt[selmon->sellt] && curlayout < LENGTH(layouts); curlayout++);
-  curlayout = MOD(curlayout + (int)arg->i, (int)LENGTH(layouts));
-  setlayout(&((Arg) { .v = layouts + curlayout}));
 }
 
 void
@@ -1301,6 +1299,47 @@ expose(XEvent *e)
   }
 }
 
+int
+fakesignal(void)
+{
+  char fsignal[256];
+  char indicator[9] = "fsignal:";
+  char str_signum[16];
+  int i, v, signum;
+  size_t len_fsignal, len_indicator = strlen(indicator);
+
+  // Get root name property
+  if (gettextprop(root, XA_WM_NAME, fsignal, sizeof(fsignal))) {
+    len_fsignal = strlen(fsignal);
+
+    // Check if this is indeed a fake signal
+    if (len_indicator > len_fsignal ? 0 : strncmp(indicator, fsignal, len_indicator) == 0) {
+      memcpy(str_signum, &fsignal[len_indicator], len_fsignal - len_indicator);
+      str_signum[len_fsignal - len_indicator] = '\0';
+
+      // Convert string value into managable integer
+      for (i = signum = 0; i < strlen(str_signum); i++) {
+        v = str_signum[i] - '0';
+        if (v >= 0 && v <= 9) {
+          signum = signum * 10 + v;
+        }
+      }
+
+      // Check if a signal was found, and if so handle it
+      if (signum)
+        for (i = 0; i < LENGTH(signals); i++)
+          if (signum == signals[i].signum && signals[i].func)
+            signals[i].func(&(signals[i].arg));
+
+      // A fake signal was sent
+      return 1;
+    }
+  }
+
+  // No fake signal was sent, so proceed with update
+  return 0;
+}
+
 void
 focus(Client *c)
 {
@@ -1810,8 +1849,11 @@ propertynotify(XEvent *e)
     resizebarwin(selmon);
     updatesystray();
   }
-  if ((ev->window == root) && (ev->atom == XA_WM_NAME))
-    updatestatus();
+
+  if ((ev->window == root) && (ev->atom == XA_WM_NAME)) {
+    if (!fakesignal())
+      updatestatus();
+  }
   else if (ev->state == PropertyDelete)
     return; /* ignore */
   else if ((c = wintoclient(ev->window))) {
