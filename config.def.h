@@ -75,6 +75,19 @@ static const Layout layouts[] = {
   { "><>",      NULL },    /* no layout function means floating behavior */
 };
 
+/* signal definitions */
+/* signum must be greater than 0 */
+/* trigger signals using `xsetroot -name "fsignal:<signum>"` */
+static Signal signals[] = {
+  /* signum       function        argument  */
+  { 1,            setlayout,      {.v = &layouts[0]} },
+  { 2,            setlayout,      {.v = &layouts[1]} },
+  { 3,            setlayout,      {.v = &layouts[2]} },
+  { 4,            setlayout,      {.v = &layouts[3]} },
+  { 5,            setlayout,      {.v = &layouts[4]} },
+  { 6,            setlayout,      {.v = &layouts[5]} },
+};
+
 /* key definitions */
 #define MODKEY Mod4Mask
 #define AltMask Mod1Mask
@@ -158,6 +171,7 @@ static Key keys[] = {
   { MODKEY,                       XK_Prior,  spawn,          SHCMD("osrs-launcher")},
   { MODKEY,                       XK_Delete, spawn,          SHCMD("passmenu-otp")},
   { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-winswitch")},
+  { MODKEY,                       XK_l,      spawn,          SHCMD("dmenu-dwm-layouts")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
@@ -174,8 +188,6 @@ static Key keys[] = {
   { MODKEY,                       XK_bracketleft, cycleattachdir,{.i = +1 } },
   { MODKEY,                       XK_bracketright,cycleattachdir,{.i = -1 } },
   { MODKEY|ShiftMask,             XK_w,      killclient,     {0} },
-  { MODKEY,                       XK_r,      cyclelayout,    {.i = +1 } },
-  { MODKEY|ShiftMask,             XK_r,      cyclelayout,    {.i = -1 } },
   { MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
   { MODKEY,                       XK_0,      view,           {.ui = ~0 } },
   { MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
