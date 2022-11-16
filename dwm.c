@@ -297,6 +297,7 @@ static void sendmon(Client *c, Monitor *m);
 static void setclientstate(Client *c, long state);
 static void setcurrentdesktop(void);
 static void setdesktopnames(void);
+static void setdesktopforclient(Client *c, int tag);
 static void setfocus(Client *c);
 static void setclientgeo(Client *c, XWindowAttributes *wa);
 static void sethidden(Client *c, int hidden);
@@ -1669,6 +1670,7 @@ manage(Window w, XWindowAttributes *wa)
   if (term)
     swallow(term, c);
   focus(NULL);
+  setdesktopforclient(c, c->mon->pertag->curtag);
   while (XCheckMaskEvent(dpy, EnterWindowMask, &xev));
 }
 
@@ -2330,6 +2332,13 @@ setcurrentdesktop(void)
 }
 
 void
+setdesktopforclient(Client *c, int tag)
+{
+  long data[] = { tag };
+  XChangeProperty(dpy, c->win, netatom[NetCurrentDesktop], XA_CARDINAL, 32, PropModeReplace, (unsigned char *)data, 1);
+}
+
+void
 setdesktopnames(void)
 {
   XTextProperty text;
@@ -2387,6 +2396,7 @@ sethidden(Client *c, int hidden)
     focus(NULL);
   } else {
     c->tags = selmon->tagset[selmon->seltags];
+    setdesktopforclient(c, c->mon->pertag->curtag);
     setclientstate(c, NormalState);
     focus(c);
   }
@@ -2762,6 +2772,7 @@ tag(const Arg *arg)
   if (selmon->sel && arg->ui & TAGMASK) {
     selmon->sel->tags = arg->ui & TAGMASK;
     Client *c = selmon->sel;
+    setdesktopforclient(c, arg->ui & TAGMASK);
     if (c && selmon->sticky != c) {
       setfullscreen(c, 0, 0);
       detach(c);
