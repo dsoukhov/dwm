@@ -12,8 +12,8 @@ xsettingsd -c ~/.xsettingsd &
 pkill dwmblocks
 dwmblocks &
 pkill autorandr-launcher
-# pkill autorandr
 autorandr-launcher -d
+pkill autorandr
+autorandr -c
 pkill udiskie
 udiskie -anT &
-# autorandr -c
