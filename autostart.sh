@@ -14,4 +14,6 @@ dwmblocks &
 pkill autorandr-launcher
 # pkill autorandr
 autorandr-launcher -d
+pkill udiskie
+udiskie -anT &
 # autorandr -c
