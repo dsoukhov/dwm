@@ -375,7 +375,7 @@ static int scw, sch;         /*scratch width, height calced at runtime */
 static char stext[256];
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
-static int bh, blw = 0;      /* bar geometry */
+static int bh;               /* bar height*/
 static int lrpad;            /* sum of left and right padding for text */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static unsigned int numlockmask = 0;
@@ -748,7 +748,7 @@ buttonpress(XEvent *e)
     if (i < LENGTH(tags)) {
       click = ClkTagBar;
       arg.ui = 1 << i;
-    } else if (ev->x < x + blw)
+    } else if (ev->x < x + TEXTW(selmon->ltsymbol))
       click = ClkLtSymbol;
     else if (ev->x > selmon->ww - (int)TEXTW(stext) - getsystraywidth())
       click = ClkStatusText;
@@ -1235,7 +1235,7 @@ drawbar(Monitor *m)
     x += w;
   }
   strcat(strcpy(symbol_and_orei, m->ltsymbol), stack_symbols[m->pertag->attachdir[m->pertag->curtag]]);
-  w = blw = TEXTW(symbol_and_orei);
+  w = TEXTW(symbol_and_orei);
   drw_setscheme(drw, scheme[SchemeNorm]);
   x = drw_text(drw, x, 0, w, bh, lrpad / 2, symbol_and_orei, 0);
 
@@ -2432,14 +2432,12 @@ setclientgeo(Client *c, XWindowAttributes *wa)
     c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2);
   }
   c->cfact = 1.0;
-  if (c->x + WIDTH(c) > c->mon->mx + c->mon->mw)
-    c->x = c->mon->mx + c->mon->mw - WIDTH(c);
-  if (c->y + HEIGHT(c) > c->mon->my + c->mon->mh)
-    c->y = c->mon->my + c->mon->mh - HEIGHT(c);
-  c->x = MAX(c->x, c->mon->mx);
-  /* only fix client y-offset, if the client center might cover the bar */
-  c->y = MAX(c->y, ((c->mon->by == c->mon->my) && (c->x + (c->w / 2) >= c->mon->wx)
-    && (c->x + (c->w / 2) < c->mon->wx + c->mon->ww)) ? bh : c->mon->my);
+  if (c->x + WIDTH(c) > c->mon->wx + c->mon->ww)
+    c->x = c->mon->wx + c->mon->ww - WIDTH(c);
+  if (c->y + HEIGHT(c) > c->mon->wy + c->mon->wh)
+    c->y = c->mon->wy + c->mon->wh - HEIGHT(c);
+  c->x = MAX(c->x, c->mon->wx);
+  c->y = MAX(c->y, c->mon->wy); 
   c->bw = borderpx;
 }
 
@@ -3202,6 +3200,7 @@ unmanage(Client *c, int destroyed)
     wc.border_width = c->oldbw;
     XGrabServer(dpy); /* avoid race conditions */
     XSetErrorHandler(xerrordummy);
+    XSelectInput(dpy, c->win, NoEventMask);
     XConfigureWindow(dpy, c->win, CWBorderWidth, &wc); /* restore border */
     XUngrabButton(dpy, AnyButton, AnyModifier, c->win);
     setclientstate(c, WithdrawnState);
