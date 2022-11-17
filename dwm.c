@@ -3052,7 +3052,6 @@ togglescratch(const Arg *arg)
   if (found) {
     vis = ISVISIBLE(c);
     setfullscreen(c, 0, 0);
-    setclientgeo(c, NULL);
     if (m == selmon) {
       if (!vis) {
         sethidden(c, 0);
@@ -3071,6 +3070,7 @@ togglescratch(const Arg *arg)
         sethidden(k, 1);
       }
     }
+    setclientgeo(c, NULL);
   } else {
     spawnscratch(arg);
     for (k = selmon->clients; k; k = k->next) {
