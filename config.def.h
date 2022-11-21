@@ -170,8 +170,8 @@ static Key keys[] = {
   { MODKEY,                       XK_F5,     spawn,          SHCMD("pkill wpa_gui; wpa_gui")},
   { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-winswitch")},
   { 0,                            XF86XK_TouchpadToggle, spawn, SHCMD("toggle-touchpad")},
-  { 0,                            XF86XK_MonBrightnessUp,  spawn, SHCMD("sleep 0.1 && brightness up")},
-  { 0,                            XF86XK_MonBrightnessDown,spawn, SHCMD("sleep 0.1 && brightness down")},
+  { 0,                            XF86XK_MonBrightnessUp,  spawn, SHCMD("brightness up")},
+  { 0,                            XF86XK_MonBrightnessDown,spawn, SHCMD("brightness down")},
   { MODKEY,                       XK_l,      spawn,          SHCMD("dmenu-dwm-layouts")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
