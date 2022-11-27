@@ -9,8 +9,12 @@ pkill picom
 picom -b
 pkill xsettingsd
 xsettingsd -c ~/.xsettingsd &
+pkill snixembed
+snixembed &
 pkill dwmblocks
 dwmblocks &
+pkill iwgtk
+iwgtk -i &
 pkill autorandr-launcher
 autorandr-launcher -d
 pkill autorandr
