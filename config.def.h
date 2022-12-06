@@ -42,19 +42,19 @@ static const Rule rules[] = {
    *	WM_CLASS(STRING) = instance, class
    *	WM_NAME(STRING) = title
    */
-  /* class      instance    title               tags-mask  isfloating  monitor  ignore-move-request grab-on-urgent scratch-key no-swallow is-term*/
-  { "st",          NULL,    NULL,               0,         0,          -1,      0,                  1,             0,          0,         1},
-  { "popupterm",   NULL,    NULL,               0,         1,          -1,      0,                  1,             0,          1,         0},
-  { "scratchpad",  NULL,    NULL,               0,         1,          -1,      0,                  1,            'S',         0,         1},
-  { "floatterm",   NULL,    NULL,               0,         1,          -1,      0,                  1,            'T',         0,         1},
-  {  NULL,         NULL,    "st-vimmode",       0,         0,          -1,      0,                  1,             0,          0,         0},
-  { "net-runelite-client-RuneLite", NULL, NULL, 1 << 0,    0,          -1,      1,                  1,             0,          0,         0},
-  { "net-runelite-launcher-Launcher", NULL, NULL, 1 << 0,  0,          -1,      1,                  1,             0,          0,         0},
-  {  NULL, NULL, "Event Tester",                0,         0,          -1,      0,                  1,             0,          1,         0},
+  /* class      instance    title                   tags-mask  isfloating  monitor  ignore-move-request grab-on-urgent scratch-key no-swallow is-term*/
+  { "st",          NULL,    NULL,                   0,         0,          -1,      0,                  1,             0,          0,         1},
+  { "popupterm",   NULL,    NULL,                   0,         1,          -1,      0,                  1,             0,          1,         0},
+  { "scratchpad",  NULL,    NULL,                   0,         1,          -1,      0,                  1,            'S',         0,         1},
+  { "floatterm",   NULL,    NULL,                   0,         1,          -1,      0,                  1,            'T',         0,         1},
+  {  NULL,         NULL,    "st-vimmode",           0,         0,          -1,      0,                  1,             0,          0,         0},
+  { "net-runelite-client-RuneLite",   NULL, NULL,   1 << 0,    0,          -1,      1,                  1,             0,          0,         0},
+  { "net-runelite-launcher-Launcher", NULL, NULL,   1 << 0,    0,          -1,      1,                  1,             0,          0,         0},
+  {  NULL, NULL, "Event Tester",                    0,         0,          -1,      0,                  1,             0,          1,         0},
 };
 
 /* layout(s) */
-static float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
+static float mfact     = 0.55; /* factor of mas  t  er area size [0.05..0.95] */
 static int nmaster     = 1;    /* number of clients in master area */
 static int resizehints = 0;    /* 1 means respect size hints in tiled resizals */
 
@@ -153,29 +153,30 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_c,      togglescratch,  {.v = scratchpadcmd } },
   { MODKEY,                       XK_c,      togglescratch,  {.v = floattermcmd} },
   { MODKEY,                       XK_b,      togglebar,      {0} },
-  { 0,                            XF86XK_AudioMute,          spawn,          SHCMD("volume mute && pkill -RTMIN+1 dwmblocks")},
-  { 0,                            XF86XK_AudioLowerVolume,   spawn,          SHCMD("volume down && pkill -RTMIN+1 dwmblocks")},
-  { 0,                            XF86XK_AudioRaiseVolume,   spawn,          SHCMD("volume up && pkill -RTMIN+1 dwmblocks")},
-  { 0,                            XF86XK_AudioMicMute,       spawn,          SHCMD("mic mute")},
-  { 0,                            XF86XK_Display,            spawn,          SHCMD("arandr")},
-  { MODKEY,                       XF86XK_AudioLowerVolume,   spawn,          SHCMD("mic down")},
-  { MODKEY,                       XF86XK_AudioRaiseVolume,   spawn,          SHCMD("mic up")},
-  { 0,                            XF86XK_Search,             spawn,          SHCMD("fzf-filesearch")},
-  { MODKEY,                       XK_F9,     spawn,          SHCMD("pavucontrol && pkill -RTMIN+1 dwmblocks && pkill -RTMIN+2 dwmblocks")},
-  { 0,                            XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
-  { MODKEY,                       XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
-  { MODKEY,                       XK_y,      spawn,          SHCMD("clipmenu-run")},
-  { MODKEY,                       XK_p,      spawn,          SHCMD("dmenu-prockill")},
-  { MODKEY,                       XK_F12,    spawn,          SHCMD("passmenu-otp")},
-  { MODKEY,                       XK_Home, spawn,          SHCMD("brave")},
-  { MODKEY,                       XK_End, spawn,          SHCMD("smplayer")},
-  { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-winswitch")},
-  { 0,                            XF86XK_TouchpadToggle, spawn, SHCMD("toggle-touchpad")},
-  { 0,                            XF86XK_MonBrightnessUp,  spawn, SHCMD("brightness up")},
-  { 0,                            XF86XK_MonBrightnessDown,spawn, SHCMD("brightness down")},
-  { MODKEY,                       XK_l,      spawn,          SHCMD("dmenu-dwm-layouts")},
+  { 0,                            XF86XK_AudioMute,          spawn, SHCMD("volume mute && pkill -RTMIN+1 dwmblocks")},
+  { 0,                            XF86XK_AudioLowerVolume,   spawn, SHCMD("volume down && pkill -RTMIN+1 dwmblocks")},
+  { 0,                            XF86XK_AudioRaiseVolume,   spawn, SHCMD("volume up && pkill -RTMIN+1 dwmblocks")},
+  { 0,                            XF86XK_AudioMicMute,       spawn, SHCMD("mic mute")},
+  { MODKEY,                       XK_F5,                     spawn, SHCMD("arandr")},
+  { MODKEY,                       XF86XK_AudioLowerVolume,   spawn, SHCMD("mic down")},
+  { MODKEY,                       XF86XK_AudioRaiseVolume,   spawn, SHCMD("mic up")},
+  { 0,                            XF86XK_Search,             spawn, SHCMD("fzf-filesearch")},
+  { MODKEY|ShiftMask,             XK_e,                      spawn, SHCMD("fzf-filesearch")},
+  { MODKEY,                       XK_F9,                     spawn, SHCMD("pavucontrol && pkill -RTMIN+1 dwmblocks && pkill -RTMIN+2 dwmblocks")},
+  { 0,                            XK_Print,                  spawn, SHCMD("sleep 0.2 && scrot -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
+  { MODKEY,                       XK_Print,                  spawn, SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
+  { MODKEY,                       XK_y,                      spawn, SHCMD("clipmenu-run")},
+  { MODKEY,                       XK_p,                      spawn, SHCMD("dmenu-prockill")},
+  { MODKEY,                       XK_F12,                    spawn, SHCMD("passmenu-otp")},
+  { MODKEY,                       XK_Home,                   spawn, SHCMD("brave")},
+  { MODKEY,                       XK_End,                    spawn, SHCMD("smplayer")},
+  { MODKEY,                       XK_space,                  spawn, SHCMD("dmenu-winswitch")},
+  { 0,                            XF86XK_TouchpadToggle,     spawn, SHCMD("toggle-touchpad")},
+  { 0,                            XF86XK_MonBrightnessUp,    spawn, SHCMD("brightness up")},
+  { 0,                            XF86XK_MonBrightnessDown,  spawn, SHCMD("brightness down")},
+  { MODKEY,                       XK_l,                      spawn, SHCMD("dmenu-dwm-layouts")},
   STACKKEYS(MODKEY,                          focus)
-  STACKKEYS(MODKEY|ShiftMask,                push)
+  STACKKEYS(MODKEY|ShiftMask,                push )
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
   { MODKEY|ControlMask,           XK_h,      setmfact,       {.f = -0.05} },
   { MODKEY|ControlMask,           XK_j,      setcfact,       {.f = +0.25} },
