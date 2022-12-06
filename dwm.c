@@ -886,12 +886,15 @@ clientmessage(XEvent *e)
     return;
   if (cme->message_type == netatom[NetWMState]) {
     if (cme->data.l[1] == netatom[NetWMFullscreen]
-    || cme->data.l[2] == netatom[NetWMFullscreen])
-      setfullscreen(c, (cme->data.l[0] == 1 /* _NET_WM_STATE_ADD    */
-        || (cme->data.l[0] == 2 /* _NET_WM_STATE_TOGGLE */ && !ISFULLSCREEN(c))), 1);
-    /* else if (cme->data.l[1] == netatom[NetWMStateAbove] */
-    /*   || cme->data.l[2] == netatom[NetWMStateAbove]) */
-    /*   c->alwaysontop = (cme->data.l[0] || cme->data.l[1]); */
+    || cme->data.l[2] == netatom[NetWMFullscreen]) {
+      if (cme->data.l[0] <= 1) /* _NET_WM_STATE_ADD or _REMOVE */
+        setfullscreen(c, (int)cme->data.l[0], 1);
+      else if (cme->data.l[0] == 2) /* _NET_WM_STATE_TOGGLE*/
+        setfullscreen(c, !ISFULLSCREEN(c), 1);
+    }
+  /* else if (cme->data.l[1] == netatom[NetWMStateAbove] */
+  /*   || cme->data.l[2] == netatom[NetWMStateAbove]) */
+  /*   c->alwaysontop = (cme->data.l[0] || cme->data.l[1]); */
   } else if (cme->message_type == netatom[NetActiveWindow]) {
     seturgent(c, 1);
     if (c->grabonurgent)
