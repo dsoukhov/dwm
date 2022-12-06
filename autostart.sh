@@ -16,7 +16,7 @@ pkill 'pinknoise'
 pinknoise &
 pkill udiskie
 udiskie -anT &
-# pkill autorandr-launcher
-# pkill autorandr
-# autorandr-launcher -d
-# autorandr -c
+pkill autorandr-launcher
+autorandr-launcher -d
+pkill autorandr
+autorandr -c
