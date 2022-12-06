@@ -174,7 +174,7 @@ static Key keys[] = {
   { MODKEY,                       XK_Delete, spawn,          SHCMD("passmenu-otp")},
   { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-winswitch")},
   { MODKEY,                       XK_l,      spawn,          SHCMD("dmenu-dwm-layouts")},
-  { MODKEY|ShiftMask,             XK_e,      spawn,          SHCMD("fzf-filesearch")},
+  { MODKEY,                       XK_F1,     spawn,          SHCMD("fzf-filesearch")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
