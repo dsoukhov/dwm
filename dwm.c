@@ -2985,6 +2985,11 @@ grabfocus(Client *c)
     Client *fs = selmon->pertag->fullscreens[selmon->pertag->curtag];
     if (fs && fs != c)
       setfullscreen(fs, 0, 0);
+    if (selmon->lt[selmon->sellt]->arrange == deck) {
+      detachstack(c);
+      attachstack(c);
+      restack(selmon);
+    }
     focus(c);
   }
 }
