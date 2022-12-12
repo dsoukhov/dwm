@@ -2728,25 +2728,26 @@ stackpos(const Arg *arg) {
   int n, i;
   Client *c, *l;
 
-  if(!selmon->clients)
+  if (!selmon->clients)
     return -1;
 
-  if(arg->i == PREVSEL) {
-    for(l = selmon->stack; l && (!ISVISIBLE(l) || l == selmon->sel); l = l->snext);
-    if(!l)
+  if (arg->i == PREVSEL) {
+    for (l = selmon->stack; l && (!ISVISIBLE(l) || l == selmon->sel); l = l->snext);
+    if (!l)
       return -1;
-    for(i = 0, c = selmon->clients; c != l; i += ISVISIBLE(c) ? 1 : 0, c = c->next);
+    for (i = 0, c = selmon->clients; c != l; i += ISVISIBLE(c) ? 1 : 0, c = c->next);
     return i;
   }
-  else if(ISINC(arg->i)) {
-    if(!selmon->sel)
+  else if (ISINC(arg->i)) {
+    if (!selmon->sel)
       return -1;
-    for(i = 0, c = selmon->clients; c != selmon->sel; i += ISVISIBLE(c) ? 1 : 0, c = c->next);
-    for(n = i; c; n += ISVISIBLE(c) ? 1 : 0, c = c->next);
-    return MOD(i + GETINC(arg->i), n);
+    for (i = 0, c = selmon->clients; c != selmon->sel; i += ISVISIBLE(c) ? 1 : 0, c = c->next);
+    for (n = i; c; n += ISVISIBLE(c) ? 1 : 0, c = c->next);
+    /* return MOD(i + GETINC(arg->i), n); */
+    return MIN(MAX(i + GETINC(arg->i), 0), n-1);
   }
-  else if(arg->i < 0) {
-    for(i = 0, c = selmon->clients; c; i += ISVISIBLE(c) ? 1 : 0, c = c->next);
+  else if (arg->i < 0) {
+    for (i = 0, c = selmon->clients; c; i += ISVISIBLE(c) ? 1 : 0, c = c->next);
     return MAX(i + arg->i, 0);
   }
   else
