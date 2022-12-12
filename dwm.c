@@ -351,7 +351,6 @@ static Client *wintosystrayicon(Window w);
 static int xerror(Display *dpy, XErrorEvent *ee);
 static int xerrordummy(Display *dpy, XErrorEvent *ee);
 static int xerrorstart(Display *dpy, XErrorEvent *ee);
-static void zoom(const Arg *arg);
 static pid_t getparentprocess(pid_t p);
 static int isdescprocess(pid_t p, pid_t c);
 static Client *swallowingclient(Window w);
@@ -3865,20 +3864,6 @@ systraytomon(Monitor *m) {
   if(systraypinningfailfirst && n < systraypinning)
     return mons;
   return t;
-}
-
-void
-zoom(const Arg *arg)
-{
-  Client *c = selmon->sel;
-
-  if (!selmon->lt[selmon->sellt]->arrange
-  || (selmon->sel && selmon->sel->isfloating))
-    return;
-  if (c == nexttiled(selmon->clients))
-    if (!c || !(c = nexttiled(c->next)))
-      return;
-  pop(c);
 }
 
 void

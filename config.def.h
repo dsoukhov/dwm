@@ -185,7 +185,6 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_i,      incnmaster,     {.i = -1 } },
   { MODKEY,                       XK_o,      resetnmaster,   {0} },
   { MODKEY,                       XK_f,      togglefullscr,  {0} },
-  { MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
   { MODKEY,                       XK_Tab,    view,           {0} },
   { MODKEY,                       XK_bracketleft, cycleattachdir,{.i = +1 } },
   { MODKEY,                       XK_bracketright,cycleattachdir,{.i = -1 } },
