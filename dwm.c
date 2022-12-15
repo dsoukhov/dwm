@@ -2771,10 +2771,12 @@ spawnscratch(const Arg *arg)
 void
 tag(const Arg *arg)
 {
+  int i;
   if (selmon->sel && arg->ui & TAGMASK) {
     selmon->sel->tags = arg->ui & TAGMASK;
     Client *c = selmon->sel;
-    setdesktopforclient(c, arg->ui & TAGMASK);
+    for (i = 0; !(arg->ui & 1 << i); i++) ;
+    setdesktopforclient(c, i+1);
     if (c && selmon->sticky != c) {
       setfullscreen(c, 0, 0);
       detach(c);
