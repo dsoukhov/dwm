@@ -61,7 +61,7 @@
 #define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
 #define ISINC(X)                ((X) > 1000 && (X) < 3000)
-#define ISFULLSCREEN(C)         (C && C->fstag)
+#define ISFULLSCREEN(C)         (C && (C->fstag != -1))
 #define ISVISIBLEONTAG(C, T)    ((C->tags & T) || C->mon->pertag->fullscreens[T] == C)
 #define ISVISIBLESTICKY(C)      (C->mon->sticky == C && (!C->mon->pertag->fullscreens[C->mon->pertag->curtag] || ISFULLSCREEN(C)))
 #define ISVISIBLE(C)            (C && (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || ISVISIBLESTICKY(C)))
@@ -438,7 +438,7 @@ applyrules(Client *c)
   c->ignoremoverequest = 0;
   c->grabonurgent = 1;
   c->scratchkey = 0;
-  c->fstag = 0;
+  c->fstag = -1;
   c->noswallow = 0;
   c->isterminal = 0;
   XGetClassHint(dpy, c->win, &ch);
@@ -2468,7 +2468,7 @@ setfullscreenontag(Client *c, int fullscreen, int tag, int f)
     c->y = c->oldy;
     c->w = c->oldw;
     c->h = c->oldh;
-    c->fstag = 0;
+    c->fstag = -1;
     resizeclient(c, c->x, c->y, c->w, c->h);
     if (f)
       focus(NULL);
@@ -2481,7 +2481,7 @@ setfullscreen(Client *c, int fullscreen, int f)
 {
   int tag = c->mon->pertag->curtag;
 
-  if (!c || (tag == 0 && fullscreen) || selmon->sticky == c)
+  if (!c || selmon->sticky == c)
     return;
 
   if (c->scratchkey && !fullscreen)
@@ -2772,7 +2772,7 @@ tag(const Arg *arg)
   if (selmon->sel && arg->ui & TAGMASK) {
     selmon->sel->tags = arg->ui & TAGMASK;
     Client *c = selmon->sel;
-    for (i = 0; !(arg->ui & 1 << i); i++) ;
+    for (i = 0; !(arg->ui & 1 << i); i++);
     setdesktopforclient(c, i+1);
     if (c && selmon->sticky != c) {
       setfullscreen(c, 0, 0);
@@ -3128,6 +3128,7 @@ unmanage(Client *c, int destroyed)
 {
   Monitor *m = c->mon;
   XWindowChanges wc;
+  int vis = 0;
 
   if (c->swallowing) {
     unswallow(c);
@@ -3161,6 +3162,16 @@ unmanage(Client *c, int destroyed)
   if (selmon->sticky == c)
     selmon->sticky = NULL;
   free(c);
+  for (c = m->stack; c; c = c->snext) {
+    if (ISVISIBLE(c)) {
+      vis = 1;
+      break;
+    }
+  }
+  if (selmon->pertag->curtag == 0 && !vis) {
+    Arg a = {.ui = selmon->pertag->prevtag};
+    view(&a);
+  }
   if (!s) {
     focus(NULL);
     updateclientlist();
@@ -3568,11 +3579,16 @@ view(const Arg *arg)
     selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
     selmon->pertag->prevtag = selmon->pertag->curtag;
 
-    if (arg->ui == ~0)
+    if (arg->ui == ~0) {
       selmon->pertag->curtag = 0;
-    else {
+      for (i = 0; i <= LENGTH(tags); i++)
+        setfullscreenontag(selmon->pertag->fullscreens[i], 0, i, 0);
+    } else {
       for (i = 0; !(arg->ui & 1 << i); i++) ;
       selmon->pertag->curtag = i + 1;
+      Client *fs = selmon->pertag->fullscreens[i];
+      if (fs)
+        focus(fs);
     }
   } else {
     tmptag = selmon->pertag->prevtag;
@@ -3589,14 +3605,17 @@ view(const Arg *arg)
   if (selmon->showbar != selmon->pertag->showbars[selmon->pertag->curtag])
     togglebar(NULL);
 
-  if (arg->ui != ~0) {
-    Client *fs = selmon->pertag->fullscreens[arg->ui & TAGMASK];
-    if (fs)
-      focus(fs);
-  } else {
-    for (i = 0; i <= LENGTH(tags); i++)
-      setfullscreenontag(selmon->pertag->fullscreens[i], 0, i, 0);
+  if (selmon->pertag->prevtag == 0) {
+    setfullscreenontag(selmon->pertag->fullscreens[0], 0, 0, 0);
+    for (Client *k = selmon->clients; k; k = k->next) {
+      if (ISVISIBLE(k)) {
+        for (i = 0; !(arg->ui & 1 << i); i++);
+        setdesktopforclient(k, i+1);
+        k->tags = arg->ui & TAGMASK;
+      }
+    }
   }
+
   focus(NULL);
   arrange(selmon);
   updatecurrentdesktop();
