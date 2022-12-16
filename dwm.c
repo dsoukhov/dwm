@@ -2265,7 +2265,7 @@ scan(void)
 void
 sendmon(Client *c, Monitor *m)
 {
-  int fs = 0;
+  int fs = 0, i;
   if (c->mon == m)
     return;
   unfocus(c, 1);
@@ -2277,6 +2277,8 @@ sendmon(Client *c, Monitor *m)
   detachstack(c);
   c->mon = m;
   c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
+  for (i = 0; !(c->tags & 1 << i); i++);
+  setdesktopforclient(c, i+1);
   attach(c);
   attachstack(c);
   if (m->pertag->fullscreens[m->pertag->curtag] && !c->alwaysontop) {
@@ -3162,8 +3164,8 @@ unmanage(Client *c, int destroyed)
     XUngrabServer(dpy);
   }
   setfullscreen(c, 0, 0);
-  if (selmon->sticky == c)
-    selmon->sticky = NULL;
+  if (m->sticky == c)
+    m->sticky = NULL;
   free(c);
   for (c = m->stack; c; c = c->snext) {
     if (ISVISIBLE(c)) {
@@ -3171,8 +3173,8 @@ unmanage(Client *c, int destroyed)
       break;
     }
   }
-  if (selmon->pertag->curtag == 0 && !vis) {
-    Arg a = {.ui = selmon->pertag->prevtag};
+  if (m->pertag->curtag == 0 && !vis) {
+    Arg a = {.ui = m->pertag->prevtag};
     view(&a);
   }
   if (!s) {
