@@ -2281,6 +2281,8 @@ sendmon(Client *c, Monitor *m)
   c->tags = m->tagset[m->seltags]; /* assign tags of target monitor */
   for (i = 0; !(c->tags & 1 << i); i++);
   setdesktopforclient(c, i+1);
+  if (selmon->sticky)
+    selmon->sticky = NULL;
   attach(c);
   attachstack(c);
   if (m->pertag->fullscreens[m->pertag->curtag] && !c->alwaysontop) {
