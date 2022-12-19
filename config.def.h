@@ -70,9 +70,9 @@ static const char *stack_symbols[] = { "*∨", "∨", "*∧", "∧" };
 static const Layout layouts[] = {
   /* symbol     arrange function */
   { "[\\]",     dwindle }, /* first entry is default */
+  { "[D]",      deck },
   { "[]=",      righttile },
   { "=[]",      lefttile },
-  { "[D]",      deck },
   { "><>",      NULL },    /* no layout function means floating behavior */
 };
 
