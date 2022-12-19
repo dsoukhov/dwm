@@ -935,7 +935,7 @@ void configuremonlayout(Monitor *m)
     }
   }
 
-  if (!hasfloat && selmon->lt[selmon->sellt]->arrange != monocle && selmon->lt[selmon->sellt]->arrange != deck)
+  if (!hasfloat && m->lt[m->sellt]->arrange && m->lt[m->sellt]->arrange != monocle && m->lt[m->sellt]->arrange != deck)
     return;
 
   if (!t) {
