@@ -2989,13 +2989,15 @@ grabfocus(Client *c)
       selmon = c->mon;
       view(&a);
     }
-    Client *fs = selmon->pertag->fullscreens[selmon->pertag->curtag];
+    Client *fs = c->mon->pertag->fullscreens[c->mon->pertag->curtag];
     if (fs && fs != c)
       setfullscreen(fs, 0, 0);
-    if (selmon->lt[selmon->sellt]->arrange == deck) {
+    if (c->isfloating || !c->mon->lt[c->mon->sellt]->arrange
+      || c->mon->lt[c->mon->sellt]->arrange == deck
+      || c->mon->lt[c->mon->sellt]->arrange == monocle) {
       detachstack(c);
       attachstack(c);
-      restack(selmon);
+      restack(c->mon);
     }
     focus(c);
   }
