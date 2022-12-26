@@ -670,6 +670,8 @@ swallow(Client *p, Client *c)
   if (p->scratchkey)
     raiseclient(p);
 
+  setdesktopforclient(p, p->mon->pertag->curtag);
+
   XChangeProperty(dpy, c->win, netatom[NetClientList], XA_WINDOW, 32, PropModeReplace,
     (unsigned char *) &(p->win), 1);
 
