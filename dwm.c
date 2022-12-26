@@ -275,7 +275,6 @@ static void motionnotify(XEvent *e);
 static void movemouse(const Arg *arg);
 static Client *nexttiled(Client *c);
 static int parentiseditor(pid_t w);
-static void pop(Client *);
 static void propertynotify(XEvent *e);
 static void pushstack(const Arg *arg);
 static void quit(const Arg *arg);
@@ -1821,15 +1820,6 @@ parentiseditor(pid_t w)
     return 1;
 #endif /* __linux__*/
   return 0;
-}
-
-void
-pop(Client *c)
-{
-  detach(c);
-  attach(c);
-  focus(c);
-  arrange(c->mon);
 }
 
 void
