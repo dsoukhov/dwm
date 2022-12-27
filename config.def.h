@@ -206,6 +206,7 @@ static Key keys[] = {
   TAGKEYS(                        XK_7,                      6)
   TAGKEYS(                        XK_8,                      7)
   TAGKEYS(                        XK_9,                      8)
+  { MODKEY,                       XK_F4,      spawn,         SHCMD("~/.config/dwm/autostart.sh")},
   { MODKEY|ShiftMask,             XK_F4,      quit,          {0} },
 };
 
