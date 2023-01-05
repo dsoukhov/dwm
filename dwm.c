@@ -932,19 +932,19 @@ void configuremonlayout(Monitor *m)
         s = c;
       if (ISFULLSCREEN(c))
         f = c;
-      if (c->isfloating)
+      if (!hasfloat && (c->isfloating || !m->lt[m->sellt]->arrange))
         hasfloat = 1;
     }
   }
 
-  if (!hasfloat && m->lt[m->sellt]->arrange && m->lt[m->sellt]->arrange != monocle && m->lt[m->sellt]->arrange != deck)
+  if (!hasfloat && m->lt[m->sellt]->arrange != monocle && m->lt[m->sellt]->arrange != deck)
     return;
 
   if (!t) {
     sib = m->barwin;
     for (c = m->stack; c; c = c->snext) {
       if (ISVISIBLE(c)) {
-        if (!c->isfloating || (f && c->isfloating && c != f)) {
+        if ((!c->isfloating && m->lt[m->sellt]->arrange) || (f && (c->isfloating || !m->lt[m->sellt]->arrange) && c != f)) {
           configureclientpos(c, sib, Below);
           sib = c->win;
         } else {
