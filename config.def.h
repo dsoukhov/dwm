@@ -157,6 +157,7 @@ static Key keys[] = {
   { 0,                            XF86XK_AudioRaiseVolume,   spawn, SHCMD("volume up && pkill -RTMIN+1 dwmblocks")},
   { 0,                            XF86XK_AudioMicMute,       spawn, SHCMD("mic mute")},
   { MODKEY,                       XK_F5,                     spawn, SHCMD("arandr")},
+  { 0,                            XF86XK_Display,            spawn, SHCMD("arandr")},
   { MODKEY,                       XF86XK_AudioLowerVolume,   spawn, SHCMD("mic down")},
   { MODKEY,                       XF86XK_AudioRaiseVolume,   spawn, SHCMD("mic up")},
   { 0,                            XF86XK_Search,             spawn, SHCMD("fzf-filesearch")},
