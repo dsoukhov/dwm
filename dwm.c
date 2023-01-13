@@ -1347,7 +1347,7 @@ focus(Client *c)
   if (!c || !ISVISIBLE(c)) {
     c = selmon->stack;
     while (c) {
-      if (selmon->sticky == c && selmon->sel != c)
+      if (selmon->sticky == c && selmon->sel != c && !ISFULLSCREEN(c))
         c = c->snext;
       else if (ISVISIBLE(c))
         break;
@@ -2479,10 +2479,10 @@ setfullscreen(Client *c, int fullscreen, int f)
 {
   int tag = c->mon->pertag->curtag;
 
-  if (!c || selmon->sticky == c)
+  if (!c)
     return;
 
-  if (c->scratchkey && !fullscreen)
+  if ((c->scratchkey && !fullscreen))
     tag = c->fstag;
 
   setfullscreenontag(c, fullscreen, tag, f);
@@ -2766,19 +2766,23 @@ spawnscratch(const Arg *arg)
 void
 tag(const Arg *arg)
 {
-  int i;
+  int i, fs;
+  if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
+    return;
   if (selmon->sel && arg->ui & TAGMASK) {
-    selmon->sel->tags = arg->ui & TAGMASK;
     Client *c = selmon->sel;
+    fs = ISFULLSCREEN(c);
+    if (fs) setfullscreen(c, 0, 0);
+    c->tags = arg->ui & TAGMASK;
     for (i = 0; !(arg->ui & 1 << i); i++);
     setdesktopforclient(c, i+1);
-    if (c && selmon->sticky != c) {
-      setfullscreen(c, 0, 0);
+    if (selmon->sticky != c) {
       detach(c);
       if (selmon->pertag->attachdir[arg->ui & TAGMASK] > 1)
         attachtop(c);
       else
         attachbottom(c);
+      if (fs) setfullscreenontag(c, 1, i+1, 0);
       focus(NULL);
       arrange(selmon);
     }
@@ -3579,6 +3583,8 @@ view(const Arg *arg)
 
   if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
     return;
+  if (selmon->sticky)
+      setfullscreen(selmon->sticky, 0, 0);
   selmon->seltags ^= 1; /* toggle sel tagset */
   if (arg->ui & TAGMASK) {
     selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
