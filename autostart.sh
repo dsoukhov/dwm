@@ -14,6 +14,8 @@ pkill dwmblocks
 dwmblocks &
 pkill 'pinknoise'
 pinknoise &
+pkill 'alerter'
+alerter &
 pkill udiskie
 udiskie -anT &
 pkill autorandr-launcher

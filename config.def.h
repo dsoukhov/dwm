@@ -158,6 +158,7 @@ static Key keys[] = {
   { MODKEY|ShiftMask,             XK_F10,    spawn,          SHCMD("pkill -RTMIN+3 pinknoise")},
   { MODKEY|ShiftMask,             XK_F11,    spawn,          SHCMD("pkill -RTMIN+4 pinknoise")},
   { MODKEY|ShiftMask,             XK_F12,    spawn,          SHCMD("pkill -RTMIN+5 pinknoise")},
+  { MODKEY,                       XK_F2,     spawn,          SHCMD("pkill -RTMIN+8 alerter")},
   { MODKEY,                       XK_F5,     spawn,          SHCMD("arandr")},
   { MODKEY,                       XK_F6,     spawn,          SHCMD("mic mute && pkill -RTMIN+2 dwmblocks")},
   { MODKEY,                       XK_F7,     spawn,          SHCMD("mic down && pkill -RTMIN+2 dwmblocks")},
