@@ -21,3 +21,5 @@ pkill autorandr
 autorandr -c
 pkill udiskie
 udiskie -anT &
+pkill alerter
+alerter &

@@ -163,6 +163,7 @@ static Key keys[] = {
   { 0,                            XF86XK_Search,             spawn, SHCMD("fzf-filesearch")},
   { MODKEY,                       XK_F1,                     spawn, SHCMD("fzf-filesearch")},
   { MODKEY,                       XK_F9,                     spawn, SHCMD("pavucontrol && pkill -RTMIN+1 dwmblocks && pkill -RTMIN+2 dwmblocks")},
+  { MODKEY,                       XK_F2,                     spawn, SHCMD("pkill -RTMIN+8 alerter")},
   { 0,                            XK_Print,                  spawn, SHCMD("sleep 0.2 && scrot -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
   { MODKEY,                       XK_Print,                  spawn, SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
   { MODKEY,                       XK_y,                      spawn, SHCMD("clipmenu-run")},
