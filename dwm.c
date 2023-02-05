@@ -132,7 +132,7 @@ struct Client {
   int basew, baseh, incw, inch, maxw, maxh, minw, minh, hintsvalid;
   int bw, oldbw;
   int initx, inity;
-  unsigned int tags, fstag;
+  unsigned int tags, fstag, cmesetfs;
   int isfixed, isfloating, isurgent, neverfocus, oldstate, needresize;
   int alwaysontop, ignoremoverequest, grabonurgent, noswallow, isterminal;
   pid_t pid;
@@ -438,6 +438,7 @@ applyrules(Client *c)
   c->grabonurgent = 1;
   c->scratchkey = 0;
   c->fstag = -1;
+  c->cmesetfs = 0;
   c->noswallow = 0;
   c->isterminal = 0;
   XGetClassHint(dpy, c->win, &ch);
@@ -885,8 +886,18 @@ clientmessage(XEvent *e)
   if (cme->message_type == netatom[NetWMState]) {
     if (cme->data.l[1] == netatom[NetWMFullscreen]
     || cme->data.l[2] == netatom[NetWMFullscreen]) {
-      if (cme->data.l[0] <= 1) /* _NET_WM_STATE_ADD or _REMOVE */
-        setfullscreen(c, (int)cme->data.l[0], 1);
+      if (cme->data.l[0] == 1) { /* _NET_WM_STATE_ADD */
+        if (ISFULLSCREEN(c))
+          c->cmesetfs = 1;
+        else
+          setfullscreen(c, 1, 1);
+      }
+      else if (cme->data.l[0] == 0 && ISFULLSCREEN(c)) { /* _NET_WM_STATE_REMOVE */
+        if (c->cmesetfs)
+          c->cmesetfs = 0;
+        else
+          setfullscreen(c, 0, 1);
+      }
       else if (cme->data.l[0] == 2) /* _NET_WM_STATE_TOGGLE*/
         setfullscreen(c, !ISFULLSCREEN(c), 1);
     }
