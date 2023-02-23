@@ -15,7 +15,7 @@ dwmblocks &
 pkill 'pinknoise'
 pinknoise &
 pkill 'alerter'
-alerter &
+alertpolltime="30s" alerter &
 pkill udiskie
 udiskie -anT &
 pkill autorandr-launcher
