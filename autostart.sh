@@ -13,6 +13,7 @@ pkill snixembed
 snixembed &
 pkill dwmblocks
 dwmblocks &
+dunst-cfg &
 pkill iwgtk
 iwgtk -i &
 pkill autorandr-launcher
