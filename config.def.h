@@ -43,7 +43,7 @@ static const Rule rules[] = {
    *	WM_NAME(STRING) = title
    */
   /* class      instance    title                   tags-mask  isfloating  monitor  ignore-move-request grab-on-urgent scratch-key no-swallow is-term*/
-  { "st",          NULL,    NULL,                   0,         0,          -1,      0,                  1,             0,          0,         1},
+  { "st-256color", NULL,    NULL,                   0,         0,          -1,      0,                  1,             0,          0,         1},
   { "popupterm",   NULL,    NULL,                   0,         1,          -1,      0,                  1,             0,          1,         0},
   { "scratchpad",  NULL,    NULL,                   0,         1,          -1,      0,                  1,            'S',         0,         1},
   { "floatterm",   NULL,    NULL,                   0,         1,          -1,      0,                  1,            'T',         0,         1},
