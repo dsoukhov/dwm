@@ -690,13 +690,13 @@ unswallow(Client *c)
   XWindowChanges wc;
   c->win = c->swallowing->win;
 
+  /* unfullscreen the client */
+  setfullscreen(c->swallowing, 0, 0);
   free(c->swallowing);
   c->swallowing = NULL;
 
   XDeleteProperty(dpy, c->win, netatom[NetClientList]);
 
-  /* unfullscreen the client */
-  setfullscreen(c, 0, 0);
   updatetitle(c);
   arrange(c->mon);
   XMapWindow(dpy, c->win);
