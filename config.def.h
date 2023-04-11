@@ -42,7 +42,7 @@ static const Rule rules[] = {
    *	WM_CLASS(STRING) = instance, class
    *	WM_NAME(STRING) = title
    */
-  /* class       instance    title                tags-mask  isfloating  monitor  ignore-move-request grab-on-urgent scratch-key cant-be-swallowed is-term*/
+  /* class         instance    title                tags-mask  isfloating  monitor  ignore-move-request grab-on-urgent scratch-key cant-be-swallowed is-term*/
   { "st-256color", NULL,       NULL,                0,         0,          -1,      0,                  1,             0,          0,                1},
   { "popupterm",   NULL,       NULL,                0,         1,          -1,      0,                  1,             0,          1,                0},
   { "scratchpad",  NULL,       NULL,                0,         1,          -1,      0,                  1,            'S',         0,                1},
@@ -87,6 +87,7 @@ static Signal signals[] = {
   { 4,            setlayout,      {.v = &layouts[3]} },
   { 5,            setlayout,      {.v = &layouts[4]} },
   { 6,            setlayout,      {.v = &layouts[5]} },
+  { 7,            toggleswal,     {0}                },
 };
 
 /* key definitions */
@@ -175,6 +176,7 @@ static Key keys[] = {
   { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-winswitch")},
   { MODKEY,                       XK_l,      spawn,          SHCMD("dmenu-dwm-layouts")},
   { MODKEY,                       XK_F1,     spawn,          SHCMD("fzf-filesearch")},
+  { MODKEY,                       XK_grave,  spawn,          SHCMD("dwm-toggleswal")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
