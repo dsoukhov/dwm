@@ -320,6 +320,7 @@ static void tile(Monitor *m, int s);
 static void lefttile(Monitor *m);
 static void righttile(Monitor *m);
 static void togglebar(const Arg *arg);
+static void toggleswal(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void togglefullscr(const Arg *arg);
 static void togglescratch(const Arg *arg);
@@ -394,6 +395,7 @@ static void (*handler[LASTEvent]) (XEvent *) = {
 };
 static Atom wmatom[WMLast], netatom[NetLast], xatom[XLast];
 static int running = 1;
+static int swal = 1;
 static Cur *cursor[CurLast];
 static Clr **scheme;
 static Display *dpy;
@@ -648,7 +650,7 @@ swallow(Client *p, Client *c)
 {
   XWindowChanges wc;
 
-  if (c->noswallow > 0)
+  if (c->noswallow > 0 || (!swal && !strstr("st-vimmode", c->name)))
     return;
 
   XMapWindow(dpy, c->win);
@@ -2628,6 +2630,7 @@ setup(void)
   }
   if (token)
     sch = atoi(token);
+  setenv("ISSWAL", "1", 1);
   /* init system tray */
   updatesystray();
   /* init bars */
@@ -3018,6 +3021,16 @@ grabfocus(Client *c)
 void
 dwindle(Monitor *mon) {
   fibonacci(mon, 1);
+}
+
+
+void
+toggleswal(const Arg *arg)
+{
+  char s[10];
+  swal = !swal;
+  sprintf(s,"%d", swal);
+  setenv("ISSWAL", s, 1);
 }
 
 void

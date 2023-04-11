@@ -42,15 +42,15 @@ static const Rule rules[] = {
    *	WM_CLASS(STRING) = instance, class
    *	WM_NAME(STRING) = title
    */
-  /* class      instance    title                   tags-mask  isfloating  monitor  ignore-move-request grab-on-urgent scratch-key no-swallow is-term*/
-  { "st-256color", NULL,    NULL,                   0,         0,          -1,      0,                  1,             0,          0,         1},
-  { "popupterm",   NULL,    NULL,                   0,         1,          -1,      0,                  1,             0,          1,         0},
-  { "scratchpad",  NULL,    NULL,                   0,         1,          -1,      0,                  1,            'S',         0,         1},
-  { "floatterm",   NULL,    NULL,                   0,         1,          -1,      0,                  1,            'T',         0,         1},
-  {  NULL,         NULL,    "st-vimmode",           0,         0,          -1,      0,                  1,             0,          0,         0},
-  { "net-runelite-client-RuneLite",   NULL, NULL,   1 << 0,    0,          -1,      1,                  1,             0,          0,         0},
-  { "net-runelite-launcher-Launcher", NULL, NULL,   1 << 0,    0,          -1,      1,                  1,             0,          0,         0},
-  {  NULL, NULL, "Event Tester",                    0,         0,          -1,      0,                  1,             0,          1,         0},
+  /* class         instance    title                tags-mask  isfloating  monitor  ignore-move-request grab-on-urgent scratch-key cant-be-swallowed is-term*/
+  { "st-256color", NULL,       NULL,                0,         0,          -1,      0,                  1,             0,          0,                1},
+  { "popupterm",   NULL,       NULL,                0,         1,          -1,      0,                  1,             0,          1,                0},
+  { "scratchpad",  NULL,       NULL,                0,         1,          -1,      0,                  1,            'S',         0,                1},
+  { "floatterm",   NULL,       NULL,                0,         1,          -1,      0,                  1,            'T',         0,                1},
+  { NULL,          NULL,       "st-vimmode",        0,         0,          -1,      0,                  1,             0,          0,                0},
+  { "net-runelite-client-RuneLite",     NULL, NULL, 1 << 0,    0,          -1,      1,                  1,             0,          0,                0},
+  { "net-runelite-launcher-Launcher",   NULL, NULL, 1 << 0,    0,          -1,      1,                  1,             0,          0,                0},
+  { NULL, NULL, "Event Tester",                     0,         0,          -1,      0,                  1,             0,          1,                0},
 };
 
 /* layout(s) */
@@ -87,6 +87,7 @@ static Signal signals[] = {
   { 4,            setlayout,      {.v = &layouts[3]} },
   { 5,            setlayout,      {.v = &layouts[4]} },
   { 6,            setlayout,      {.v = &layouts[5]} },
+  { 7,            toggleswal,     {0}                },
 };
 
 /* key definitions */
@@ -176,6 +177,7 @@ static Key keys[] = {
   { 0,                            XF86XK_MonBrightnessUp,    spawn, SHCMD("brightness up")},
   { 0,                            XF86XK_MonBrightnessDown,  spawn, SHCMD("brightness down")},
   { MODKEY,                       XK_l,                      spawn, SHCMD("dmenu-dwm-layouts")},
+  { MODKEY,                       XK_grave,  spawn,          SHCMD("dwm-toggleswal")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push )
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
