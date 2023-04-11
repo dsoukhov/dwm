@@ -1908,6 +1908,8 @@ pushstack(const Arg *arg)
       if(!(i -= (ISVISIBLE(c) && c != sel)))
         break;
     c = c ? c : p;
+    if (!c || (!c->next && !sel->next))
+      return;
     detach(sel);
     sel->next = c->next;
     c->next = sel;
