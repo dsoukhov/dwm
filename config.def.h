@@ -48,8 +48,9 @@ static const Rule rules[] = {
   { "scratchpad",  NULL,       NULL,                0,         1,          -1,      0,                  1,            'S',         0,                1},
   { "floatterm",   NULL,       NULL,                0,         1,          -1,      0,                  1,            'T',         0,                1},
   { NULL,          NULL,       "st-vimmode",        0,         0,          -1,      0,                  1,             0,          0,                0},
-  { "net-runelite-client-RuneLite",     NULL, NULL, 1 << 0,    0,          -1,      1,                  1,             0,          0,                0},
-  { "net-runelite-launcher-Launcher",   NULL, NULL, 1 << 0,    0,          -1,      1,                  1,             0,          0,                0},
+  { "net-runelite-client-RuneLite",     NULL, NULL, 1 << 0,    1,          -1,      1,                  1,             0,          0,                0},
+  { "net-runelite-launcher-Launcher",   NULL, NULL, 1 << 0,    1,          -1,      1,                  1,             0,          0,                0},
+  { "jagexlauncher.exe",                NULL, NULL, 0,         1,          -1,      1,                  1,             0,          0,                0},
   { NULL, NULL, "Event Tester",                     0,         0,          -1,      0,                  1,             0,          1,                0},
 };
 
@@ -112,7 +113,8 @@ static Signal signals[] = {
 
 /* commands */
 static char dmenumon[2]            = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[]      = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbordercolor, "-sf", selfgcolor, NULL };
+/* static const char *dmenucmd[]      = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbordercolor, "-sf", selfgcolor, NULL }; */
+static const char *dmenucmd[]      = { "sh", "-c", "j4-dmenu-desktop --dmenu=\"(cat ; dmenu_path) | dmenu -i\"", NULL };
 static const char *termcmd[]       = { "st", NULL };
 static const char scratchpadname[] = "scratchpad";
 static const char *scratchpadcmd[] = {"S", "st", "-c", scratchpadname, "-g", scratchdim, NULL };
