@@ -2694,12 +2694,14 @@ showhide(Client *c)
     return;
   if (ISVISIBLE(c)) {
     /* show clients top down */
-    XMoveWindow(dpy, c->win, c->x, c->y);
+    if (c->win)
+      XMoveWindow(dpy, c->win, c->x, c->y);
     if (c->needresize) {
       c->needresize = 0;
       XMoveResizeWindow(dpy, c->win, c->x, c->y, c->w, c->h);
     } else {
-      XMoveWindow(dpy, c->win, c->x, c->y);
+      if (c->win)
+        XMoveWindow(dpy, c->win, c->x, c->y);
     }
     if ((!c->mon->lt[c->mon->sellt]->arrange || c->isfloating) && !ISFULLSCREEN(c))
       resize(c, c->x, c->y, c->w, c->h, 0);
@@ -2710,7 +2712,8 @@ showhide(Client *c)
       showhide(c->snext);
     else
       return;
-    XMoveWindow(dpy, c->win, WIDTH(c) * -2, c->y);
+    if (c->win)
+      XMoveWindow(dpy, c->win, WIDTH(c) * -2, c->y);
   }
 }
 
