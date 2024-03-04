@@ -12,13 +12,13 @@ xsettingsd -c ~/.xsettingsd &
 dunst-cfg &
 pkill dwmblocks
 dwmblocks &
-pkill 'pinknoise'
+pkill -f 'pinknoise'
 pinknoise &
-pkill 'alerter'
+pkill -f 'alerter'
 alertpolltime="30s" alerter &
 pkill udiskie
 udiskie -anT &
-pkill autorandr-launcher
+pkill -f 'autorandr-launcher'
 autorandr-launcher -d
 pkill autorandr
 autorandr -c
