@@ -72,6 +72,7 @@ static const Layout layouts[] = {
   /* symbol     arrange function */
   { "[\\]",     dwindle }, /* first entry is default */
   { "[D]",      deck },
+  { "HHH",      grid },
   { "[]=",      righttile },
   { "=[]",      lefttile },
   { "><>",      NULL },    /* no layout function means floating behavior */
