@@ -89,7 +89,7 @@ static Signal signals[] = {
   { 4,            setlayout,      {.v = &layouts[3]} },
   { 5,            setlayout,      {.v = &layouts[4]} },
   { 6,            setlayout,      {.v = &layouts[5]} },
-  { 7,            toggleswal,     {0}                },
+  { 15,           toggleswal,     {0}                },
 };
 
 /* key definitions */
