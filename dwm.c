@@ -222,6 +222,7 @@ typedef struct {
 static void applyrules(Client *c);
 static int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
 static void arrange(Monitor *m);
+static void aspectresize(const Arg *arg);
 static void arrangemon(Monitor *m);
 static void attach(Client *c);
 static void attachbelow(Client *c);
@@ -235,6 +236,7 @@ static void cleanup(void);
 static void cleanupmon(Monitor *mon);
 static void clientmessage(XEvent *e);
 static void configure(Client *c);
+static void center(const Arg *arg);
 static void configuremonlayout(Monitor *m);
 static void configurenotify(XEvent *e);
 static void configurerequest(XEvent *e);
@@ -326,6 +328,7 @@ static void togglefullscr(const Arg *arg);
 static void togglescratch(const Arg *arg);
 static void togglesticky(const Arg *arg);
 static void fibonacci(Monitor *m, int s);
+static int gcd(int a, int b);
 static void grabfocus (Client *c);
 static void unfocus(Client *c, int setfocus);
 static void unfocusmon(Monitor *m);
@@ -545,6 +548,25 @@ applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact)
       *h = MIN(*h, c->maxh);
   }
   return *x != c->x || *y != c->y || *w != c->w || *h != c->h;
+}
+
+void
+aspectresize(const Arg *arg)
+{
+  Client *c;
+  c = selmon->sel;
+  int cx = c->x;
+  int cy = c->y;
+  float r = gcd(selmon->mw, selmon->mh);
+  float wratio = selmon->mw/r;
+  float hratio = selmon->mh/r;
+  if ((c->isfloating || !c->mon->lt[c->mon->sellt]->arrange) &&
+  !((int)(10*wratio/hratio)-1 <= (int)(10*(float)c->w/c->h) && (int)(10*wratio/hratio)+1 >= (int)(10*(float)c->w/c->h))) {
+    float base = (float)c->w/c->h < wratio/hratio ? c->w/wratio : c->h/hratio;
+    int cw = base * wratio;
+    int ch = base * hratio;
+    resize(c, cx, cy, cw - (2 * c->bw), ch - (2 * c->bw), False);
+  }
 }
 
 void
@@ -909,6 +931,18 @@ clientmessage(XEvent *e)
     seturgent(c, 1);
     if (c->grabonurgent)
       grabfocus(c);
+  }
+}
+
+void
+center(const Arg *arg)
+{
+  Client *c;
+  c = selmon->sel;
+  if (c->isfloating || !c->mon->lt[c->mon->sellt]->arrange) {
+    c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2);
+    c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2);
+    arrange(selmon);
   }
 }
 
@@ -3057,6 +3091,12 @@ fibonacci(Monitor *m, int s)
     }
     resize(c, nx, ny, nw - (2*c->bw), nh - (2*c->bw), False);
   }
+}
+
+int
+gcd(int a, int b)
+{
+ return (b == 0 ? a : gcd(b, MOD(a, b)));
 }
 
 void

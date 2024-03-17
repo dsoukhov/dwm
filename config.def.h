@@ -221,10 +221,11 @@ static Key keys[] = {
 /* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
-  /* click                event mask      button          function        argument */
-  //{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-  { ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
-  { ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
-  { ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
-  { ClkTagBar,            0,              Button1,        view,           {0} },
+  /* click                event mask          button          function        argument */
+  { ClkClientWin,         MODKEY,             Button1,        movemouse,      {0} },
+  { ClkClientWin,         MODKEY,             Button2,        togglefloating, {0} },
+  { ClkClientWin,         MODKEY,             Button3,        resizemouse,    {0} },
+  { ClkClientWin,         MODKEY|ShiftMask,   Button3,        aspectresize,   {0} },
+  { ClkClientWin,         MODKEY|ShiftMask,   Button2,        center,         {0} },
+  { ClkTagBar,            0,                  Button1,        view,           {0} },
 };
