@@ -1730,10 +1730,6 @@ manage(Window w, XWindowAttributes *wa)
     c->alwaysontop = 1;
   updatesizehints(c);
   updatewmhints(c);
-  c->sfx = c->x;
-  c->sfy = c->y;
-  c->sfw = c->w;
-  c->sfh = c->h;
   XSelectInput(dpy, w, EnterWindowMask|FocusChangeMask|PropertyChangeMask|StructureNotifyMask);
   grabbuttons(c, 0);
   if (!c->isfloating)
@@ -2521,12 +2517,52 @@ setfocus(Client *c)
 void
 setclientgeo(Client *c, XWindowAttributes *wa)
 {
+  int n;
+  Client *b;
+  c->bw = borderpx;
   if (!c->scratchkey) {
-    c->x = c->oldx = wa->x;
-    c->y = c->oldy = wa->y;
     c->w = c->oldw = wa->width;
     c->h = c->oldh = wa->height;
     c->oldbw = wa->border_width;
+    if (c->isfloating && c->mon->lt[c->mon->sellt]->arrange) {
+      c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2);
+      c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2);
+    }
+    if (!c->mon->lt[c->mon->sellt]->arrange) {
+      for(n = 0, b = nexttiled(selmon->clients); b; b = nexttiled(b->next))
+        n++;
+      switch (n) {
+        //top left
+        case 0:
+          c->x = c->oldx = 0;
+          c->y = c->oldy = 0;
+          break;
+        //top right
+        case 1:
+          c->x = c->oldx = selmon->mw - c->w;
+          c->y = c->oldy = 0;
+          break;
+        //bot left
+        case 2:
+          c->x = c->oldx = 0;
+          c->y = c->oldy = selmon->mh - c->h;
+          break;
+        //bot right
+        case 3:
+          c->x = c->oldx = selmon->mw - c->w;
+          c->y = c->oldy = selmon->mh - c->h;
+          break;
+        //center
+        default:
+          c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2);
+          c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2);
+          break;
+      }
+    }
+    else {
+      c->x = c->oldx = wa->x;
+      c->y = c->oldy = wa->y;
+    }
   } else {
     c->w = scw * 10 + 2 * c->bw + gappx;
     c->h = sch * 22 + 2 * c->bw + gappx;
@@ -2540,7 +2576,10 @@ setclientgeo(Client *c, XWindowAttributes *wa)
     c->y = c->mon->wy + c->mon->wh - HEIGHT(c);
   c->x = MAX(c->x, c->mon->wx);
   c->y = MAX(c->y, c->mon->wy); 
-  c->bw = borderpx;
+  c->sfx = c->x;
+  c->sfy = c->y;
+  c->sfw = c->w;
+  c->sfh = c->h;
 }
 
 void
