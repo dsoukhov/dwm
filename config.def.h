@@ -104,10 +104,18 @@ static Signal signals[] = {
 
 #define STACKKEYS(MOD,ACTION) \
   { MOD, XK_j,     ACTION##stack, {.i = INC(+1) } }, \
+  { MOD, XK_Down,  ACTION##stack, {.i = INC(+1) } }, \
   { MOD, XK_k,     ACTION##stack, {.i = INC(-1) } }, \
+  { MOD, XK_Up,    ACTION##stack, {.i = INC(-1) } }, \
   { MOD, XK_x,     ACTION##stack, {.i = PREVSEL } }, \
+  { MOD, XK_h,     ACTION##stack, {.i = LEFTSEL} }, \
+  { MOD, XK_l,     ACTION##stack, {.i = RIGHTSEL} }, \
+  { MOD, XK_Left,  ACTION##stack, {.i = LEFTSEL} }, \
+  { MOD, XK_Right, ACTION##stack, {.i = RIGHTSEL} }, \
   { MOD, XK_q,     ACTION##stack, {.i = 0 } }, \
   { MOD, XK_a,     ACTION##stack, {.i = 1 } }, \
+  { MOD, XK_Prior, ACTION##stack, {.i = 0 } }, \
+  { MOD, XK_Next,  ACTION##stack, {.i = -1 } },\
   { MOD, XK_s,     ACTION##stack, {.i = 2 } }, \
   { MOD, XK_d,     ACTION##stack, {.i = 3 } }, \
   { MOD, XK_z,     ACTION##stack, {.i = -1 } },
@@ -175,12 +183,12 @@ static Key keys[] = {
   { MODKEY,                       XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
   { MODKEY,                       XK_y,      spawn,          SHCMD("clipmenu-run")},
   { MODKEY,                       XK_p,      spawn,          SHCMD("dmenu-prockill")},
-  { MODKEY,                       XK_Home,   spawn,          SHCMD("qutebrowser")},
+  { MODKEY,                       XK_Home,   spawn,          SHCMD("jagexlauncher")},
+  { MODKEY,                       XK_End,    spawn,          SHCMD("")},
   { MODKEY,                       XK_Insert, spawn,          SHCMD("brave")},
-  { MODKEY,                       XK_Prior,  spawn,          SHCMD("osrs-launcher")},
   { MODKEY,                       XK_Delete, spawn,          SHCMD("passmenu-otp")},
-  { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-winswitch")},
-  { MODKEY,                       XK_l,      spawn,          SHCMD("dmenu-dwm-layouts")},
+  { MODKEY,                       XK_semicolon,spawn,        SHCMD("dmenu-winswitch")},
+  { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-dwm-layouts")},
   { MODKEY,                       XK_F1,     spawn,          SHCMD("fzf-filesearch")},
   { MODKEY,                       XK_grave,  spawn,          SHCMD("dwm-toggleswal")},
   STACKKEYS(MODKEY,                          focus)

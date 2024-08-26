@@ -20,11 +20,11 @@
  *
  * To understand everything else, start reading main().
  */
-#include <errno.h>
 #include <locale.h>
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -63,10 +63,13 @@
 #define ISFULLSCREEN(C)         (C && (C->fstag != -1))
 #define ISVISIBLEONTAG(C, T)    (C->tags & T)
 #define ISVISIBLESTICKY(C)      (C->mon->sticky == C && (!C->mon->pertag->fullscreens[C->mon->pertag->curtag] || ISFULLSCREEN(C)))
-#define ISVISIBLE(C)            (C && (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || ISVISIBLESTICKY(C)))
+#define ISVISIBLE(C)            (C && C->mon && (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || ISVISIBLESTICKY(C)))
 #define PREVSEL                 3000
+#define LEFTSEL                 2000
+#define RIGHTSEL                1000
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 #define MOD(N,M)                ((N)%(M) < 0 ? (N)%(M) + (M) : (N)%(M))
+#define ROUNDTOZERO(X)          ((fmod(X, 0.5)) ? round(X) : floor(X))
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw + gappx)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw + gappx)
@@ -131,8 +134,8 @@ struct Client {
   int basew, baseh, incw, inch, maxw, maxh, minw, minh, hintsvalid;
   int bw, oldbw;
   int initx, inity;
-  unsigned int tags, fstag, cmesetfs;
-  int isfixed, isfloating, isurgent, neverfocus, oldstate, needresize;
+  unsigned int tags, cmesetfs;
+  int fstag, isfixed, isfloating, isurgent, neverfocus, oldstate, needresize;
   int alwaysontop, ignoremoverequest, grabonurgent, noswallow, isterminal;
   pid_t pid;
   char scratchkey;
@@ -1642,7 +1645,7 @@ grabkeys(void)
 void
 resetnmaster(const Arg *arg)
 {
-  selmon->nmaster = 1;
+  selmon->nmaster = selmon->pertag->nmasters[selmon->pertag->curtag] = 1;
   arrange(selmon);
 }
 
@@ -2845,7 +2848,7 @@ showhide(Client *c)
     showhide(c->snext);
   } else {
     /* hide clients bottom up */
-    if (c)
+    if (c && c->snext != c)
       showhide(c->snext);
     else
       return;
@@ -2880,7 +2883,8 @@ spawn(const Arg *arg)
 
 int
 stackpos(const Arg *arg) {
-  int n, i;
+  int n, i, k, lf, rf;
+  float f;
   Client *c, *l;
 
   if (!selmon->clients)
@@ -2893,17 +2897,51 @@ stackpos(const Arg *arg) {
     for (i = 0, c = selmon->clients; c != l; i += ISVISIBLE(c) ? 1 : 0, c = c->next);
     return i;
   }
+  else if (arg->i == LEFTSEL) {
+    for (i = 0, c = selmon->clients; c != selmon->sel; i += ISVISIBLE(c) ? 1 : 0, c = c->next);
+    for (n = 0, c = selmon->clients; c; n += ISVISIBLE(c) ? 1 : 0, c = c->next);
+    if (selmon->lt[selmon->sellt]->arrange == dwindle) {
+      k = MOD(i+1, 2) + 1;
+    } else if (selmon->lt[selmon->sellt]->arrange == grid) {
+      k = round(sqrt(n));
+    } else if (selmon->lt[selmon->sellt]->arrange == tile) {
+      f = (float)(n-selmon->nmaster) / selmon->nmaster;
+      lf = ceil((i+1-selmon->nmaster) / f) - 1;
+      k = i - lf;
+    }
+    else {
+      k = 0;
+    }
+    return i-k >= 0 ? i-k : i;
+  }
+  else if (arg->i == RIGHTSEL) {
+    for (i = 0, c = selmon->clients; c != selmon->sel; i += ISVISIBLE(c) ? 1 : 0, c = c->next);
+    for (n = 0, c = selmon->clients; c; n += ISVISIBLE(c) ? 1 : 0, c = c->next);
+    if (selmon->lt[selmon->sellt]->arrange == dwindle) {
+      k = !MOD(i, 2) ? 2 : 0;
+    } else if (selmon->lt[selmon->sellt]->arrange == grid) {
+      int c = round(sqrt(n));
+      k = c+i > n-1 ? 1 : c;
+    } else if (selmon->lt[selmon->sellt]->arrange == tile) {
+      f = (float)(n-selmon->nmaster) / selmon->nmaster;
+      rf = ((selmon->nmaster-1) + floor(i*f)) + 1 ;
+      k = rf - i;
+    }
+    else {
+      k = 0;
+    }
+    return i+k <= n ? i+k : i;
+  }
   else if (ISINC(arg->i)) {
     if (!selmon->sel)
       return -1;
     for (i = 0, c = selmon->clients; c != selmon->sel; i += ISVISIBLE(c) ? 1 : 0, c = c->next);
-    for (n = i; c; n += ISVISIBLE(c) ? 1 : 0, c = c->next);
-    /* return MOD(i + GETINC(arg->i), n); */
+    for (n = 0, c = selmon->clients; c; n += ISVISIBLE(c) ? 1 : 0, c = c->next);
     return MIN(MAX(i + GETINC(arg->i), 0), n-1);
   }
   else if (arg->i < 0) {
-    for (i = 0, c = selmon->clients; c; i += ISVISIBLE(c) ? 1 : 0, c = c->next);
-    return MAX(i + arg->i, 0);
+    for (n = 0, c = selmon->clients; c; n += ISVISIBLE(c) ? 1 : 0, c = c->next);
+    return MAX(n + arg->i, 0);
   }
   else
     return arg->i;
@@ -3343,7 +3381,8 @@ unmanage(Client *c, int destroyed)
     XSetErrorHandler(xerror);
     XUngrabServer(dpy);
   }
-  setfullscreen(c, 0, 0);
+  if (ISFULLSCREEN(c))
+    setfullscreen(c, 0, 0);
   if (m->sticky == c)
     m->sticky = NULL;
   free(c);
