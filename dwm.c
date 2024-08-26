@@ -321,9 +321,7 @@ static Monitor *systraytomon(Monitor *m);
 static void spawnscratch(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
-static void tile(Monitor *m, int s);
-static void lefttile(Monitor *m);
-static void righttile(Monitor *m);
+static void tile(Monitor *m);
 static void togglebar(const Arg *arg);
 static void toggleswal(const Arg *arg);
 static void togglefloating(const Arg *arg);
@@ -2996,19 +2994,7 @@ tagmon(const Arg *arg)
 }
 
 void
-lefttile(Monitor *m)
-{
-  tile(m, 0);
-}
-
-void
-righttile(Monitor *m)
-{
-  tile(m, 1);
-}
-
-void
-tile(Monitor *m, int s)
+tile(Monitor *m)
 {
   unsigned int i, n, h, mw, my, ty;
   float mfacts = 0, sfacts = 0;
@@ -3030,19 +3016,13 @@ tile(Monitor *m, int s)
   for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
   if (i < m->nmaster) {
     h = (m->wh - my) * (c->cfact / mfacts);
-    if (s)
-      resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
-    else
-      resize(c, m->wx + m->ww - mw, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+    resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
     if (my + HEIGHT(c) < m->wh)
       my += HEIGHT(c);
     mfacts -= c->cfact;
   } else {
     h = (m->wh - ty) * (c->cfact / sfacts);
-    if (s)
-      resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
-    else
-      resize(c, m->wx, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+    resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
     if (ty + HEIGHT(c) < m->wh)
       ty += HEIGHT(c);
     sfacts -= c->cfact;
