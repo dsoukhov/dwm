@@ -77,6 +77,7 @@
 #define TRUNC(X,A,B)            (MAX((A), MIN((X), (B))))
 
 #define SYSTEM_TRAY_REQUEST_DOCK    0
+#define MAX_TOP_CLIENTS 100
 
 /* XEMBED messages */
 #define XEMBED_EMBEDDED_NOTIFY      0
@@ -920,14 +921,18 @@ configure(Client *c)
 void
 configuremonlayout(Monitor *m)
 {
-  Client *c, *t = NULL, *s = NULL, *f = NULL;
+  Client *c, *s = NULL, *f = NULL;
+  Client *tops[MAX_TOP_CLIENTS];
+  int i = 0;
   int hasfloat = 0;
   Window sib;
 
   for (c = m->stack; c; c = c->snext) {
     if (ISVISIBLE(c)) {
-      if (c->alwaysontop)
-        t = c;
+      if (i < MAX_TOP_CLIENTS && c->alwaysontop) {
+        tops[i] = c;
+        i++;
+      }
       if (c->scratchkey)
         s = c;
       if (ISFULLSCREEN(c))
@@ -940,7 +945,7 @@ configuremonlayout(Monitor *m)
   if (!hasfloat && m->lt[m->sellt]->arrange != monocle && m->lt[m->sellt]->arrange != deck)
     return;
 
-  if (!t) {
+  if (i == 0) {
     sib = m->barwin;
     for (c = m->stack; c; c = c->snext) {
       if (ISVISIBLE(c)) {
@@ -968,9 +973,12 @@ configuremonlayout(Monitor *m)
         }
       }
     }
-    configureclientpos(t, m->stack->win, TopIf);
-    if (t && s && t != s)
-      configureclientpos(s, t->win, Below);
+    configureclientpos(tops[0], m->stack->win, TopIf);
+    if (tops[0] && s && tops[0] != s)
+      configureclientpos(s, tops[0]->win, Below);
+    for (int k=1; k < i; k++) {
+      configureclientpos(tops[k], tops[k-1]->win, Below);
+    }
   }
 }
 
