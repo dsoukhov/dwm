@@ -182,7 +182,7 @@ static Key keys[] = {
   { MODKEY,                       XK_Print,  spawn,          SHCMD("sleep 0.2 && scrot -s -e 'mv $f ~/Pictures/screenshots && notify-send \"$f saved\"'")},
   { MODKEY,                       XK_y,      spawn,          SHCMD("clipmenu-run")},
   { MODKEY,                       XK_p,      spawn,          SHCMD("dmenu-prockill")},
-  { MODKEY,                       XK_Home,   spawn,          SHCMD("jagexlauncher")},
+  { MODKEY,                       XK_Home,   spawn,          SHCMD("osrs")},
   { MODKEY,                       XK_End,    spawn,          SHCMD("")},
   { MODKEY,                       XK_Insert, spawn,          SHCMD("brave")},
   { MODKEY,                       XK_Delete, spawn,          SHCMD("passmenu-otp")},
