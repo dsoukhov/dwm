@@ -978,7 +978,7 @@ configuremonlayout(Monitor *m)
 
   for (c = m->stack; c; c = c->snext) {
     if (ISVISIBLE(c)) {
-      if (i < MAX_TOP_CLIENTS && c->alwaysontop) {
+      if (i < MAX_TOP_CLIENTS && c->alwaysontop && c->isfloating) {
         tops[i] = c;
         i++;
       }
