@@ -19,7 +19,7 @@ pkill autorandr-launcher
 autorandr-launcher -d
 pkill autorandr
 autorandr -c
-pkill udiskie
-udiskie -anT &
+# pkill udiskie
+# udiskie -anT &
 pkill alerter
 alerter &
