@@ -11,8 +11,14 @@ all: options dwm
 options:
 	@echo dwm build options:
 	@echo "CFLAGS   = ${CFLAGS}"
+	@echo "CFLAGS_DEBUG  = ${CFLAGS_DEBUG}"
 	@echo "LDFLAGS  = ${LDFLAGS}"
 	@echo "CC       = ${CC}"
+
+debug:
+	CFLAGS="${CFLAGS_DEBUG}"
+debug: clean dwm
+	mv dwm dwm-debug
 
 .c.o:
 	${CC} -c ${CFLAGS} $<
