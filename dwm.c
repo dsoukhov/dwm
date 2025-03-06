@@ -63,7 +63,7 @@
 #define ISFULLSCREEN(C)         (C && (C->fstag != -1))
 #define ISVISIBLEONTAG(C, T)    (C->tags & T)
 #define ISVISIBLESTICKY(C)      (C->mon->sticky == C && (!C->mon->pertag->fullscreens[C->mon->pertag->curtag] || ISFULLSCREEN(C)))
-#define ISVISIBLE(C)            (C && C->mon && (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || ISVISIBLESTICKY(C)))
+#define ISVISIBLE(C)            (C && C->mon && (C->mon->seltags == 1 || C->mon->seltags == 0) && (ISVISIBLEONTAG(C, C->mon->tagset[C->mon->seltags]) || ISVISIBLESTICKY(C)))
 #define PREVSEL                 3000
 #define LEFTSEL                 2000
 #define RIGHTSEL                1000
@@ -224,6 +224,7 @@ typedef struct {
 
 /* function declarations */
 static void applyrules(Client *c);
+static void dwmdebug(void);
 static int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
 static void arrange(Monitor *m);
 static void aspectresize(const Arg *arg);
@@ -425,6 +426,16 @@ struct Pertag {
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
+
+static void
+dwmdebug(void)
+{
+  volatile int a = 0;
+  volatile int b = 0;
+  while(a == 0){
+    b = 1;
+  }
+}
 
 /* function implementations */
 void
@@ -4126,6 +4137,11 @@ load_xresources(void)
 int
 main(int argc, char *argv[])
 {
+#ifdef DEBUG
+  dwmdebug();
+#else
+  runautostart();
+#endif
   if (argc == 2 && !strcmp("-v", argv[1]))
     die("dwm-"VERSION);
   else if (argc != 1)
@@ -4145,7 +4161,6 @@ main(int argc, char *argv[])
     die("pledge");
 #endif /* __OpenBSD__ */
   scan();
-  runautostart();
   run();
   cleanup();
   XCloseDisplay(dpy);

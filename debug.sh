@@ -1,9 +1,7 @@
 #!/usr/bin/env sh
 
-# Make sure to build dwm with the commented out CFLAGS that include -g
-# and add -DDEBUG to those flags.
-
-Xephyr -br -ac -noreset -screen 800x600 :2 &
-export DISPLAY=:2
-make
-gdb ./dwm
+make debug
+startx ~/.xinitrc_test -- /usr/bin/Xephyr -screen 800x600 -br -reset -terminate :1 2> /dev/null &
+sleep 2
+dwmpid=$(pgrep -n dwm-debug)
+sudo -E gdb -p ${dwmpid}
