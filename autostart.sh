@@ -16,8 +16,6 @@ pkill -f 'pinknoise'
 pinknoise &
 pkill -f 'alerter'
 alertpolltime="30s" alerter &
-pkill udiskie
-udiskie -anT &
 pkill -f 'autorandr-launcher'
 autorandr-launcher -d
 pkill autorandr
