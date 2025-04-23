@@ -2506,10 +2506,10 @@ setfullscreenontag(Client *c, int fullscreen, int tag, int f)
 void
 setfullscreen(Client *c, int fullscreen, int f)
 {
-  int tag = c->mon->pertag->curtag;
-
-  if (!c)
+  if (!c || !c->mon || !c->mon->pertag || !c->mon->pertag->curtag)
     return;
+
+  int tag = c->mon->pertag->curtag;
 
   if ((c->scratchkey && !fullscreen))
     tag = c->fstag;
