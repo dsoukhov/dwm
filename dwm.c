@@ -172,7 +172,6 @@ struct Monitor {
   unsigned int seltags;
   unsigned int sellt;
   unsigned int tagset[2];
-  int showbar;
   int topbar;
   Client *sticky;
   Client *clients;
@@ -325,6 +324,8 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void tile(Monitor *m);
 static void togglebar(const Arg *arg);
+static void hidebar(Monitor *mon);
+static void displaybar(Monitor *mon);
 static void toggleswal(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void togglefullscr(const Arg *arg);
@@ -1153,7 +1154,6 @@ createmon(void)
   m->tagset[0] = m->tagset[1] = 1;
   m->mfact = mfact;
   m->nmaster = nmaster;
-  m->showbar = showbar;
   m->topbar = topbar;
   m->lt[0] = &layouts[0];
   m->lt[1] = &layouts[1 % LENGTH(layouts)];
@@ -1172,7 +1172,7 @@ createmon(void)
     m->pertag->ltidxs[i][1] = m->lt[1];
     m->pertag->sellts[i] = m->sellt;
 
-    m->pertag->showbars[i] = m->showbar;
+    m->pertag->showbars[i] = showbar;
     m->pertag->attachdir[i] = defaultatchdir;
     m->pertag->fullscreens[i] = NULL;
   }
@@ -1277,7 +1277,7 @@ drawbar(Monitor *m)
   unsigned int i, occ = 0, urg = 0;
   Client *c;
 
-  if (!m->showbar || ISFULLSCREEN(m->sel))
+  if (!m->pertag->showbars[m->pertag->curtag] || ISFULLSCREEN(m->sel) || m->pertag->fullscreens[m->pertag->curtag])
     return;
 
   if (showsystray && m == systraytomon(m) && !systrayonleft)
@@ -2623,6 +2623,7 @@ setfullscreenontag(Client *c, int fullscreen, int tag, int f)
     raiseclient(c);
     if (f)
       focus(c);
+    hidebar(c->mon);
     arrange(c->mon);
   } else if (!fullscreen && ISFULLSCREEN(c)) {
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
@@ -2638,6 +2639,7 @@ setfullscreenontag(Client *c, int fullscreen, int tag, int f)
     resizeclient(c, c->x, c->y, c->w, c->h);
     if (f)
       focus(NULL);
+    displaybar(c->mon);
     arrange(c->mon);
   }
 }
@@ -3219,22 +3221,39 @@ toggleswal(const Arg *arg)
 }
 
 void
-togglebar(const Arg *arg)
+displaybar(Monitor *mon)
 {
-  selmon->showbar = selmon->pertag->showbars[selmon->pertag->curtag] = !selmon->showbar;
-  updatebarpos(selmon);
-  resizebarwin(selmon);
+  XWindowChanges wc;
+  mon->pertag->showbars[mon->pertag->curtag] = 1;
+  updatebarpos(mon);
+  resizebarwin(mon);
   if (showsystray) {
-    XWindowChanges wc;
-    if (!selmon->showbar)
-      wc.y = -bh;
-    else if (selmon->showbar) {
-      wc.y = 0;
-      if (!selmon->topbar)
-        wc.y = selmon->mh - bh;
-    }
+    wc.y = 0;
+    if (!mon->topbar)
+      wc.y = mon->mh - bh;
     XConfigureWindow(dpy, systray->win, CWY, &wc);
   }
+}
+
+void
+hidebar(Monitor *mon)
+{
+  XWindowChanges wc;
+  mon->pertag->showbars[mon->pertag->curtag] = 0;
+  updatebarpos(mon);
+  resizebarwin(mon);
+  if (showsystray) {
+    wc.y = -bh;
+    XConfigureWindow(dpy, systray->win, CWY, &wc);
+  }
+}
+
+void
+togglebar(const Arg *arg)
+{
+  if (ISFULLSCREEN(selmon->sel) || selmon->pertag->fullscreens[selmon->pertag->curtag])
+    return;
+  selmon->pertag->showbars[selmon->pertag->curtag]  ? hidebar(selmon) : displaybar(selmon);
   arrange(selmon);
 }
 
@@ -3457,7 +3476,8 @@ updatebarpos(Monitor *m)
 {
   m->wy = m->my;
   m->wh = m->mh;
-  if (m->showbar) {
+  if (m->pertag->showbars[m->pertag->curtag])
+  {
     m->wh -= bh;
     m->by = m->topbar ? m->wy : m->wy + m->wh;
     m->wy = m->topbar ? m->wy + bh : m->wy;
@@ -3829,8 +3849,7 @@ view(const Arg *arg)
   selmon->lt[selmon->sellt] = selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt];
   selmon->lt[selmon->sellt^1] = selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt^1];
 
-  if (selmon->showbar != selmon->pertag->showbars[selmon->pertag->curtag])
-    togglebar(NULL);
+  selmon->pertag->showbars[selmon->pertag->curtag] ? displaybar(selmon) : hidebar(selmon);
 
   if (selmon->pertag->prevtag == 0) {
     setfullscreenontag(selmon->pertag->fullscreens[0], 0, 0, 0);
