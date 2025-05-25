@@ -5,8 +5,8 @@ xsetroot -solid "#000000"
 #feh --bg-scale ~/Pictures/wallpaper/wp1.png &
 pkill clipmenud
 CM_DIR=~/.cache clipmenud &
-# pkill picom
-# picom -b
+pkill picom
+picom -b
 pkill xsettingsd
 xsettingsd -c ~/.xsettingsd &
 dunst-cfg &
