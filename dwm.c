@@ -324,8 +324,8 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void tile(Monitor *m);
 static void togglebar(const Arg *arg);
-static void hidebar(Monitor *mon);
-static void displaybar(Monitor *mon);
+static void hidebar(Monitor *mon, int tag);
+static void displaybar(Monitor *mon, int tag);
 static void toggleswal(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void togglefullscr(const Arg *arg);
@@ -2623,7 +2623,7 @@ setfullscreenontag(Client *c, int fullscreen, int tag, int f)
     raiseclient(c);
     if (f)
       focus(c);
-    hidebar(c->mon);
+    hidebar(c->mon, tag);
     arrange(c->mon);
   } else if (!fullscreen && ISFULLSCREEN(c)) {
     XChangeProperty(dpy, c->win, netatom[NetWMState], XA_ATOM, 32,
@@ -2639,7 +2639,7 @@ setfullscreenontag(Client *c, int fullscreen, int tag, int f)
     resizeclient(c, c->x, c->y, c->w, c->h);
     if (f)
       focus(NULL);
-    displaybar(c->mon);
+    displaybar(c->mon, tag);
     arrange(c->mon);
   }
 }
@@ -3221,10 +3221,10 @@ toggleswal(const Arg *arg)
 }
 
 void
-displaybar(Monitor *mon)
+displaybar(Monitor *mon, int tag)
 {
   XWindowChanges wc;
-  mon->pertag->showbars[mon->pertag->curtag] = 1;
+  mon->pertag->showbars[tag] = 1;
   updatebarpos(mon);
   resizebarwin(mon);
   if (showsystray) {
@@ -3236,10 +3236,10 @@ displaybar(Monitor *mon)
 }
 
 void
-hidebar(Monitor *mon)
+hidebar(Monitor *mon, int tag)
 {
   XWindowChanges wc;
-  mon->pertag->showbars[mon->pertag->curtag] = 0;
+  mon->pertag->showbars[tag] = 0;
   updatebarpos(mon);
   resizebarwin(mon);
   if (showsystray) {
@@ -3253,7 +3253,7 @@ togglebar(const Arg *arg)
 {
   if (ISFULLSCREEN(selmon->sel) || selmon->pertag->fullscreens[selmon->pertag->curtag])
     return;
-  selmon->pertag->showbars[selmon->pertag->curtag]  ? hidebar(selmon) : displaybar(selmon);
+  selmon->pertag->showbars[selmon->pertag->curtag]  ? hidebar(selmon, selmon->pertag->curtag) : displaybar(selmon, selmon->pertag->curtag);
   arrange(selmon);
 }
 
@@ -3849,7 +3849,7 @@ view(const Arg *arg)
   selmon->lt[selmon->sellt] = selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt];
   selmon->lt[selmon->sellt^1] = selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt^1];
 
-  selmon->pertag->showbars[selmon->pertag->curtag] ? displaybar(selmon) : hidebar(selmon);
+  selmon->pertag->showbars[selmon->pertag->curtag] ? displaybar(selmon, selmon->pertag->curtag) : hidebar(selmon, selmon->pertag->curtag);
 
   if (selmon->pertag->prevtag == 0) {
     setfullscreenontag(selmon->pertag->fullscreens[0], 0, 0, 0);
