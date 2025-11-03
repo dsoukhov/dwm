@@ -9,7 +9,7 @@ pkill picom
 picom -b
 pkill xsettingsd
 xsettingsd -c ~/.xsettingsd &
-dunst-cfg &
+dunst-cfg
 pkill dwmblocks
 dwmblocks &
 pkill -f 'pinknoise'
