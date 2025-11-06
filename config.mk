@@ -27,8 +27,8 @@ LIBS = -lm -L${X11LIB} -lX11 ${XINERAMALIBS} ${FREETYPELIBS} -lX11-xcb -lxcb -lx
 
 # flags
 CPPFLAGS = -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700L -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
-CFLAGS   = -g -std=c99 -pedantic -Wall -O0 ${INCS} ${CPPFLAGS}
-CFLAGS_DEBUG   = -g -DDEBUG -std=c99 -pedantic -Wall -O0 ${INCS} ${CPPFLAGS}
+CFLAGS   = -ggdb3 -std=c99 -pedantic -Wall -O0 ${INCS} ${CPPFLAGS}
+CFLAGS_DEBUG   = -ggdb3 -DDEBUG -std=c99 -pedantic -Wall -O0 ${INCS} ${CPPFLAGS}
 LDFLAGS  = ${LIBS}
 
 # Solaris

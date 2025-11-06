@@ -15,8 +15,7 @@ options:
 	@echo "LDFLAGS  = ${LDFLAGS}"
 	@echo "CC       = ${CC}"
 
-debug:
-	CFLAGS="${CFLAGS_DEBUG}"
+debug: CFLAGS=${CFLAGS_DEBUG}
 debug: clean dwm
 	mv dwm dwm-debug
 
@@ -54,4 +53,4 @@ uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/dwm\
 		${DESTDIR}${MANPREFIX}/man1/dwm.1
 
-.PHONY: all options clean dist install uninstall
+.PHONY: all options clean dist install uninstall debug
