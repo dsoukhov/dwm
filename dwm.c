@@ -730,7 +730,8 @@ unswallow(Client *c)
   c->win = c->swallowing->win;
 
   /* unfullscreen the client */
-  setfullscreen(c->swallowing, 0, 0);
+  if ISFULLSCREEN(c->swallowing)
+    setfullscreen(c->swallowing, 0, 0);
   free(c->swallowing);
   c->swallowing = NULL;
 
@@ -2650,10 +2651,7 @@ setfullscreen(Client *c, int fullscreen, int f)
   if (!c || !c->mon || !c->mon->pertag || !c->mon->pertag->curtag)
     return;
 
-  int tag = c->mon->pertag->curtag;
-
-  if ((c->scratchkey && !fullscreen))
-    tag = c->fstag;
+  int tag = fullscreen ? c->mon->pertag->curtag : c->fstag;
 
   setfullscreenontag(c, fullscreen, tag, f);
 }
@@ -3192,7 +3190,7 @@ grabfocus(Client *c)
       view(&a);
     }
     Client *fs = c->mon->pertag->fullscreens[c->mon->pertag->curtag];
-    if (fs && fs != c)
+    if (fs && fs != c && ISFULLSCREEN(fs))
       setfullscreen(fs, 0, 0);
     if (c->isfloating || !c->mon->lt[c->mon->sellt]->arrange
       || c->mon->lt[c->mon->sellt]->arrange == deck
@@ -3297,7 +3295,8 @@ togglescratch(const Arg *arg)
 
   if (found) {
     vis = ISVISIBLE(c);
-    setfullscreen(c, 0, 0);
+    if (ISFULLSCREEN(c))
+      setfullscreen(c, 0, 0);
     if (m == selmon) {
       if (!vis) {
         sethidden(c, 0);
@@ -3312,7 +3311,8 @@ togglescratch(const Arg *arg)
     }
     for (k = selmon->clients; k; k = k->next) {
       if (c != k && k->scratchkey && ISVISIBLE(k)) {
-        setfullscreen(k, 0, 0);
+        if (ISFULLSCREEN(k))
+          setfullscreen(k, 0, 0);
         sethidden(k, 1);
       }
     }
@@ -3321,7 +3321,8 @@ togglescratch(const Arg *arg)
     spawnscratch(arg);
     for (k = selmon->clients; k; k = k->next) {
       if (k->scratchkey && ISVISIBLE(k)) {
-        setfullscreen(k, 0, 0);
+        if (ISFULLSCREEN(k))
+          setfullscreen(k, 0, 0);
         sethidden(k, 1);
       }
     }
@@ -3334,7 +3335,8 @@ togglesticky(const Arg *arg)
 {
   if (!selmon->sel || selmon->sel->scratchkey)
     return;
-  setfullscreen(selmon->sel, 0, 0);
+  if (ISFULLSCREEN(selmon->sel))
+    setfullscreen(selmon->sel, 0, 0);
   if (selmon->sticky)
     selmon->sticky = NULL;
   else if(!selmon->sticky)
@@ -3819,7 +3821,7 @@ view(const Arg *arg)
 
   if ((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
     return;
-  if (selmon->sticky)
+  if (selmon->sticky && ISFULLSCREEN(selmon->sticky))
       setfullscreen(selmon->sticky, 0, 0);
   selmon->seltags ^= 1; /* toggle sel tagset */
   if (arg->ui & TAGMASK) {
