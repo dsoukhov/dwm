@@ -190,6 +190,8 @@ static Key keys[] = {
   { MODKEY,                       XK_space,  spawn,          SHCMD("dmenu-dwm-layouts")},
   { MODKEY,                       XK_F1,     spawn,          SHCMD("fzf-filesearch")},
   { MODKEY,                       XK_grave,  spawn,          SHCMD("dwm-toggleswal")},
+  { MODKEY,                       XK_Pause,  spawn,          SHCMD("remote-attach")},
+  { MODKEY|ShiftMask,             XK_Pause,  spawn,          SHCMD("xpra detach")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push)
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
