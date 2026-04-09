@@ -178,6 +178,8 @@ static Key keys[] = {
   { MODKEY,                       XK_Delete,                 spawn, SHCMD("passmenu-otp")},
   { MODKEY,                       XK_semicolon,              spawn, SHCMD("dmenu-winswitch")},
   { MODKEY,                       XK_space,                  spawn, SHCMD("dmenu-dwm-layouts")},
+  { MODKEY,                       XK_Pause,                  spawn, SHCMD("remote-attach")},
+  { MODKEY|ShiftMask,             XK_Pause,                  spawn, SHCMD("xpra detach")},
   STACKKEYS(MODKEY,                          focus)
   STACKKEYS(MODKEY|ShiftMask,                push )
   { MODKEY|ControlMask,           XK_l,      setmfact,       {.f = +0.05} },
