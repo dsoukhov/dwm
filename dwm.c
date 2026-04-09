@@ -133,8 +133,8 @@ struct Client {
   int basew, baseh, incw, inch, maxw, maxh, minw, minh, hintsvalid;
   int bw, oldbw;
   int initx, inity;
-  unsigned int tags, fstag;
-  int isfixed, isfloating, isurgent, neverfocus, oldstate, needresize;
+  unsigned int tags;
+  int fstag, isfixed, isfloating, centered, isurgent, neverfocus, oldstate, needresize;
   int alwaysontop, ignoremoverequest, grabonurgent, noswallow, isterminal;
   pid_t pid;
   char scratchkey;
@@ -187,6 +187,7 @@ typedef struct {
   const char *title;
   unsigned int tags;
   int isfloating;
+  int centered;
   int monitor;
   int ignoremoverequest;
   int grabonurgent;
@@ -447,6 +448,7 @@ applyrules(Client *c)
 
   /* rule matching */
   c->isfloating = 0;
+  c->centered = 0;
   c->tags = 0;
   c->ignoremoverequest = 0;
   c->grabonurgent = 1;
@@ -466,6 +468,7 @@ applyrules(Client *c)
     && (!r->instance || strstr(instance, r->instance)))
     {
       c->isfloating = r->isfloating;
+      c->centered = r->centered;
       c->tags |= r->tags;
       c->scratchkey = r->scratchkey;
       c->noswallow= r->noswallow;
@@ -1061,6 +1064,10 @@ configurerequest(XEvent *e)
       if (ev->value_mask & CWHeight) {
         c->oldh = c->h;
         c->h = ev->height;
+      }
+      if (c->isfloating && c->centered) {
+        c->x = selmon->mx + (selmon->mw / 2 - WIDTH(c) / 2);
+        c->y = selmon->my + (selmon->mh / 2 - HEIGHT(c) / 2);
       }
       if ((c->x + c->w) > m->mx + m->mw && c->isfloating)
         c->x = m->mx + (m->mw / 2 - WIDTH(c) / 2); /* center in x direction */
